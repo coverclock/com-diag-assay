@@ -1,0 +1,113 @@
+ZERO = '0'
+
+EQUAL = '='
+
+COLON = ':'
+
+SEMICOLON = ';'
+
+OCTOTHORPE = '#'
+
+ESCAPE = '\'
+
+LEFT = '['
+
+RIGHT = ']'
+
+DOUBLE = '"'
+
+SINGLE = '\''
+
+################################################################################
+
+WHITESPACE = ' ' | '\t'
+
+WHITESPACES = WHITESPACE WHITESPACES | NIL
+
+################################################################################
+
+OCT_DIG_FIRST = ZERO | '1' | '2' | '3'
+
+OCT_DIG = OCT_DIG_FIRST | '4' | '5' | '6' | '7'
+
+DEC_DIG = OCTAL_DIG | '8' | '9'
+
+A_OR_B_LC = 'a' | 'b'
+
+HEX_DIG_LC = A_OR_B_LC | 'c' | 'd' | 'e' | 'f'
+
+HEX_DIG_UC = 'A' | 'B' | 'C' | 'D' | 'E' | 'F'
+
+HEX_DIG = DEC_DIG | HEX_DIG_LC | HEX_DIG_UC
+
+OCT_NUM = ZERO OCT_DIG_FIRST OCT_DIG OCT_DIG
+
+HEX_PFX_LC = 'x'
+
+HEX_PFX_UC = 'X'
+
+HEX_PFX = HEX_PFX_LC | HEX_PFX_UC
+
+HEX_NUM = HEX_PFX HEX_DIG HEX_DIG HEX_DIG HEX_DIG
+
+ESC_ARG = ESCAPE | ZERO | A_OR_B_LC | 't' | 'r' | 'n' | SEMICOLON | OCTOTHORPE | EQUAL | COLON | LEFT | RIGHT | DOUBLE | SINGLE | OCT_NUM | HEX_NUM
+
+ESC_SEQ = ESCAPE ESC_ARG
+
+################################################################################
+
+LC = HEX_DIGIT_LC | 'g' | 'h' | 'i' | ... | 'w' | HEX_PFX_LC | 'y' | 'z'
+
+UC = HEX_DIGIT_UC | 'G' | 'H' | 'I' | ... | 'W' | HEX_PFX_UC | 'Y' | 'Z'
+
+SPECIAL = '!' | DOUBLE | OCTOTHORPE | '$' | '%' | '&' | SINGLE | '(' | ')' | '*' | '+' | '`' | '-' | '.' | ESCAPE | COLON | SEMICOLON | '<' | EQUAL | '>' | '?' | '@' | LEFT | ESCAPE | RIGHT | '^' | '_' | '{' | '|' | '{' | '~'
+
+ANY = LC | UC | DEC_DIG | SPECIAL | WHITESPACE
+
+SKIP = ANY SKIP | NIL
+
+################################################################################
+
+NAME_CHAR = ESC_SEQ | LC | UC | DEC_DIG | '!' | '$' | '%' | '&' | '(' | ')' | '*' | '+' | '`' | '-' | '.' | '/' | '<' | '>' | '?' | '@' | '^' | '_' | '{' | '|' | '{' | '~'
+
+NAME_CHARS = NAME_CHAR NAME_CHARS | NIL
+
+NAME = NAME_CHAR NAME_CHARS
+
+################################################################################
+
+DOUBLE_CHAR = LC | UC | DEC_DIG | ESC_SEQ | WHITESPACE | '!' | OCTOTHORPE | '$' | '%' | '&' | SINGLE | '(' | ')' | '*' | '+' | '`' | '-' | '.' | COLON | SEMICOLON | '<' | EQUAL | '>' | '?' | '@' | LEFT | RIGHT | '^' | '_' | '{' | '|' | '{' | '~'
+
+DOUBLE_QUOTED = DOUBLE_CHAR DOUBLE_QUOTED | NIL
+
+SINGLE_CHAR = LC | UC | DEC_DIG | ESC_SEQ | WHITESPACE | '!' | DOUBLE | OCTOTHORPE | '$' | '%' | '&' | '(' | ')' | '*' | '+' | '`' | '-' | '.' | COLON | SEMICOLON | '<' | EQUAL | '>' | '?' | '@' | LEFT | RIGHT | '^' | '_' | '{' | '|' | '{' | '~'
+
+SINGLE_QUOTED = SINGLE_CHAR SINGLE_QUOTED | NIL
+
+UNQUOTED_CHAR_INIT = LC | UC | DEC_DIG | ESC_SEQ | '!' | '$' | '%' | '&' | '(' | ')' | '*' | '+' | '`' | '-' | '.' | COLON | '<' | EQUAL | '>' | '?' | '@' | LEFT | RIGHT | '^' | '_' | '{' | '|' | '{' | '~'
+
+UNQUOTED_CHAR = LC | UC | DEC_DIG | ESC_SEQ | WHITESPACE | '!' | DOUBLE | '$' | '%' | '&' | SINGLE | '(' | ')' | '*' | '+' | '`' | '-' | '.' | COLON | '<' | EQUAL | '>' | '?' | '@' | LEFT | RIGHT | '^' | '_' | '{' | '|' | '{' | '~'
+
+UNQUOTED_CHARS = UNQUOTED_CHAR UNQUOTED_CHARS | NIL
+
+UNQUOTED = UNQUOTED_CHAR_INIT UNQUOTED_CHARS
+
+VALUE = DOUBLE DOUBLE_QUOTED DOUBLE | SINGLE SINGLE_QUOTED SINGLE | UNQUOTED
+
+################################################################################
+
+SECTION = LEFT WHITESPACES NAME WHITESPACES RIGHT
+
+ASSIGN = EQUAL | COLON
+
+KEYWORD = NAME WHITESPACES ASSIGN
+
+ASSIGNMENT = KEYWORD WHITESPACES VALUE
+
+COMMENT = SEMICOLON SKIP | OCTOTHORPE SKIP
+
+COMMENTED = COMMENT | NIL
+
+STATEMENT = COMMENT | SECTION | ASSIGNMENT | NIL
+
+LINE = WHITESPACES STATEMENT COMMENTED
