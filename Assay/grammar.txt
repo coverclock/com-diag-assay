@@ -56,9 +56,9 @@ ESC_SEQ = ESCAPE ESC_ARG
 
 ################################################################################
 
-LC = HEX_DIGIT_LC | 'g' | 'h' | 'i' | ... | 'w' | HEX_PFX_LC | 'y' | 'z'
+LC = HEX_DIGIT_LC | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | HEX_PFX_LC | 'y' | 'z'
 
-UC = HEX_DIGIT_UC | 'G' | 'H' | 'I' | ... | 'W' | HEX_PFX_UC | 'Y' | 'Z'
+UC = HEX_DIGIT_UC | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M' | 'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'U' | 'V' | 'W' | HEX_PFX_UC | 'Y' | 'Z'
 
 SPECIAL = '!' | DOUBLE | OCTOTHORPE | '$' | '%' | '&' | SINGLE | '(' | ')' | '*' | '+' | '`' | '-' | '.' | ESCAPE | COLON | SEMICOLON | '<' | EQUAL | '>' | '?' | '@' | LEFT | ESCAPE | RIGHT | '^' | '_' | '{' | '|' | '{' | '~'
 
