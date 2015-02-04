@@ -91,7 +91,7 @@ static char yytokennext = 0;
 [u-w]                                   { return LC; }
 "x"                                     { return X_LC; }
 [y-z]                                   { return LC; }
-[!\$%&\(\)\*\+`\-\.\/<>\?@\^_\{\|\}~]     { return PUN; }
+[!\$%&\(\)\*\+,`\-\.\/<>\?@\^_\{\|\}~]     { return PUN; }
 "="                                     { return EQ; }
 ":"                                     { return CO; }
 ";"                                     { return SC; }
