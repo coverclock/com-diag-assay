@@ -1,153 +1,167 @@
-lowercase:      LC |
-                HEX_LC |
-                X_LC;
+/**
+ * @file
+ * Assay LALR(1) Parser
+ * Copyright 2015 Digital Aggregates Corporation, Colorado, USA<BR>
+ * Licensed under the terms in README.h<BR>
+ * Chip Overclock (coverclock@diag.com)<BR>
+ * http://www.diag.com/navigation/downloads/Assay.html<BR>
+ */
 
-uppercase:      UC |
-                HEX_UC |
-                X_UC;
 
-digit:          OCT_INI |
-                OCT |
-                DEC
 
-special:        PUNCT |
-                DQ |
-                OT |
-                SQ |
-                ESC |
-                CO |
-                SC |
+%%
+
+
+
+lowercase:          LC |
+                    HEX_LC |
+                    X_LC;
+
+uppercase:          UC |
+                    HEX_UC |
+                    X_UC;
+
+digit:              OCT_INI |
+                    OCT |
+                    DEC
+
+special:            PUNCT |
+                    DQ |
+                    OT |
+                    SQ |
+                    ESC |
+                    CO |
+                    SC |
                 EQ |
-                LB |
-                RB;
+                    LB |
+                    RB;
 
-any:            lowercase |
-                uppercase |
-                digit |
-                special |
-                SP;
-
-
-
-oct_dig:        OCT_INI |
-                OCT;
-
-oct_tail:       oct_dig |
-                oct_dig oct_dig;
-
-oct_num:        OCT_INI oct_tail;
+any:                lowercase |
+                    uppercase |
+                    digit |
+                    special |
+                    SP;
 
 
 
-hex_dig:        oct_digit |
-                DEC |
-                HEX_LC |
-                HEX_UC;
+oct_dig:            OCT_INI |
+                    OCT;
 
-hex_pfx:        X_LC |
-                X_UC;
+oct_tail:           oct_dig |
+                    oct_dig oct_dig;
 
-hex_num:        hex_pfx hex_dig hex_dig;
+oct_num:            OCT_INI oct_tail;
 
 
 
-esc_arg:        ESC |
-                ESC_LC |
-                SC |
-                oct_num |
-                hex_num;
+hex_dig:            oct_digit |
+                    DEC |
+                    HEX_LC |
+                    HEX_UC;
 
-esc_seq:        ESC esc_arg;
+hex_pfx:            X_LC |
+                    X_UC;
 
-
-
-whitespace:     whitespace SP |
-                SP;
+hex_num:            hex_pfx hex_dig hex_dig;
 
 
 
-name_char:      lowercase |
-                uppercase |
-                digit |
-                PUNCT;
+esc_arg:            ESC |
+                    ESC_LC |
+                    SC |
+                    oct_num |
+                    hex_num;
 
-name_chars:     name_char name_chars |
-                name_char;
-
-name:           name_chars;
+esc_seq:            ESC esc_arg;
 
 
 
-DOUBLE_char: lowercase | uppercase | dec_dig | esc_seq | WHITESPACE | '!' | OCTOTHORPE | '$' | '%' | '&' | SINGLE | '(' | ')' | '*' | '+' | '`' | '-' | '.' | COLON | SEMICOLON | '<' | EQUAL | '>' | '?' | '@' | LEFT | RIGHT | '^' | '_' | '{' | '|' | '{' | '~';
-
-DOUBLE_quoted: DOUBLE_char DOUBLE_quoted | nil;
-
-SINGLE_char: lowercase | uppercase | dec_dig | esc_seq | WHITESPACE | '!' | DOUBLE | OCTOTHORPE | '$' | '%' | '&' | '(' | ')' | '*' | '+' | '`' | '-' | '.' | COLON | SEMICOLON | '<' | EQUAL | '>' | '?' | '@' | LEFT | RIGHT | '^' | '_' | '{' | '|' | '{' | '~';
-
-SINGLE_quoted: SINGLE_char SINGLE_quoted | nil;
-
-unquoted_char_init: lowercase | uppercase | dec_dig | esc_seq | '!' | '$' | '%' | '&' | '(' | ')' | '*' | '+' | '`' | '-' | '.' | COLON | '<' | EQUAL | '>' | '?' | '@' | LEFT | RIGHT | '^' | '_' | '{' | '|' | '{' | '~';
-
-unquoted_char: lowercase | uppercase | dec_dig | esc_seq | WHITESPACE | '!' | DOUBLE | '$' | '%' | '&' | SINGLE | '(' | ')' | '*' | '+' | '`' | '-' | '.' | COLON | '<' | EQUAL | '>' | '?' | '@' | LEFT | RIGHT | '^' | '_' | '{' | '|' | '{' | '~';
-
-unquoted_chars: unquoted_char unquoted_chars | nil;
-
-unquoted: unquoted_char_init unquoted_chars;
-
-value: DOUBLE DOUBLE_quoted DOUBLE | SINGLE SINGLE_quoted SINGLE | unquoted;
-
-
-section_tail:   whitespace RB |
-                RB;
-
-section_middle: whitespace name section_tail |
-                name section_tail;
-
-section:        LB section_middle;
+whitespace:         whitespace SP |
+                    SP;
 
 
 
-assign:         EQ | 
-                CO;
+name_char:          lowercase |
+                    uppercase |
+                    digit |
+                    PUNCT;
 
-keyword_tail:   whitespace assign |
-                assign;
+name_chars:         name_char name_chars |
+                    name_char;
 
-keyword:        name keyword_tail;
+name:               name_chars;
 
-value_tail:     lowercase |
-                lowercase value_tail |
-                uppercase |
-                uppercase value_tail |
-                digit |
-                digit value_tail |
-                special |
-                special value_tail |
-                SP |
-                SP value_tail;
+section_tail:       whitespace RB |
+                    RB;
 
-value_middle:   lowercase |
-                lowercase value_tail |
-                uppercase |
-                uppercase value_tail |
-                digit |
-                digit value_tail |
-                special |
-                special value_tail;
+section_middle:     whitespace name section_tail |
+                    name section_tail;
 
-value:          value_middle;
-
-assignment:     keyword whitespaces value;
+section:            LB section_middle;
 
 
 
-comment: SC skip;
+equals:             EQ | 
+                    CO;
 
-commented: comment | nil;
+keyword_tail:       whitespace equals |
+                    equals;
 
-statement: comment | section | assignment | nil;
+keyword:            name keyword_tail;
 
-line:       statement NL |
-            statement whitespace NL |
-            whitespace statement NL |
-            ;
+value_tail:         lowercase |
+                    lowercase value_tail |
+                    uppercase |
+                    uppercase value_tail |
+                    digit |
+                    digit value_tail |
+                    special |
+                    special value_tail |
+                    SP |
+                    SP value_tail;
+
+value_middle:       lowercase |
+                    lowercase value_tail |
+                    uppercase |
+                    uppercase value_tail |
+                    digit |
+                    digit value_tail |
+                    special |
+                    special value_tail;
+
+value:              value_middle;
+
+assignment_tail:    value |
+                    whitespace value;
+
+assignment:         keyword assignment_tail;
+
+
+
+comment_tail:       any |
+                    any comment_tail;
+
+comment:            SC |
+                    SC comment_tail;
+
+
+
+statement:          comment |
+                    section | 
+                    assignment;
+
+
+
+line_tail:          NL |
+                    comment NL;
+
+line_middle:        line_tail |
+                    whitespace line_tail;
+
+line:               line_middle |
+                    statement line_middle |
+                    whitespace statement line_middle;
+
+
+
+%%
