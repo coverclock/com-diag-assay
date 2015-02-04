@@ -10,7 +10,7 @@
  */
 
 enum yytokentype {
-    UNK = 1,
+    UNK         = 258,
     CO,
     DEC,
     DQ,

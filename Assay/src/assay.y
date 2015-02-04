@@ -9,6 +9,32 @@
 
 
 
+%token UNK
+%token CO
+%token DEC
+%token DQ
+%token EQ
+%token ESC
+%token ESC_LC
+%token HEX_LC
+%token HEX_UC
+%token LB
+%token LC
+%token NL
+%token OCT
+%token OCT_INI
+%token OT
+%token PUNCT
+%token RB
+%token SC
+%token SP
+%token SQ
+%token UC
+%token X_LC
+%token X_UC
+
+
+
 %%
 
 
@@ -54,7 +80,7 @@ oct_num:            OCT_INI oct_tail;
 
 
 
-hex_dig:            oct_digit |
+hex_dig:            oct_dig |
                     DEC |
                     HEX_LC |
                     HEX_UC;
