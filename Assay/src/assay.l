@@ -1,6 +1,13 @@
 %{
 
-#define COM_DIAG_ASSAY_LEX_TEST !0
+/**
+ * @file
+ * Assay Lexical Scanner
+ * Copyright 2015 Digital Aggregates Corporation, Colorado, USA<BR>
+ * Licensed under the terms in README.h<BR>
+ * Chip Overclock (coverclock@diag.com)<BR>
+ * http://www.diag.com/navigation/downloads/Assay.html<BR>
+ */
 
 enum yytokentype {
     UNK = 1,
@@ -14,12 +21,11 @@ enum yytokentype {
     HEX_UC,
     LB,
     LC,
-    N0,
     NL,
     OCT,
     OCT_INI,
     OT,
-    PUN,
+    PUNCT,
     RB,
     SC,
     SP,
@@ -44,12 +50,11 @@ static const char * yytokenname[] = {
     "HEX_UC",
     "LB",
     "LC",
-    "N0",
     "NL",
     "OCT",
     "OCT_INI",
     "OT",
-    "PUN",
+    "PUNCT",
     "RB",
     "SC",
     "SP",
@@ -72,8 +77,7 @@ static char yytokennext = 0;
 [ \t\f\v]                               { return SP; }
 "\n"                                    { return NL; }
 "\r"                                    { return NL; }
-"0"                                     { return N0; }
-[1-3]                                   { return OCT_INI; }
+[0-3]                                   { return OCT_INI; }
 [4-7]                                   { return OCT; }
 [8-9]                                   { return DEC; }
 [A-F]                                   { return HEX_UC; }
@@ -91,7 +95,7 @@ static char yytokennext = 0;
 [u-w]                                   { return LC; }
 "x"                                     { return X_LC; }
 [y-z]                                   { return LC; }
-[!\$%&\(\)\*\+,`\-\.\/<>\?@\^_\{\|\}~]     { return PUN; }
+[!\$%&\(\)\*\+,`\-\.\/<>\?@\^_\{\|\}~]  { return PUNCT; }
 "="                                     { return EQ; }
 ":"                                     { return CO; }
 ";"                                     { return SC; }
@@ -119,37 +123,40 @@ main(int argc, int ** argv)
         ch = *yytext;
         switch (ch) {
         case '\0':
-            printf("'\\%c' %d %s\n", '0', tok, yytokenname[tok]);
+            fprintf(stderr, "'\\%c' %d %s\n", '0', tok, yytokenname[tok]);
             break;
         case '\a':
-            printf("'\\%c' %d %s\n", 'a', tok, yytokenname[tok]);
+            fprintf(stderr, "'\\%c' %d %s\n", 'a', tok, yytokenname[tok]);
             break;
         case '\b':
-            printf("'\\%c' %d %s\n", 'b', tok, yytokenname[tok]);
+            fprintf(stderr, "'\\%c' %d %s\n", 'b', tok, yytokenname[tok]);
             break;
         case '\t':
-            printf("'\\%c' %d %s\n", 't', tok, yytokenname[tok]);
+            fprintf(stderr, "'\\%c' %d %s\n", 't', tok, yytokenname[tok]);
             break;
         case '\n':
-            printf("'\\%c' %d %s\n", 'n', tok, yytokenname[tok]);
+            fprintf(stderr, "'\\%c' %d %s\n", 'n', tok, yytokenname[tok]);
             break;
         case '\v':
-            printf("'\\%c' %d %s\n", 'v', tok, yytokenname[tok]);
+            fprintf(stderr, "'\\%c' %d %s\n", 'v', tok, yytokenname[tok]);
             break;
         case '\f':
-            printf("'\\%c' %d %s\n", 'f', tok, yytokenname[tok]);
+            fprintf(stderr, "'\\%c' %d %s\n", 'f', tok, yytokenname[tok]);
             break;
         case '\r':
-            printf("'\\%c' %d %s\n", 'r', tok, yytokenname[tok]);
+            fprintf(stderr, "'\\%c' %d %s\n", 'r', tok, yytokenname[tok]);
+            break;
+        case '\'':
+            fprintf(stderr, "'\\%c' %d %s\n", '\'', tok, yytokenname[tok]);
             break;
         case '\\':
-            printf("'\\%c' %d %s\n", '\\', tok, yytokenname[tok]);
+            fprintf(stderr, "'\\%c' %d %s\n", '\\', tok, yytokenname[tok]);
             break;
         default:
             if (isprint(ch)) {
-                printf("'%c' %d %s\n", ch, tok, yytokenname[tok]);
+                fprintf(stderr, "'%c' %d %s\n", ch, tok, yytokenname[tok]);
             } else {
-                printf("\\x%2.2x %d %s\n", ch, tok, yytokenname[tok]);
+                fprintf(stderr, "\\x%2.2x %d %s\n", ch, tok, yytokenname[tok]);
             }
             break;
         }

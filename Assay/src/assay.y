@@ -1,68 +1,94 @@
-whitespaces: WHITESPACE whitespaces | nil;
+lowercase:      LC |
+                HEX_LC |
+                X_LC;
 
-/********************/;
+uppercase:      UC |
+                HEX_UC |
+                X_UC;
 
-oct_dig_first: ZERO | '1' | '2' | '3';
+digit:          OCT_INI |
+                OCT |
+                DEC
 
-oct_dig: oct_dig_first | '4' | '5' | '6' | '7';
+special:        PUNCT |
+                DQ |
+                OT |
+                SQ |
+                ESC |
+                CO |
+                SC |
+                EQ |
+                LB |
+                RB;
 
-dec_dig: octal_dig | '8' | '9';
+any:            lowercase |
+                uppercase |
+                digit |
+                special |
+                SP;
 
-a_or_b_lc: 'a' | 'b';
 
-hex_dig_lc: a_or_b_lc | 'c' | 'd' | 'e' | 'f';
 
-hex_dig_uc: 'A' | 'B' | 'C' | 'D' | 'E' | 'F';
+oct_dig:        OCT_INI |
+                OCT;
 
-hex_dig: dec_dig | hex_dig_lc | hex_dig_uc;
+oct_tail:       oct_dig |
+                oct_dig oct_dig;
 
-oct_num: ZERO oct_dig_first oct_dig oct_dig;
+oct_num:        OCT_INI oct_tail;
 
-hex_pfx_lc: 'x';
 
-hex_pfx_uc: 'X';
 
-hex_pfx: hex_pfx_lc | hex_pfx_uc;
+hex_dig:        oct_digit |
+                DEC |
+                HEX_LC |
+                HEX_UC;
 
-hex_num: hex_pfx hex_dig hex_dig hex_dig hex_dig;
+hex_pfx:        X_LC |
+                X_UC;
 
-esc_arg: ESCAPE | ZERO | a_or_b_lc | 't' | 'r' | 'n' | SEMICOLON | OCTOTHORPE | EQUAL | COLON | LEFT | RIGHT | DOUBLE | SINGLE | oct_num | hex_num;
+hex_num:        hex_pfx hex_dig hex_dig;
 
-esc_seq: ESCAPE esc_arg;
 
-/********************/;
 
-lc: hex_digit_lc | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | hex_pfx_lc | 'y' | 'z';
+esc_arg:        ESC |
+                ESC_LC |
+                SC |
+                oct_num |
+                hex_num;
 
-uc: hex_digit_uc | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M' | 'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'U' | 'V' | 'W' | hex_pfx_uc | 'Y' | 'Z';
+esc_seq:        ESC esc_arg;
 
-special: '!' | DOUBLE | OCTOTHORPE | '$' | '%' | '&' | SINGLE | '(' | ')' | '*' | '+' | '`' | '-' | '.' | ESCAPE | COLON | SEMICOLON | '<' | EQUAL | '>' | '?' | '@' | LEFT | ESCAPE | RIGHT | '^' | '_' | '{' | '|' | '{' | '~';
 
-any: lc | uc | dec_dig | special | WHITESPACE;
 
-skip: any skip | nil;
+whitespace:     whitespace SP |
+                SP;
 
-/********************/;
 
-name_char: esc_seq | lc | uc | dec_dig | '!' | '$' | '%' | '&' | '(' | ')' | '*' | '+' | '`' | '-' | '.' | '/' | '<' | '>' | '?' | '@' | '^' | '_' | '{' | '|' | '{' | '~';
 
-name_chars: name_char name_chars | nil;
+name_char:      lowercase |
+                uppercase |
+                digit |
+                PUNCT;
 
-name: name_char name_chars;
+name_chars:     name_char name_chars |
+                name_char;
 
-/********************/;
+name:           name_chars;
 
-DOUBLE_char: lc | uc | dec_dig | esc_seq | WHITESPACE | '!' | OCTOTHORPE | '$' | '%' | '&' | SINGLE | '(' | ')' | '*' | '+' | '`' | '-' | '.' | COLON | SEMICOLON | '<' | EQUAL | '>' | '?' | '@' | LEFT | RIGHT | '^' | '_' | '{' | '|' | '{' | '~';
+
+
+DOUBLE_char: lowercase | uppercase | dec_dig | esc_seq | WHITESPACE | '!' | OCTOTHORPE | '$' | '%' | '&' | SINGLE | '(' | ')' | '*' | '+' | '`' | '-' | '.' | COLON | SEMICOLON | '<' | EQUAL | '>' | '?' | '@' | LEFT | RIGHT | '^' | '_' | '{' | '|' | '{' | '~';
 
 DOUBLE_quoted: DOUBLE_char DOUBLE_quoted | nil;
 
-SINGLE_char: lc | uc | dec_dig | esc_seq | WHITESPACE | '!' | DOUBLE | OCTOTHORPE | '$' | '%' | '&' | '(' | ')' | '*' | '+' | '`' | '-' | '.' | COLON | SEMICOLON | '<' | EQUAL | '>' | '?' | '@' | LEFT | RIGHT | '^' | '_' | '{' | '|' | '{' | '~';
+SINGLE_char: lowercase | uppercase | dec_dig | esc_seq | WHITESPACE | '!' | DOUBLE | OCTOTHORPE | '$' | '%' | '&' | '(' | ')' | '*' | '+' | '`' | '-' | '.' | COLON | SEMICOLON | '<' | EQUAL | '>' | '?' | '@' | LEFT | RIGHT | '^' | '_' | '{' | '|' | '{' | '~';
 
 SINGLE_quoted: SINGLE_char SINGLE_quoted | nil;
 
-unquoted_char_init: lc | uc | dec_dig | esc_seq | '!' | '$' | '%' | '&' | '(' | ')' | '*' | '+' | '`' | '-' | '.' | COLON | '<' | EQUAL | '>' | '?' | '@' | LEFT | RIGHT | '^' | '_' | '{' | '|' | '{' | '~';
+unquoted_char_init: lowercase | uppercase | dec_dig | esc_seq | '!' | '$' | '%' | '&' | '(' | ')' | '*' | '+' | '`' | '-' | '.' | COLON | '<' | EQUAL | '>' | '?' | '@' | LEFT | RIGHT | '^' | '_' | '{' | '|' | '{' | '~';
 
-unquoted_char: lc | uc | dec_dig | esc_seq | WHITESPACE | '!' | DOUBLE | '$' | '%' | '&' | SINGLE | '(' | ')' | '*' | '+' | '`' | '-' | '.' | COLON | '<' | EQUAL | '>' | '?' | '@' | LEFT | RIGHT | '^' | '_' | '{' | '|' | '{' | '~';
+unquoted_char: lowercase | uppercase | dec_dig | esc_seq | WHITESPACE | '!' | DOUBLE | '$' | '%' | '&' | SINGLE | '(' | ')' | '*' | '+' | '`' | '-' | '.' | COLON | '<' | EQUAL | '>' | '?' | '@' | LEFT | RIGHT | '^' | '_' | '{' | '|' | '{' | '~';
 
 unquoted_chars: unquoted_char unquoted_chars | nil;
 
@@ -70,20 +96,58 @@ unquoted: unquoted_char_init unquoted_chars;
 
 value: DOUBLE DOUBLE_quoted DOUBLE | SINGLE SINGLE_quoted SINGLE | unquoted;
 
-/********************/;
 
-section: LEFT whitespaces name whitespaces RIGHT;
+section_tail:   whitespace RB |
+                RB;
 
-assign: EQUAL | COLON;
+section_middle: whitespace name section_tail |
+                name section_tail;
 
-keyword: name whitespaces assign;
+section:        LB section_middle;
 
-assignment: keyword whitespaces value;
 
-comment: SEMICOLON skip | OCTOTHORPE skip;
+
+assign:         EQ | 
+                CO;
+
+keyword_tail:   whitespace assign |
+                assign;
+
+keyword:        name keyword_tail;
+
+value_tail:     lowercase |
+                lowercase value_tail |
+                uppercase |
+                uppercase value_tail |
+                digit |
+                digit value_tail |
+                special |
+                special value_tail |
+                SP |
+                SP value_tail;
+
+value_middle:   lowercase |
+                lowercase value_tail |
+                uppercase |
+                uppercase value_tail |
+                digit |
+                digit value_tail |
+                special |
+                special value_tail;
+
+value:          value_middle;
+
+assignment:     keyword whitespaces value;
+
+
+
+comment: SC skip;
 
 commented: comment | nil;
 
 statement: comment | section | assignment | nil;
 
-line: whitespaces statement commented;
+line:       statement NL |
+            statement whitespace NL |
+            whitespace statement NL |
+            ;
