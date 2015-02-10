@@ -94,7 +94,7 @@ GITURL				:=	https://github.com/coverclock/com-diag-$(PROJECT).git
 GENERATED			:=	vintage setup generate
 SYNTHESIZED			:=	$(PROJECT)_release.h $(PROJECT)_vintage.h
 
-ALIASES				:=	hex oct ntohs htons ntohl htonl
+ALIASES				:=	
 
 NEW					:=	dummy
 OLD					:=	dummy
