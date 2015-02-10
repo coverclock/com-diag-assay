@@ -31,56 +31,62 @@ whitespace:         SP
                     | whitespace SP
                     ;
 
-section_char:       CH { printf("section_char '%c'\n", $1); }
-                    | ESC { printf("section_char '%c'\n", $1); }
+section_char:       CH                      { assay_parser_section_next($1); }
+                    |  ESC                  { assay_parser_section_next($1); }
                     ;
 
 section_tail:       section_char
                     | section_char section_tail
                     ;
 
-section_init:       CH { printf("section_init '%c'\n", $1); }
-                    | ESC { printf("section_init '%c'\n", $1); }
+section_init:       CH                      { assay_parser_section_begin($1); }
+                    | ESC                   { assay_parser_section_begin($1); }
                     ;
 
 section_string:     section_init
                     | section_init section_tail
                     ;
 
-section:            LB section_string RB
+section:            LB section_string RB    { assay_parser_section_end(); }
                     ;
 
-keyword_char:       CH { printf("keyword_char '%c'\n", $1); }
-                    | ESC { printf("keyword_char '%c'\n", $1); }
+keyword_char:       CH                      { assay_parser_keyword_next($1); }
+                    | ESC                   { assay_parser_keyword_next($1); }
                     ;
 
 keyword_tail:       keyword_char
                     | keyword_char keyword_tail
                     ;
 
-keyword_init:       CH { printf("keyword_init '%c'\n", $1); }
-                    | ESC { printf("keyword_init '%c'\n", $1); }
+keyword_init:       CH                      { assay_parser_keyword_begin($1); }
+                    | ESC                   { assay_parser_keyword_begin($1); }
                     ;
 
-keyword:            keyword_init
+keyword_string:     keyword_init
                     | keyword_init keyword_tail
                     ;
 
-value_char:         CH { printf("value_char '%c'\n", $1); }
-                    | ESC { printf("value_char '%c'\n", $1); }
-                    | SP { printf("value_char '%c'\n", $1); }
+keyword:            keyword_string          { assay_parser_keyword_end(); }
+                    ;
+
+value_char:         CH                      { assay_parser_value_next($1); }
+                    | ESC                   { assay_parser_value_next($1); }
+                    | SP                    { assay_parser_value_next($1); }
                     ;
 
 value_tail:         value_char
                     | value_char value_tail
                     ;
 
-value_init:         CH { printf("value_init '%c'\n", $1); }
-                    | ESC { printf("value_init '%c'\n", $1); }
+value_init:         CH                      { assay_parser_value_begin($1); }
+                    | ESC                   { assay_parser_value_begin($1); }
                     ;
 
-value:              value_init
+value_string:       value_init
                     | value_init value_tail
+                    ;
+
+value:              value_string            { assay_parser_value_end(); }
                     ;
 
 assignment_tail:    EQ
