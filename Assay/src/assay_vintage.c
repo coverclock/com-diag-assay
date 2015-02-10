@@ -12,7 +12,7 @@
  * references to the storage here as external references.
  */
 
-#include "com/diag/diminuto/diminuto_vintage.h"
+#include "com/diag/assay/assay_vintage.h"
 
-const char COM_DIAG_DIMINUTO_VINTAGE_KEYWORD[] = "COM_DIAG_DIMINUTO_VINTAGE=" COM_DIAG_DIMINUTO_VINTAGE;
-const char * COM_DIAG_DIMINUTO_VINTAGE_VALUE = &COM_DIAG_DIMINUTO_VINTAGE_KEYWORD[sizeof("COM_DIAG_DIMINUTO_VINTAGE=") - 1];
+const char COM_DIAG_ASSAY_VINTAGE_KEYWORD[] = "COM_DIAG_ASSAY_VINTAGE=" COM_DIAG_ASSAY_VINTAGE;
+const char * COM_DIAG_ASSAY_VINTAGE_VALUE = &COM_DIAG_ASSAY_VINTAGE_KEYWORD[sizeof("COM_DIAG_ASSAY_VINTAGE=") - 1];

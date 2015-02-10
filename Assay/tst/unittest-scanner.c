@@ -10,6 +10,7 @@
 
 #include "assay_parser.h"
 #include <stdio.h>
+#include <string.h>
 #include <ctype.h>
 #include "com/diag/assay/assay_scanner.h"
 

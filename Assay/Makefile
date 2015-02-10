@@ -13,34 +13,12 @@
 
 TITLE				:=	Assay
 
-# Disclaimer: the only target that I routinely build and test for is "host", my
-# X86_64 Ubuntu build server. While Diminuto has been built, tested, and used
-# on all of these other targets at one time or another, the current version has
-# only been tested on whatever project I'm currently working on. The targets
-# listed below are more or less in chronological order, from earliest to latest.
-# The hardware for some of these targets isn't even available to me anymore.
-
 TARGET				:=	host# Build for the x86_64 running Ubuntu 14.04 LTS.
 #TARGET				:=	stampede# Build for the Nvidia Jetson TK1 running Ubuntu 14.04.
 
 MAJOR				:=	0# API changes that may require that applications be modified.
 MINOR				:=	0# Only functionality or features added with no legacy API changes.
 BUILD				:=	0# Only bugs fixed with no API changes or new functionality.
-
-# Some certification, defense, or intelligence agencies (e.g. the U.S. Federal
-# Aviation Administration or FAA) require that software builds for safety
-# critical or national security applications generate exactly the same binary
-# images bit for bit if the source code has not changed. (This is theoretically
-# a more stringent requirement than requiring that checksums or cryptographic
-# hashes are the same, although in practice it is the same thing.) This allows
-# agency inspectors to verify the integrity of the binary software images. This
-# makes embedding timestamps inside compiled translation units problematic.
-# If your application has this requirement, you can pass in any fixed string
-# for the value of the VINTAGE make variable, and only use the value of this
-# symbol as a build time stamp, and you should be able to generate identical
-# images with subsequent builds of Diminuto. This string is embedded inside the
-# Diminuto "vintage" application. The default build time stamp is an ISO-8601
-# complaint string with the time specified in UTC with nanosecond resolution.
 
 VINTAGE				:=	$(shell date -u +%Y-%m-%dT%H:%M:%S.%N%z)
 
@@ -469,7 +447,7 @@ $(OUT)/$(INC_DIR)/com/diag/$(PROJECT)/$(PROJECT)_release.h:	Makefile
 	echo '#endif' >> $@
 
 # For embedding in the library archive and shared object.
-$(OUT)/$(SRC_DIR)/diminuto_release.o:	$(TARGETSYNTHESIZED)
+$(OUT)/$(SRC_DIR)/$(PROJECT)_release.o:	$(TARGETSYNTHESIZED)
 
 # For embedding in an application where it can be interrogated or displayed.
 $(OUT)/$(INC_DIR)/com/diag/$(PROJECT)/$(PROJECT)_vintage.h:	Makefile
@@ -481,7 +459,7 @@ $(OUT)/$(INC_DIR)/com/diag/$(PROJECT)/$(PROJECT)_vintage.h:	Makefile
 	echo '#endif' >> $@
 
 # For embedding in the library archive and shared object.
-$(OUT)/$(SRC_DIR)/diminuto_vintage.o:	$(TARGETSYNTHESIZED)
+$(OUT)/$(SRC_DIR)/$(PROJECT)_vintage.o:	$(TARGETSYNTHESIZED)
 
 # For executing from the command line during testing.
 $(OUT)/$(SYM_DIR)/vintage:	$(OUT)/$(GEN_DIR)/vintage.c
