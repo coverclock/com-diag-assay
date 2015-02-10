@@ -22,5 +22,5 @@ MOARCH				:=	-L$(OUT)/$(LIB_DIR)
 SOARCH				:=
 SOXXARCH			:=	-L$(OUT)/$(LIB_DIR) -l$(PROJECT)
 KERNELARCH			:=
-LDLIBRARIES			:=	-lpthread -lrt -ldl -lm
+LDLIBRARIES			:=	-lfl -ly
 LDXXLIBRARIES		:=	$(LDLIBRARIES)

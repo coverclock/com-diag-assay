@@ -6,9 +6,7 @@
 # "Chip Overclock" is a registered trademark.
 # "Digital Aggregates Corporation" is a registered trademark.
 #
-#	make default TARGET=<target>	# Build libraries, unit tests, executable programs.
-#	make most TARGET=<target>		# Build default plus user-space loadable modules.
-#	make all TARGET=<target>		# Build most plus kernel-space loadable modules.
+#	make all TARGET=<target>		# Build.
 #
 
 ########## Customizations
@@ -135,7 +133,7 @@ CDEFINES			:=
 
 ARFLAGS				:=	crsv
 #CPPFLAGS			:=	$(CDEFINES) -I $(SRC_DIR) -I $(INC_DIR) -I $(OUT)/$(INC_DIR) $(CPPARCH)
-CPPFLAGS			:=	$(CDEFINES) -iquote $(SRC_DIR) -iquote $(INC_DIR) -iquote $(OUT)/$(INC_DIR) $(CPPARCH)
+CPPFLAGS			:=	$(CDEFINES) -iquote $(OUT)/$(GEN_DIR) -iquote $(SRC_DIR) -iquote $(INC_DIR) -iquote $(OUT)/$(INC_DIR) $(CPPARCH)
 CFLAGS				:=	$(CARCH) -g
 #CFLAGS				:=	$(CARCH) -g -fprofile-arcs -ftest-coverage
 #CFLAGS				:=	$(CARCH) -O3
@@ -156,6 +154,8 @@ BROWSER				:=	firefox
 ########## Build Artifacts
 
 TARGETOBJECTS		:=	$(addprefix $(OUT)/,$(addsuffix .o,$(basename $(wildcard $(SRC_DIR)/*.c))))
+TARGETOBJECTS		+=	$(addprefix $(OUT)/,$(addsuffix .o,$(basename $(wildcard $(SRC_DIR)/*.l))))
+TARGETOBJECTS		+=	$(addprefix $(OUT)/,$(addsuffix .o,$(basename $(wildcard $(SRC_DIR)/*.y))))
 TARGETOBJECTSXX		:=	$(addprefix $(OUT)/,$(addsuffix .o,$(basename $(wildcard $(SRC_DIR)/*.cpp))))
 TARGETSCRIPTS		:=	$(addprefix $(OUT)/,$(basename $(wildcard $(BIN_DIR)/*.sh)))
 TARGETBINARIES		:=	$(addprefix $(OUT)/,$(basename $(wildcard $(BIN_DIR)/*.c)))
@@ -203,6 +203,18 @@ clean:
 
 pristine clobber:	clean
 	rm -rf $(OUT_DIR)
+
+########## Lovingly Hand Crafted Targets
+
+$(OUT)/$(SRC_DIR)/$(PROJECT)_parser.o:	$(OUT)/$(GEN_DIR)/$(PROJECT)_parser.c
+
+$(OUT)/$(GEN_DIR)/$(PROJECT)_parser.h:	$(OUT)/$(GEN_DIR)/$(PROJECT)_parser.c
+
+$(OUT)/$(SRC_DIR)/$(PROJECT)_scanner.o:	$(OUT)/$(GEN_DIR)/$(PROJECT)_scanner.c $(OUT)/$(GEN_DIR)/$(PROJECT)_parser.h
+
+$(OUT)/$(SRC_DIR)/$(PROJECT)_parser_annex.o:	$(OUT)/$(GEN_DIR)/$(PROJECT)_parser.h
+
+$(OUT)/$(SRC_DIR)/$(PROJECT)_scanner_annex.o:	$(OUT)/$(GEN_DIR)/$(PROJECT)_parser.h
 
 ########## Packaging and Distribution
 
@@ -256,7 +268,7 @@ tarball $(TARBALL).tgz:
 .PHONY:	backup
 
 backup:
-	tar --exclude=$(OUT_DIR) -cvzf - . > ../$(PROJECT)-$(TIMESTAMP).tgz
+	tar --exclude=$(OUT_DIR) --exclude-vcs -cvzf - . > ../../$(PROJECT)-$(TIMESTAMP).tgz
 
 ########## Source Code Control
 
@@ -285,8 +297,6 @@ $(OUT)/$(ARC_DIR)/$(PROJECT_A):	$(TARGETOBJECTS)
 	D=`dirname $@`; mkdir -p $$D
 	$(AR) $(ARFLAGS) $@ $^
 	$(RANLIB) $@
-LDFLAGS				:=	$(LDARCH) -l$(PROJECT) $(LDLIBRARIES)
-LDXXFLAGS			:=	$(LDARCH) -l$(PROJECT)xx -l$(PROJECT) $(LDXXLIBRARIES)
 
 $(OUT)/$(LIB_DIR)/lib$(PROJECT).$(SO).$(MAJOR).$(MINOR).$(BUILD):	$(TARGETOBJECTS)
 	D=`dirname $@`; mkdir -p $$D
@@ -625,11 +635,17 @@ $(OUT)/%:	%.sh
 	cp $< $@
 	chmod 755 $@
 
-$(OUT)/%.c:	%.y
-	bison -t -d -v -o %@ %<
+$(OUT)/$(GEN_DIR)/%.c:	$(SRC_DIR)/%.y
+	D=`dirname $@`; mkdir -p $$D
+	bison -t -d -v -o $@ $<
 
-$(OUT)/%.c:	%.l
-	flex -o %@ $<
+$(OUT)/$(GEN_DIR)/%.c:	$(SRC_DIR)/%.l
+	D=`dirname $@`; mkdir -p $$D
+	flex -o $@ $<
+
+$(OUT)/$(SRC_DIR)/%.o:	$(OUT)/$(GEN_DIR)/%.c
+	D=`dirname $@`; mkdir -p $$D
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -c $<
 
 .SECONDARY:
 
@@ -646,35 +662,13 @@ DEPENDENCIES := $(OUT)/$(DEP_DIR)/dependencies.mk
 depend:	$(TARGETSYNTHESIZED)
 	M=`dirname $(DEPENDENCIES)`; mkdir -p $$M
 	cp /dev/null $(DEPENDENCIES)
-	for S in $(BIN_DIR) $(MOD_DIR) $(SRC_DIR) $(TST_DIR); do \
+	for S in $(BIN_DIR) $(SRC_DIR) $(TST_DIR); do \
 		if [ -d $$S ]; then \
 			for F in $$S/*.c; do \
 				D=`dirname $$F`; \
 				T=`mktemp "$(TEMP_DIR)/$(PROJECT).XXXXXXXXXX"`; \
 				echo -n "$(OUT)/$$D/" > $$T; \
 				$(CC) $(CPPFLAGS) -MM -MG $$F >> $$T && cat $$T >> $(DEPENDENCIES); \
-				rm -f $$T; \
-			done; \
-		fi; \
-	done
-	for S in $(DRV_DIR); do \
-		if [ -d $$S ]; then \
-			for F in $$S/*.c; do \
-				D=`dirname $$F`; \
-				T=`mktemp "$(TEMP_DIR)/$(PROJECT).XXXXXXXXXX"`; \
-				echo -n "$(OUT)/$$D/" > $$T; \
-				$(CC) $(CPPFLAGS) -DMODULE -MM -MG $$F >> $$T && cat $$T >> $(DEPENDENCIES); \
-				rm -f $$T; \
-			done; \
-		fi; \
-	done
-	for S in $(SRC_DIR) $(TST_DIR); do \
-		if [ -d $$S ]; then \
-			for F in $$S/*.cpp; do \
-				D=`dirname $$F`; \
-				T=`mktemp "$(TEMP_DIR)/$(PROJECT).XXXXXXXXXX"`; \
-				echo -n "$(OUT)/$$D/" > $$T; \
-				$(CXX) $(CPPFLAGS) -MM -MG $$F >> $$T && cat $$T >> $(DEPENDENCIES); \
 				rm -f $$T; \
 			done; \
 		fi; \
