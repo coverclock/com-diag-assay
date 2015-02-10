@@ -8,9 +8,9 @@
  * http://www.diag.com/navigation/downloads/Assay.html<BR>
  */
 
-#include "com/diag/assay/assay_scanner_tools.h"
 #include "assay_parser.h"
 #include <string.h>
+#include "com/diag/assay/assay_scanner.h"
 
 const char * assay_scanner_token2name(int token)
 {

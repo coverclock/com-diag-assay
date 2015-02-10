@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Assay LALR(1) Grammar and Actions
+ * Assay Parser Grammar and Actions
  * Copyright 2015 Digital Aggregates Corporation, Colorado, USA<BR>
  * Licensed under the terms in README.h<BR>
  * Chip Overclock (coverclock@diag.com)<BR>
@@ -10,7 +10,7 @@
  */
 
 #include <stdio.h>
-#include "com/diag/assay/assay_scanner_tools.h"
+#include "com/diag/assay/assay_scanner.h"
 
 %}
 
@@ -141,18 +141,3 @@ file:               statement_list
                     ;
 
 %%
-
-extern FILE * yyin;
-
-int yyerror(char * msg)
-{
-    fprintf(stderr, "yyerror: \"%s\"\n", msg);
-}
-
-int main(int argc, char ** argv)
-{
-    do {
-        yyparse();
-    } while (!feof(yyin));
-    return 0;
-}

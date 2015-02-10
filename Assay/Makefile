@@ -157,8 +157,6 @@ BROWSER				:=	firefox
 
 TARGETOBJECTS		:=	$(addprefix $(OUT)/,$(addsuffix .o,$(basename $(wildcard $(SRC_DIR)/*.c))))
 TARGETOBJECTSXX		:=	$(addprefix $(OUT)/,$(addsuffix .o,$(basename $(wildcard $(SRC_DIR)/*.cpp))))
-TARGETDRIVERS		:=	$(addprefix $(OUT)/,$(addsuffix .ko,$(basename $(wildcard $(DRV_DIR)/*.c))))
-TARGETMODULES		:=	$(addprefix $(OUT)/,$(addsuffix .$(SO),$(basename $(wildcard $(MOD_DIR)/*.c))))
 TARGETSCRIPTS		:=	$(addprefix $(OUT)/,$(basename $(wildcard $(BIN_DIR)/*.sh)))
 TARGETBINARIES		:=	$(addprefix $(OUT)/,$(basename $(wildcard $(BIN_DIR)/*.c)))
 TARGETGENERATED		:=	$(addprefix $(OUT)/$(BIN_DIR)/,$(GENERATED))
@@ -184,8 +182,8 @@ TARGETLIBRARIES		:=	$(TARGETARCHIVE) $(TARGETSHARED)
 TARGETLIBRARIESXX	:=	$(TARGETARCHIVEXX) $(TARGETSHAREDXX)
 TARGETPROGRAMS		:=	$(TARGETBINARIES) $(TARGETALIASES) $(TARGETUNITTESTS) $(TARGETGENERATED) $(TARGETSCRIPTS)
 TARGETDEFAULT		:=	$(TARGETLIBRARIES) $(TARGETLIBRARIESXX) $(TARGETPROGRAMS)
-TARGETMOST			:=	$(TARGETDEFAULT) $(TARGETMODULES)
-TARGETALL			:=	$(TARGETMOST) $(TARGETDRIVERS)
+TARGETMOST			:=	$(TARGETDEFAULT)
+TARGETALL			:=	$(TARGETMOST)
 
 ########## Main Entry Points
 
@@ -346,19 +344,6 @@ $(OUT)/$(TST_DIR)/%:	$(TST_DIR)/%.cpp $(TARGETLIBRARIESXX) $(TARGETLIBRARIES)
 
 ########## Generated Source Files
 
-# For embedding in a system where it can be executed from a shell.
-# The major.minor.build is emitted to standard output, a bunch more
-# metadata to standard error. Hence, they can be redirected to separate
-# files. The metadata file is intended to parsable as a standard properties
-# file (although I have not tested it). Some of the information in this binary
-# executable may be sensitive, for example, the Directory or the User. That's
-# why it's in a form that doesn't have to be distributed with the product,
-# unlike the shared objects. This program also serves as a unit test, so be
-# careful about removing stuff from it that looks redundant or unused.
-# NOTE: in the generated C code below, whether you should have \\n or \n in the
-# echo statements seems to depend on whether you are running make 3.81 or prior
-# versus make 3.82 or after. make 3.81 is what my Ubuntu 14.04 build server has.
-
 ifeq (3.82, $(firstword $(sort $(MAKE_VERSION) 3.82)))
 
 $(OUT)/$(GEN_DIR)/vintage.c:	$(TARGETSYNTHESIZED) Makefile
@@ -379,23 +364,23 @@ $(OUT)/$(GEN_DIR)/vintage.c:	$(TARGETSYNTHESIZED) Makefile
 	echo '    "Contact = $(CONTACT)\n"' >> $@
 	echo '    "License = $(LICENSE)\n"' >> $@
 	echo '    "Homepage = $(HOMEPAGE)\n"' >> $@
-	echo '    "Release = " COM_DIAG$(SYMBOL)RELEASE "\n"' >> $@
-	echo '    "Vintage = " COM_DIAG$(SYMBOL)VINTAGE "\n"' >> $@
+	echo '    "Release = " COM_DIAG_$(SYMBOL)_RELEASE "\n"' >> $@
+	echo '    "Vintage = " COM_DIAG_$(SYMBOL)_VINTAGE "\n"' >> $@
 	echo '    "Host = $(shell hostname)\n"' >> $@
 	echo '    "Directory = $(shell pwd)\n"' >> $@
 	echo '    "Arch = $(ARCH)\n"' >> $@
 	echo '    "Target = $(TARGET)\n"' >> $@
 	echo '    "Os = $(OS)\n"' >> $@
-	echo '    "Platform = " COM_DIAG$(SYMBOL)PLATFORM "\n"' >> $@
+	echo '    "Platform = " COM_DIAG_$(SYMBOL)_PLATFORM "\n"' >> $@
 	echo '    "Toolchain = $(TOOLCHAIN)\n"' >> $@
 	echo '    "User = $(USER)\n"' >> $@
 	echo ';' >> $@
-	echo 'extern const char COM_DIAG$(SYMBOL)RELEASE_KEYWORD[];' >> $@
-	echo 'extern const char * COM_DIAG$(SYMBOL)RELEASE_VALUE;' >> $@
-	echo 'extern const char COM_DIAG$(SYMBOL)VINTAGE_KEYWORD[];' >> $@
-	echo 'extern const char * COM_DIAG$(SYMBOL)VINTAGE_VALUE;' >> $@
-	echo 'extern const char COM_DIAG$(SYMBOL)PLATFORM_KEYWORD[];' >> $@
-	echo 'extern const char * COM_DIAG$(SYMBOL)PLATFORM_VALUE;' >> $@
+	echo 'extern const char COM_DIAG_$(SYMBOL)_RELEASE_KEYWORD[];' >> $@
+	echo 'extern const char * COM_DIAG_$(SYMBOL)_RELEASE_VALUE;' >> $@
+	echo 'extern const char COM_DIAG_$(SYMBOL)_VINTAGE_KEYWORD[];' >> $@
+	echo 'extern const char * COM_DIAG_$(SYMBOL)_VINTAGE_VALUE;' >> $@
+	echo 'extern const char COM_DIAG_$(SYMBOL)_PLATFORM_KEYWORD[];' >> $@
+	echo 'extern const char * COM_DIAG_$(SYMBOL)_PLATFORM_VALUE;' >> $@
 	echo 'int main(void) {' >> $@
 	echo '    const char * release_keyword = (const char *)0;' >> $@
 	echo '    const char * release_value = (const char *)0;' >> $@
@@ -405,12 +390,12 @@ $(OUT)/$(GEN_DIR)/vintage.c:	$(TARGETSYNTHESIZED) Makefile
 	echo '    const char * platform_value = (const char *)0;' >> $@
 	echo '    fputs(METADATA, stderr);' >> $@
 	echo '    fputs("$(MAJOR).$(MINOR).$(BUILD)\n", stdout);' >> $@
-	echo '    release_keyword = COM_DIAG$(SYMBOL)RELEASE_KEYWORD;' >> $@
-	echo '    release_value = COM_DIAG$(SYMBOL)RELEASE_VALUE;' >> $@
-	echo '    vintage_keyword = COM_DIAG$(SYMBOL)VINTAGE_KEYWORD;' >> $@
-	echo '    vintage_value = COM_DIAG$(SYMBOL)VINTAGE_VALUE;' >> $@
-	echo '    platform_keyword = COM_DIAG$(SYMBOL)PLATFORM_KEYWORD;' >> $@
-	echo '    platform_value = COM_DIAG$(SYMBOL)PLATFORM_VALUE;' >> $@
+	echo '    release_keyword = COM_DIAG_$(SYMBOL)_RELEASE_KEYWORD;' >> $@
+	echo '    release_value = COM_DIAG_$(SYMBOL)_RELEASE_VALUE;' >> $@
+	echo '    vintage_keyword = COM_DIAG_$(SYMBOL)_VINTAGE_KEYWORD;' >> $@
+	echo '    vintage_value = COM_DIAG_$(SYMBOL)_VINTAGE_VALUE;' >> $@
+	echo '    platform_keyword = COM_DIAG_$(SYMBOL)_PLATFORM_KEYWORD;' >> $@
+	echo '    platform_value = COM_DIAG_$(SYMBOL)_PLATFORM_VALUE;' >> $@
 	echo '    assert(release_keyword != (const char *)0);' >> $@
 	echo '    assert(release_value != (const char *)0);' >> $@
 	echo '    assert(vintage_keyword != (const char *)0);' >> $@
@@ -440,23 +425,23 @@ $(OUT)/$(GEN_DIR)/vintage.c:	$(TARGETSYNTHESIZED) Makefile
 	echo '    "Contact = $(CONTACT)\\n"' >> $@
 	echo '    "License = $(LICENSE)\\n"' >> $@
 	echo '    "Homepage = $(HOMEPAGE)\\n"' >> $@
-	echo '    "Release = " COM_DIAG$(SYMBOL)RELEASE "\\n"' >> $@
-	echo '    "Vintage = " COM_DIAG$(SYMBOL)VINTAGE "\\n"' >> $@
+	echo '    "Release = " COM_DIAG_$(SYMBOL)_RELEASE "\\n"' >> $@
+	echo '    "Vintage = " COM_DIAG_$(SYMBOL)_VINTAGE "\\n"' >> $@
 	echo '    "Host = $(shell hostname)\\n"' >> $@
 	echo '    "Directory = $(shell pwd)\\n"' >> $@
 	echo '    "Arch = $(ARCH)\\n"' >> $@
 	echo '    "Target = $(TARGET)\\n"' >> $@
 	echo '    "Os = $(OS)\\n"' >> $@
-	echo '    "Platform = " COM_DIAG$(SYMBOL)PLATFORM "\\n"' >> $@
+	echo '    "Platform = " COM_DIAG_$(SYMBOL)_PLATFORM "\\n"' >> $@
 	echo '    "Toolchain = $(TOOLCHAIN)\\n"' >> $@
 	echo '    "User = $(USER)\\n"' >> $@
 	echo ';' >> $@
-	echo 'extern const char COM_DIAG$(SYMBOL)RELEASE_KEYWORD[];' >> $@
-	echo 'extern const char * COM_DIAG$(SYMBOL)RELEASE_VALUE;' >> $@
-	echo 'extern const char COM_DIAG$(SYMBOL)VINTAGE_KEYWORD[];' >> $@
-	echo 'extern const char * COM_DIAG$(SYMBOL)VINTAGE_VALUE;' >> $@
-	echo 'extern const char COM_DIAG$(SYMBOL)PLATFORM_KEYWORD[];' >> $@
-	echo 'extern const char * COM_DIAG$(SYMBOL)PLATFORM_VALUE;' >> $@
+	echo 'extern const char COM_DIAG_$(SYMBOL)_RELEASE_KEYWORD[];' >> $@
+	echo 'extern const char * COM_DIAG_$(SYMBOL)_RELEASE_VALUE;' >> $@
+	echo 'extern const char COM_DIAG_$(SYMBOL)_VINTAGE_KEYWORD[];' >> $@
+	echo 'extern const char * COM_DIAG_$(SYMBOL)_VINTAGE_VALUE;' >> $@
+	echo 'extern const char COM_DIAG_$(SYMBOL)_PLATFORM_KEYWORD[];' >> $@
+	echo 'extern const char * COM_DIAG_$(SYMBOL)_PLATFORM_VALUE;' >> $@
 	echo 'int main(void) {' >> $@
 	echo '    const char * release_keyword = (const char *)0;' >> $@
 	echo '    const char * release_value = (const char *)0;' >> $@
@@ -466,12 +451,12 @@ $(OUT)/$(GEN_DIR)/vintage.c:	$(TARGETSYNTHESIZED) Makefile
 	echo '    const char * platform_value = (const char *)0;' >> $@
 	echo '    fputs(METADATA, stderr);' >> $@
 	echo '    fputs("$(MAJOR).$(MINOR).$(BUILD)\\n", stdout);' >> $@
-	echo '    release_keyword = COM_DIAG$(SYMBOL)RELEASE_KEYWORD;' >> $@
-	echo '    release_value = COM_DIAG$(SYMBOL)RELEASE_VALUE;' >> $@
-	echo '    vintage_keyword = COM_DIAG$(SYMBOL)VINTAGE_KEYWORD;' >> $@
-	echo '    vintage_value = COM_DIAG$(SYMBOL)VINTAGE_VALUE;' >> $@
-	echo '    platform_keyword = COM_DIAG$(SYMBOL)PLATFORM_KEYWORD;' >> $@
-	echo '    platform_value = COM_DIAG$(SYMBOL)PLATFORM_VALUE;' >> $@
+	echo '    release_keyword = COM_DIAG_$(SYMBOL)_RELEASE_KEYWORD;' >> $@
+	echo '    release_value = COM_DIAG_$(SYMBOL)_RELEASE_VALUE;' >> $@
+	echo '    vintage_keyword = COM_DIAG_$(SYMBOL)_VINTAGE_KEYWORD;' >> $@
+	echo '    vintage_value = COM_DIAG_$(SYMBOL)_VINTAGE_VALUE;' >> $@
+	echo '    platform_keyword = COM_DIAG_$(SYMBOL)_PLATFORM_KEYWORD;' >> $@
+	echo '    platform_value = COM_DIAG_$(SYMBOL)_PLATFORM_VALUE;' >> $@
 	echo '    assert(release_keyword != (const char *)0);' >> $@
 	echo '    assert(release_value != (const char *)0);' >> $@
 	echo '    assert(vintage_keyword != (const char *)0);' >> $@
@@ -489,10 +474,10 @@ $(OUT)/$(INC_DIR)/com/diag/$(PROJECT)/$(PROJECT)_release.h:	Makefile
 	echo '/* GENERATED FILE! DO NOT EDIT! */' > $@
 	echo '#ifndef _H_COM_DIAG_$(SYMBOL)_RELEASE_' >> $@
 	echo '#define _H_COM_DIAG_$(SYMBOL)_RELEASE_' >> $@
-	echo '#define COM_DIAG$(SYMBOL)RELEASE_MAJOR $(MAJOR)' >> $@
-	echo '#define COM_DIAG$(SYMBOL)RELEASE_MINOR $(MINOR)' >> $@
-	echo '#define COM_DIAG$(SYMBOL)RELEASE_BUILD $(BUILD)' >> $@
-	echo '#define COM_DIAG$(SYMBOL)RELEASE "$(MAJOR).$(MINOR).$(BUILD)"' >> $@
+	echo '#define COM_DIAG_$(SYMBOL)_RELEASE_MAJOR $(MAJOR)' >> $@
+	echo '#define COM_DIAG_$(SYMBOL)_RELEASE_MINOR $(MINOR)' >> $@
+	echo '#define COM_DIAG_$(SYMBOL)_RELEASE_BUILD $(BUILD)' >> $@
+	echo '#define COM_DIAG_$(SYMBOL)_RELEASE "$(MAJOR).$(MINOR).$(BUILD)"' >> $@
 	echo '#endif' >> $@
 
 # For embedding in the library archive and shared object.
@@ -504,7 +489,7 @@ $(OUT)/$(INC_DIR)/com/diag/$(PROJECT)/$(PROJECT)_vintage.h:	Makefile
 	echo '/* GENERATED FILE! DO NOT EDIT! */' > $@
 	echo '#ifndef _H_COM_DIAG_$(SYMBOL)_VINTAGE_' >> $@
 	echo '#define _H_COM_DIAG_$(SYMBOL)_VINTAGE_' >> $@
-	echo '#define COM_DIAG$(SYMBOL)VINTAGE "$(VINTAGE)"' >> $@
+	echo '#define COM_DIAG_$(SYMBOL)_VINTAGE "$(VINTAGE)"' >> $@
 	echo '#endif' >> $@
 
 # For embedding in the library archive and shared object.
@@ -523,7 +508,7 @@ $(OUT)/$(BIN_DIR)/setup:	Makefile
 	echo 'export LD_DRIVER_PATH=$$COM_DIAG_$(SYMBOL)_ROOT/../drv' >> $@
 	echo 'export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:$$COM_DIAG_$(SYMBOL)_ROOT/../lib' >> $@
 	echo 'export LD_MODULE_PATH=$$COM_DIAG_$(SYMBOL)_ROOT/../mod' >> $@
-	echo 'export COM_DIAG$(SYMBOL)LOG_MASK=0xffff' >> $@
+	echo 'export COM_DIAG_$(SYMBOL)_LOG_MASK=0xffff' >> $@
 	chmod 644 $@
 
 $(OUT)/$(SYM_DIR)/setup:	Makefile
@@ -533,7 +518,7 @@ $(OUT)/$(SYM_DIR)/setup:	Makefile
 	echo 'export LD_DRIVER_PATH=$$COM_DIAG_$(SYMBOL)_ROOT/../drv' >> $@
 	echo 'export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:$$COM_DIAG_$(SYMBOL)_ROOT/../lib' >> $@
 	echo 'export LD_MODULE_PATH=$$COM_DIAG_$(SYMBOL)_ROOT/../mod' >> $@
-	echo 'export COM_DIAG$(SYMBOL)LOG_MASK=0xffff' >> $@
+	echo 'export COM_DIAG_$(SYMBOL)_LOG_MASK=0xffff' >> $@
 	chmod 644 $@
 
 # For generating a setup script for a bash shell (for example, "bash generate > setup").
@@ -545,7 +530,7 @@ $(OUT)/$(BIN_DIR)/generate:	Makefile
 	echo 'echo export LD_DRIVER_PATH=$$COM_DIAG_$(SYMBOL)_ROOT/../drv' >> $@
 	echo 'echo export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:$$COM_DIAG_$(SYMBOL)_ROOT/../lib' >> $@
 	echo 'echo export LD_MODULE_PATH=$$COM_DIAG_$(SYMBOL)_ROOT/../mod' >> $@
-	echo 'echo export COM_DIAG$(SYMBOL)LOG_MASK=0xffff' >> $@
+	echo 'echo export COM_DIAG_$(SYMBOL)_LOG_MASK=0xffff' >> $@
 	chmod 755 $@
 
 $(OUT)/$(SYM_DIR)/generate:	Makefile
@@ -555,7 +540,7 @@ $(OUT)/$(SYM_DIR)/generate:	Makefile
 	echo 'echo export LD_DRIVER_PATH=$$COM_DIAG_$(SYMBOL)_ROOT/../drv' >> $@
 	echo 'echo export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:$$COM_DIAG_$(SYMBOL)_ROOT/../lib' >> $@
 	echo 'echo export LD_MODULE_PATH=$$COM_DIAG_$(SYMBOL)_ROOT/../mod' >> $@
-	echo 'echo export COM_DIAG$(SYMBOL)LOG_MASK=0xffff' >> $@
+	echo 'echo export COM_DIAG_$(SYMBOL)_LOG_MASK=0xffff' >> $@
 	chmod 755 $@
 
 ########## Helpers
@@ -639,7 +624,13 @@ $(OUT)/%:	%.sh
 	D=`dirname $@`; mkdir -p $$D
 	cp $< $@
 	chmod 755 $@
-	
+
+$(OUT)/%.c:	%.y
+	bison -t -d -v -o %@ %<
+
+$(OUT)/%.c:	%.l
+	flex -o %@ $<
+
 .SECONDARY:
 
 $(OUT)/$(BIN_DIR)/%:	$(OUT)/$(SYM_DIR)/%
