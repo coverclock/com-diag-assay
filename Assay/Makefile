@@ -364,8 +364,6 @@ $(OUT)/$(GEN_DIR)/vintage.c:	$(TARGETSYNTHESIZED) Makefile
 	echo '#include "com/diag/$(PROJECT)/$(PROJECT)_release.h"' >> $@
 	echo '#include "com/diag/$(PROJECT)/$(PROJECT)_vintage.h"' >> $@
 	echo '#include "com/diag/$(PROJECT)/$(PROJECT)_vintage.h"' >> $@
-	echo '#include "com/diag/$(PROJECT)/$(PROJECT)_platform.h"' >> $@
-	echo '#include "com/diag/$(PROJECT)/$(PROJECT)_platform.h"' >> $@
 	echo '#include <stdio.h>' >> $@
 	echo '#include <assert.h>' >> $@
 	echo 'static const char METADATA[] =' >> $@
@@ -381,7 +379,6 @@ $(OUT)/$(GEN_DIR)/vintage.c:	$(TARGETSYNTHESIZED) Makefile
 	echo '    "Arch = $(ARCH)\n"' >> $@
 	echo '    "Target = $(TARGET)\n"' >> $@
 	echo '    "Os = $(OS)\n"' >> $@
-	echo '    "Platform = " COM_DIAG_$(SYMBOL)_PLATFORM "\n"' >> $@
 	echo '    "Toolchain = $(TOOLCHAIN)\n"' >> $@
 	echo '    "User = $(USER)\n"' >> $@
 	echo ';' >> $@
@@ -389,29 +386,21 @@ $(OUT)/$(GEN_DIR)/vintage.c:	$(TARGETSYNTHESIZED) Makefile
 	echo 'extern const char * COM_DIAG_$(SYMBOL)_RELEASE_VALUE;' >> $@
 	echo 'extern const char COM_DIAG_$(SYMBOL)_VINTAGE_KEYWORD[];' >> $@
 	echo 'extern const char * COM_DIAG_$(SYMBOL)_VINTAGE_VALUE;' >> $@
-	echo 'extern const char COM_DIAG_$(SYMBOL)_PLATFORM_KEYWORD[];' >> $@
-	echo 'extern const char * COM_DIAG_$(SYMBOL)_PLATFORM_VALUE;' >> $@
 	echo 'int main(void) {' >> $@
 	echo '    const char * release_keyword = (const char *)0;' >> $@
 	echo '    const char * release_value = (const char *)0;' >> $@
 	echo '    const char * vintage_keyword = (const char *)0;' >> $@
 	echo '    const char * vintage_value = (const char *)0;' >> $@
-	echo '    const char * platform_keyword = (const char *)0;' >> $@
-	echo '    const char * platform_value = (const char *)0;' >> $@
 	echo '    fputs(METADATA, stderr);' >> $@
 	echo '    fputs("$(MAJOR).$(MINOR).$(BUILD)\n", stdout);' >> $@
 	echo '    release_keyword = COM_DIAG_$(SYMBOL)_RELEASE_KEYWORD;' >> $@
 	echo '    release_value = COM_DIAG_$(SYMBOL)_RELEASE_VALUE;' >> $@
 	echo '    vintage_keyword = COM_DIAG_$(SYMBOL)_VINTAGE_KEYWORD;' >> $@
 	echo '    vintage_value = COM_DIAG_$(SYMBOL)_VINTAGE_VALUE;' >> $@
-	echo '    platform_keyword = COM_DIAG_$(SYMBOL)_PLATFORM_KEYWORD;' >> $@
-	echo '    platform_value = COM_DIAG_$(SYMBOL)_PLATFORM_VALUE;' >> $@
 	echo '    assert(release_keyword != (const char *)0);' >> $@
 	echo '    assert(release_value != (const char *)0);' >> $@
 	echo '    assert(vintage_keyword != (const char *)0);' >> $@
 	echo '    assert(vintage_value != (const char *)0);' >> $@
-	echo '    assert(platform_keyword != (const char *)0);' >> $@
-	echo '    assert(platform_value != (const char *)0);' >> $@
 	echo '    return 0;' >> $@
 	echo '}' >> $@
 
@@ -425,8 +414,6 @@ $(OUT)/$(GEN_DIR)/vintage.c:	$(TARGETSYNTHESIZED) Makefile
 	echo '#include "com/diag/$(PROJECT)/$(PROJECT)_release.h"' >> $@
 	echo '#include "com/diag/$(PROJECT)/$(PROJECT)_vintage.h"' >> $@
 	echo '#include "com/diag/$(PROJECT)/$(PROJECT)_vintage.h"' >> $@
-	echo '#include "com/diag/$(PROJECT)/$(PROJECT)_platform.h"' >> $@
-	echo '#include "com/diag/$(PROJECT)/$(PROJECT)_platform.h"' >> $@
 	echo '#include <stdio.h>' >> $@
 	echo '#include <assert.h>' >> $@
 	echo 'static const char METADATA[] =' >> $@
@@ -442,7 +429,6 @@ $(OUT)/$(GEN_DIR)/vintage.c:	$(TARGETSYNTHESIZED) Makefile
 	echo '    "Arch = $(ARCH)\\n"' >> $@
 	echo '    "Target = $(TARGET)\\n"' >> $@
 	echo '    "Os = $(OS)\\n"' >> $@
-	echo '    "Platform = " COM_DIAG_$(SYMBOL)_PLATFORM "\\n"' >> $@
 	echo '    "Toolchain = $(TOOLCHAIN)\\n"' >> $@
 	echo '    "User = $(USER)\\n"' >> $@
 	echo ';' >> $@
@@ -450,29 +436,21 @@ $(OUT)/$(GEN_DIR)/vintage.c:	$(TARGETSYNTHESIZED) Makefile
 	echo 'extern const char * COM_DIAG_$(SYMBOL)_RELEASE_VALUE;' >> $@
 	echo 'extern const char COM_DIAG_$(SYMBOL)_VINTAGE_KEYWORD[];' >> $@
 	echo 'extern const char * COM_DIAG_$(SYMBOL)_VINTAGE_VALUE;' >> $@
-	echo 'extern const char COM_DIAG_$(SYMBOL)_PLATFORM_KEYWORD[];' >> $@
-	echo 'extern const char * COM_DIAG_$(SYMBOL)_PLATFORM_VALUE;' >> $@
 	echo 'int main(void) {' >> $@
 	echo '    const char * release_keyword = (const char *)0;' >> $@
 	echo '    const char * release_value = (const char *)0;' >> $@
 	echo '    const char * vintage_keyword = (const char *)0;' >> $@
 	echo '    const char * vintage_value = (const char *)0;' >> $@
-	echo '    const char * platform_keyword = (const char *)0;' >> $@
-	echo '    const char * platform_value = (const char *)0;' >> $@
 	echo '    fputs(METADATA, stderr);' >> $@
 	echo '    fputs("$(MAJOR).$(MINOR).$(BUILD)\\n", stdout);' >> $@
 	echo '    release_keyword = COM_DIAG_$(SYMBOL)_RELEASE_KEYWORD;' >> $@
 	echo '    release_value = COM_DIAG_$(SYMBOL)_RELEASE_VALUE;' >> $@
 	echo '    vintage_keyword = COM_DIAG_$(SYMBOL)_VINTAGE_KEYWORD;' >> $@
 	echo '    vintage_value = COM_DIAG_$(SYMBOL)_VINTAGE_VALUE;' >> $@
-	echo '    platform_keyword = COM_DIAG_$(SYMBOL)_PLATFORM_KEYWORD;' >> $@
-	echo '    platform_value = COM_DIAG_$(SYMBOL)_PLATFORM_VALUE;' >> $@
 	echo '    assert(release_keyword != (const char *)0);' >> $@
 	echo '    assert(release_value != (const char *)0);' >> $@
 	echo '    assert(vintage_keyword != (const char *)0);' >> $@
 	echo '    assert(vintage_value != (const char *)0);' >> $@
-	echo '    assert(platform_keyword != (const char *)0);' >> $@
-	echo '    assert(platform_value != (const char *)0);' >> $@
 	echo '    return 0;' >> $@
 	echo '}' >> $@
 
