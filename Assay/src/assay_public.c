@@ -176,12 +176,29 @@ assay_section_t * assay_section_seek(assay_config_t * cfp, const char * section)
 
 assay_section_t * assay_section_first(assay_config_t * cfp)
 {
-    return 0;
+    assay_section_t * scp;
+    diminuto_tree_t * treep;
+
+    if ((treep = diminuto_tree_first(&(cfp->sections))) == DIMINUTO_TREE_NULL) {
+        scp = (assay_section_t *)0;
+    } else {
+        scp = diminuto_containerof(assay_section_t, tree, treep);
+    }
+
+    return scp;
 }
 
 assay_section_t * assay_section_next(assay_section_t * scp)
 {
-    return 0;
+    diminuto_tree_t * treep;
+
+    if ((treep = diminuto_tree_next(&(scp->tree))) == DIMINUTO_TREE_NULL) {
+        scp = (assay_section_t *)0;
+    } else {
+        scp = diminuto_containerof(assay_section_t, tree, treep);
+    }
+
+    return scp;
 }
 
 assay_section_t * assay_section_remove(assay_section_t * scp)
@@ -210,12 +227,14 @@ assay_property_t * assay_property_seek(assay_section_t * scp, const char * key)
 	assay_property_t * prp;
     int rc;
 
-    if (diminuto_tree_isempty(&(scp->properties))) {
+    if (scp == (assay_section_t *)0) {
+        prp = (assay_property_t *)0;
+    } else if (diminuto_tree_isempty(&(scp->properties))) {
         prp = (assay_property_t *)0;
     } else {
         prp = assay_property_find_close(diminuto_containerof(assay_property_t, tree, scp->properties), key, &rc);
         if (rc != 0) {
-        	prp = (assay_property_t *)0;
+            prp = (assay_property_t *)0;
         }
     }
 
@@ -224,12 +243,31 @@ assay_property_t * assay_property_seek(assay_section_t * scp, const char * key)
 
 assay_property_t * assay_property_first(assay_section_t * scp)
 {
-    return 0;
+    assay_property_t * prp;
+    diminuto_tree_t * treep;
+
+    if (scp == (assay_section_t *)0) {
+        prp = (assay_property_t *)0;
+    } else if ((treep = diminuto_tree_first(&(scp->properties))) == DIMINUTO_TREE_NULL) {
+        prp = (assay_property_t *)0;
+    } else {
+        prp = diminuto_containerof(assay_property_t, tree, treep);
+    }
+
+    return prp;
 }
 
 assay_property_t * assay_property_next(assay_property_t * prp)
 {
-    return 0;
+    diminuto_tree_t * treep;
+
+    if ((treep = diminuto_tree_next(&(prp->tree))) == DIMINUTO_TREE_NULL) {
+        prp = (assay_property_t *)0;
+    } else {
+        prp = diminuto_containerof(assay_property_t, tree, treep);
+    }
+
+    return prp;
 }
 
 assay_property_t * assay_property_remove(assay_property_t * prp)
