@@ -3,6 +3,7 @@
 	<name>Assay</name>
 	<comment></comment>
 	<projects>
+		<project>Diminuto</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
