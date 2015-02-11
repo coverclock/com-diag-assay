@@ -70,12 +70,21 @@
     ABSTRACT
 
     This file is part of the Digital Aggregates Corporation Assay package.
+    Assay is a C library that provides functions to parse a configuration file
+    in yet one more variation on the widely used and under specified INI
+    format. The syntax of this particular format is specified by an LALR(1)
+    grammar. Portions of the C code, specifically its lexical scanner and
+    shift-reduce parser, are generated using the Flex (Lex) and Bison (Yacc)
+    tools. Assay is built on top of the Diminuto library of GNU/Linux-based
+    software tools.
 
     This software is an original work of its author(s).
 
-    Information regarding Assay can be found here:
+    Information regarding Assay and Diminuto can be found here:
 
         http://www.diag.com/navigation/downloads/Assay.html
+
+        http://www.diag.com/navigation/downloads/Diminuto.html
 
     Contact:
 

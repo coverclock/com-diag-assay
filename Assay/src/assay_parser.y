@@ -50,23 +50,23 @@ section_string:     section_init
 section:            LB section_string RB    { assay_parser_section_end(); }
                     ;
 
-keyword_char:       CH                      { assay_parser_keyword_next($1); }
-                    | ESC                   { assay_parser_keyword_next($1); }
+key_char:           CH                      { assay_parser_key_next($1); }
+                    | ESC                   { assay_parser_key_next($1); }
                     ;
 
-keyword_tail:       keyword_char
-                    | keyword_char keyword_tail
+key_tail:           key_char
+                    | key_char key_tail
                     ;
 
-keyword_init:       CH                      { assay_parser_keyword_begin($1); }
-                    | ESC                   { assay_parser_keyword_begin($1); }
+key_init:           CH                      { assay_parser_key_begin($1); }
+                    | ESC                   { assay_parser_key_begin($1); }
                     ;
 
-keyword_string:     keyword_init
-                    | keyword_init keyword_tail
+key_string:         key_init
+                    | key_init key_tail
                     ;
 
-keyword:            keyword_string          { assay_parser_keyword_end(); }
+key:                key_string              { assay_parser_key_end(); }
                     ;
 
 value_char:         CH                      { assay_parser_value_next($1); }
@@ -93,7 +93,7 @@ assignment_tail:    EQ
                     | EQ value
                     ;
 
-assignment:         keyword assignment_tail
+assignment:         key assignment_tail
                     ;
 
 comment_char:       CH

@@ -1,5 +1,5 @@
-# Copyright 2008-2014 Digital Aggregates Corporation
-# Licensed under the terms in README.hz
+# Copyright 2015 Digital Aggregates Corporation
+# Licensed under the terms in README.h
 # author:Chip Overclock
 # mailto:coverclock@diag.com
 # http://www.diag.com/navigation/downloads/Diminuto.html
@@ -11,10 +11,7 @@
 ARCH				:=	arm
 OS					:=	linux
 TOOLCHAIN			:=	$(ARCH)-$(OS)-gnueabihf-
-KERNELCHAIN			:=	$(TOOLCHAIN)
-KERNEL_REV			:=	3.10.24-jetson
-KERNEL_DIR			:=	$(ROOT_DIR)/linux-$(KERNEL_REV)
-CPPARCH				:=	-isystem $(ROOT_DIR)/linux-headers-$(KERNEL_REV)/include
+CPPARCH				:=	
 CARCH				:=	-rdynamic -fno-omit-frame-pointer -funwind-tables -fPIC
 CXXARCH				:=	$(CARCH)
 LDARCH				:=	-Bdynamic -L$(OUT)/$(LIB_DIR)

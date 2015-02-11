@@ -92,6 +92,20 @@ A2SOXXARCH			:=	-shared -Wl,-soname,lib$(PROJECT)xx.$(SO).$(MAJOR).$(MINOR).$(BU
 
 include $(CFG_DIR)/$(TARGET).mk
 
+########## Diminuto Configuration
+
+DIMINUTO_TITLE		:=	Diminuto
+
+DIMINUTO_PROJECT	:=	$(shell echo $(DIMINUTO_TITLE) | tr '[A-Z]' '[a-z]')
+DIMINUTO_SYMBOL		:=	$(shell echo $(DIMINUTO_TITLE) | tr '[a-z]' '[A-Z]')
+
+DIMINUTO_ROOT		:=	$(HOME)/src/$(DIMINUTO_TITLE)/$(DIMINUTO_TITLE)
+DIMINUTO_HEADERS	:=	$(DIMINUTO_ROOT)/$(INC_DIR)
+DIMINUTO_LIBRARIES	:=	$(DIMINUTO_ROOT)/$(OUT)/$(LIB_DIR)
+
+DIMINUTO_CPPFLAGS	:=	-iquote $(DIMINUTO_HEADERS)
+DIMINUTO_LDFLAGS	:=	-L$(DIMINUTO_LIBRARIES) -l$(DIMINUTO_PROJECT) -lpthread -lrt -ldl -lm
+
 ########## Commands and Option Flags
 
 PROJECT_A			:=	lib$(PROJECT).a
@@ -111,7 +125,7 @@ CDEFINES			:=
 
 ARFLAGS				:=	crsv
 #CPPFLAGS			:=	$(CDEFINES) -I $(SRC_DIR) -I $(INC_DIR) -I $(OUT)/$(INC_DIR) $(CPPARCH)
-CPPFLAGS			:=	$(CDEFINES) -iquote $(OUT)/$(GEN_DIR) -iquote $(SRC_DIR) -iquote $(INC_DIR) -iquote $(OUT)/$(INC_DIR) $(CPPARCH)
+CPPFLAGS			:=	$(CDEFINES) -iquote $(OUT)/$(GEN_DIR) -iquote $(SRC_DIR) -iquote $(INC_DIR) -iquote $(OUT)/$(INC_DIR) $(DIMINUTO_CPPFLAGS) $(CPPARCH)
 CFLAGS				:=	$(CARCH) -g
 #CFLAGS				:=	$(CARCH) -g -fprofile-arcs -ftest-coverage
 #CFLAGS				:=	$(CARCH) -O3
@@ -120,7 +134,7 @@ CXXFLAGS			:=	$(CXXARCH) -g
 #CXXFLAGS			:=	$(CXXARCH) -O3
 CPFLAGS				:=	-i
 MVFLAGS				:=	-i
-LDFLAGS				:=	$(LDARCH) -l$(PROJECT) $(LDLIBRARIES)
+LDFLAGS				:=	$(LDARCH) -l$(PROJECT) $(LDLIBRARIES) $(DIMINUTO_LDFLAGS)
 LDXXFLAGS			:=	$(LDARCH) -l$(PROJECT)xx -l$(PROJECT) $(LDXXLIBRARIES)
 MOFLAGS				:=	$(MOARCH) -l$(PROJECT) $(LDLIBRARIES)
 MOXXFLAGS			:=	$(MOARCH) -l$(PROJECT)xx -l$(PROJECT) $(LDXXLIBRARIES)

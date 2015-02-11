@@ -9,8 +9,23 @@
  */
 
 #include "assay_parser.h"
+#include <stdio.h>
 #include <string.h>
 #include "com/diag/assay/assay_scanner.h"
+
+/******************************************************************************/
+
+static int debug = 0;
+
+int assay_scanner_debug(int enable)
+{
+    int was;
+    was = debug;
+    debug = enable;
+    return was;
+}
+
+/******************************************************************************/
 
 const char * assay_scanner_token2name(int token)
 {
@@ -53,6 +68,10 @@ int assay_scanner_text2value(const char * text)
         case 'r': value = '\r';      break;
         default:  value = text[1]; break;
         }
+    }
+
+    if (debug) {
+        fprintf(stderr, "assay_scanner: \"%s\" 0x%2.2x\n", text, value);
     }
 
     return value;

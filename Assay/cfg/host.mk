@@ -1,5 +1,5 @@
 # Copyright 2015 Digital Aggregates Corporation
-# Licensed under the terms in README.hz
+# Licensed under the terms in README.h
 # author:Chip Overclock
 # mailto:coverclock@diag.com
 # http://www.diag.com/navigation/downloads/Assay.html
@@ -11,10 +11,7 @@
 ARCH				:=	x86_64
 OS					:=	linux
 TOOLCHAIN			:=
-KERNELCHAIN			:=
-KERNEL_REV			:=	3.13.0-24
-KERNEL_DIR			:=	$(HOME_DIR)/host/linux-source-3.13.0
-CPPARCH				:=	-isystem /usr/src/linux-headers-$(KERNEL_REV)-generic
+CPPARCH				:=	
 CARCH				:=	-rdynamic -fPIC
 CXXARCH				:=	$(CARCH)
 LDARCH				:=	-L$(OUT)/$(LIB_DIR)
