@@ -31,6 +31,7 @@ struct AssaySection {
 
 struct AssayConfig {
     diminuto_tree_t *   sections;
+    assay_property_t *  property;
 };
 
 #endif

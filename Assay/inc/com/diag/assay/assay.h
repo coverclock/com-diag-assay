@@ -29,7 +29,7 @@
 
 #include <stddef.h>
 
-/******************************************************************************/
+/* OPAQUE TYPES ***************************************************************/
 
 struct AssayConfig;
 typedef struct AssayConfig assay_config_t;
@@ -40,15 +40,17 @@ typedef struct AssaySection assay_section_t;
 struct AssayProperty;
 typedef struct AssayProperty assay_property_t;
 
-/******************************************************************************/
+/* CONFIG PRIMITIVES **********************************************************/
 
 extern assay_config_t * assay_config_create(void);
 
 extern assay_config_t * assay_config_load(assay_config_t * cfp, FILE * fp);
 
-extern void assay_config_delete(assay_config_t * cfp);
+extern void assay_config_destroy(assay_config_t * cfp);
 
-/******************************************************************************/
+/* SECTION PRIMITIVES *********************************************************/
+
+extern assay_section_t * assay_section_create(assay_config_t * cfp, const char * section);
 
 extern assay_section_t * assay_section_seek(assay_config_t * cfp, const char * section);
 
@@ -56,11 +58,9 @@ extern assay_section_t * assay_section_first(assay_config_t * cfp);
 
 extern assay_section_t * assay_section_next(assay_section_t * scp);
 
-extern assay_section_t * assay_section_create(assay_config_t * cfp, const char * section);
+/* PROPERTY PRIMITIVES ********************************************************/
 
-extern assay_section_t * assay_section_remove(assay_section_t * scp);
-
-/******************************************************************************/
+extern assay_property_t * assay_property_create(assay_section_t * scp, const char * key);
 
 extern assay_property_t * assay_property_seek(assay_section_t * scp, const char * key);
 
@@ -68,19 +68,23 @@ extern assay_property_t * assay_property_first(assay_section_t * scp);
 
 extern assay_property_t * assay_property_next(assay_property_t * prp);
 
-extern assay_property_t * assay_property_create(assay_section_t * scp, const char * key);
+extern void assay_property_destroy(assay_property_t * prp);
 
-extern assay_property_t * assay_property_remove(assay_property_t * prp);
-
-/******************************************************************************/
+/* KEY PRIMITIVES *************************************************************/
 
 extern const char * assay_key_get(assay_property_t * prp);
 
-/******************************************************************************/
+/* VALUE PRIMITIVES ***********************************************************/
 
 extern const char * assay_value_get(assay_property_t * prp, size_t * lengthp);
 
 extern assay_property_t * assay_value_set(assay_property_t * prp, const char * value, size_t length);
+
+/* CONFIG COMPOSITES **********************************************************/
+
+extern const char * assay_config_get(assay_config_t * cfp, const char * section, const char * key);
+
+extern const char * assay_config_set(assay_config_t * cfp, const char * section, const char * key, const char * value);
 
 /******************************************************************************/
 
