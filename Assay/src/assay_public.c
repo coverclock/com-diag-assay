@@ -21,44 +21,6 @@ typedef enum AssayAction {
     RIGHT,
 } assay_action_t;
 
-/* HELPERS ********************************************************************/
-
-static assay_section_t * assay_section_find_close(assay_section_t * scp, const char * section, int * rcp)
-{
-    *rcp = strcmp(scp->section, section);
-    if (*rcp < 0) {
-        if (!diminuto_tree_isleaf(scp->tree.right)) {
-            scp = assay_section_find_close(diminuto_containerof(assay_section_t, tree, scp->tree.right), section, rcp);
-        }
-    } else if (*rcp > 0) {
-        if (!diminuto_tree_isleaf(scp->tree.left)) {
-            scp = assay_section_find_close(diminuto_containerof(assay_section_t, tree, scp->tree.left), section, rcp);
-        }
-    } else {
-        /* Do nothing. */
-    }
-
-    return scp;
-}
-
-static assay_property_t * assay_property_find_close(assay_property_t * prp, const char * key, int * rcp)
-{
-    *rcp = strcmp(prp->key, key);
-    if (*rcp < 0) {
-        if (!diminuto_tree_isleaf(prp->tree.right)) {
-            prp = assay_property_find_close(diminuto_containerof(assay_property_t, tree, prp->tree.right), key, rcp);
-        }
-    } else if (*rcp > 0) {
-        if (!diminuto_tree_isleaf(prp->tree.left)) {
-            prp = assay_property_find_close(diminuto_containerof(assay_property_t, tree, prp->tree.left), key, rcp);
-        }
-    } else {
-        /* Do nothing. */
-    }
-
-    return prp;
-}
-
 /* CONFIG PRIMITIVES **********************************************************/
 
 assay_config_t * assay_config_create(void)
@@ -67,6 +29,7 @@ assay_config_t * assay_config_create(void)
 
     cfp = (assay_config_t *)malloc(sizeof(assay_config_t));
     cfp->sections = DIMINUTO_TREE_EMPTY;
+    cfp->cache = (assay_property_t *)0;
 
     return cfp;
 }
@@ -98,6 +61,24 @@ void assay_config_destroy(assay_config_t * cfp)
 }
 
 /* SECTION PRIMITIVES *********************************************************/
+
+static assay_section_t * assay_section_find_close(assay_section_t * scp, const char * section, int * rcp)
+{
+    *rcp = strcmp(scp->section, section);
+    if (*rcp < 0) {
+        if (!diminuto_tree_isleaf(scp->tree.right)) {
+            scp = assay_section_find_close(diminuto_containerof(assay_section_t, tree, scp->tree.right), section, rcp);
+        }
+    } else if (*rcp > 0) {
+        if (!diminuto_tree_isleaf(scp->tree.left)) {
+            scp = assay_section_find_close(diminuto_containerof(assay_section_t, tree, scp->tree.left), section, rcp);
+        }
+    } else {
+        /* Do nothing. */
+    }
+
+    return scp;
+}
 
 assay_section_t * assay_section_create(assay_config_t * cfp, const char * section)
 {
@@ -149,12 +130,10 @@ assay_section_t * assay_section_create(assay_config_t * cfp, const char * sectio
 
 assay_section_t * assay_section_seek(assay_config_t * cfp, const char * section)
 {
-    assay_section_t * scp;
+    assay_section_t * scp = (assay_section_t *)0;
     int rc;
 
-    if (diminuto_tree_isempty(&(cfp->sections))) {
-        scp = (assay_section_t *)0;
-    } else {
+    if (!diminuto_tree_isempty(&(cfp->sections))) {
         scp = assay_section_find_close(diminuto_containerof(assay_section_t, tree, cfp->sections), section, &rc);
         if (rc != 0) {
             scp = (assay_section_t *)0;
@@ -166,12 +145,10 @@ assay_section_t * assay_section_seek(assay_config_t * cfp, const char * section)
 
 assay_section_t * assay_section_first(assay_config_t * cfp)
 {
-    assay_section_t * scp;
+    assay_section_t * scp = (assay_section_t *)0;
     diminuto_tree_t * treep;
 
-    if ((treep = diminuto_tree_first(&(cfp->sections))) == DIMINUTO_TREE_NULL) {
-        scp = (assay_section_t *)0;
-    } else {
+    if ((treep = diminuto_tree_first(&(cfp->sections))) != DIMINUTO_TREE_NULL) {
         scp = diminuto_containerof(assay_section_t, tree, treep);
     }
 
@@ -196,6 +173,24 @@ assay_section_t * assay_section_next(assay_section_t * scp)
 /* (There is deliberately no assay_section_destroy function. */
 
 /* PROPERTY PRIMITIVES ********************************************************/
+
+static assay_property_t * assay_property_find_close(assay_property_t * prp, const char * key, int * rcp)
+{
+    *rcp = strcmp(prp->key, key);
+    if (*rcp < 0) {
+        if (!diminuto_tree_isleaf(prp->tree.right)) {
+            prp = assay_property_find_close(diminuto_containerof(assay_property_t, tree, prp->tree.right), key, rcp);
+        }
+    } else if (*rcp > 0) {
+        if (!diminuto_tree_isleaf(prp->tree.left)) {
+            prp = assay_property_find_close(diminuto_containerof(assay_property_t, tree, prp->tree.left), key, rcp);
+        }
+    } else {
+        /* Do nothing. */
+    }
+
+    return prp;
+}
 
 assay_property_t * assay_property_create(assay_section_t * scp, const char * key)
 {
@@ -251,13 +246,13 @@ assay_property_t * assay_property_create(assay_section_t * scp, const char * key
 
 assay_property_t * assay_property_seek(assay_section_t * scp, const char * key)
 {
-	assay_property_t * prp;
+	assay_property_t * prp = (assay_property_t *)0;
     int rc;
 
     if (scp == (assay_section_t *)0) {
-        prp = (assay_property_t *)0;
+        /* Do nothing. */
     } else if (diminuto_tree_isempty(&(scp->properties))) {
-        prp = (assay_property_t *)0;
+        /* Do nothing. */
     } else {
         prp = assay_property_find_close(diminuto_containerof(assay_property_t, tree, scp->properties), key, &rc);
         if (rc != 0) {
@@ -270,13 +265,13 @@ assay_property_t * assay_property_seek(assay_section_t * scp, const char * key)
 
 assay_property_t * assay_property_first(assay_section_t * scp)
 {
-    assay_property_t * prp;
+    assay_property_t * prp = (assay_property_t *)0;
     diminuto_tree_t * treep;
 
     if (scp == (assay_section_t *)0) {
-        prp = (assay_property_t *)0;
-    } else if ((treep = diminuto_tree_first(&(scp->properties))) == DIMINUTO_TREE_NULL) {
-        prp = (assay_property_t *)0;
+        /* Do nothing. */
+   } else if ((treep = diminuto_tree_first(&(scp->properties))) == DIMINUTO_TREE_NULL) {
+       /* Do nothing. */
     } else {
         prp = diminuto_containerof(assay_property_t, tree, treep);
     }
@@ -302,6 +297,9 @@ assay_property_t * assay_property_next(assay_property_t * prp)
 void assay_property_destroy(assay_property_t * prp)
 {
     if (prp != (assay_property_t *)0) {
+        if (prp->section->config->cache == prp) {
+            prp->section->config->cache = (assay_property_t *)0;
+        }
         diminuto_tree_remove(&(prp->tree));
         free((void *)(prp->key));
         free(prp->value);
@@ -313,11 +311,9 @@ void assay_property_destroy(assay_property_t * prp)
 
 const char * assay_key_get(assay_property_t * prp)
 {
-    const char * key;
+    const char * key = (const char *)0;
 
-    if (prp == (assay_property_t *)0) {
-        key = (const char *)0;
-    } else {
+    if (prp != (assay_property_t *)0) {
         key = prp->key;
     }
 
@@ -328,10 +324,10 @@ const char * assay_key_get(assay_property_t * prp)
 
 const char * assay_value_get(assay_property_t * prp, size_t * lengthp)
 {
-    const char * value;
+    const char * value = (const char *)0;
 
     if (prp == (assay_property_t *)0) {
-        value = (const char *)0;
+        /* Do nothing. */
     } if ((value = (const char *)prp->value) == (void *)0) {
         /* Do nothing. */
     } else if (lengthp == (size_t *)0) {
@@ -359,10 +355,52 @@ assay_property_t * assay_value_set(assay_property_t * prp, const char * value, s
 
 const char * assay_config_get(assay_config_t * cfp, const char * section, const char * key)
 {
+    const char * value = (const char *)0;
+    assay_property_t * prp;
+    assay_section_t * scp;
 
+    if ((scp = assay_section_seek(cfp, section)) == (assay_section_t *)0) {
+        /* Do nothing. */
+    } else if ((prp = assay_property_seek(scp, key)) == (assay_property_t *)0) {
+        /* Do nothing. */
+    } else {
+        value = prp->value;
+        prp->section->config->cache = prp;
+    }
+
+    return value;
 }
 
-const char * assay_config_set(assay_config_t * cfp, const char * section, const char * key, const char * value)
+int assay_config_set(assay_config_t * cfp, const char * section, const char * key, const char * value)
 {
+    assay_property_t * prp = (assay_property_t *)0;
+    assay_section_t * scp;
+
+    if (cfp->cache == (assay_property_t *)0) {
+        /* Do nothing. */
+    } else if (strcmp(cfp->cache->section->section, section) != 0) {
+        /* Do nothing. */
+    } else if (strcmp(cfp->cache->key, key) != 0) {
+        /* Do nothing. */
+    } else {
+        prp = cfp->cache;
+    }
+
+    if (prp != (assay_property_t *)0) {
+        /* Do nothing. */
+    } else if ((scp = assay_section_seek(cfp, section)) == (assay_section_t *)0) {
+        /* Do nothing. */
+    } else if ((prp = assay_property_seek(scp, key)) == (assay_property_t *)0) {
+        /* Do nothing. */
+    } else {
+        /* Do nothing. */
+    }
+
+    if (prp != (assay_property_t *)0) {
+        assay_value_set(prp, value, strlen(value) + 1);
+        return !0;
+    }
+
+    return 0;
 
 }

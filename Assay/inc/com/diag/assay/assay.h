@@ -84,7 +84,7 @@ extern assay_property_t * assay_value_set(assay_property_t * prp, const char * v
 
 extern const char * assay_config_get(assay_config_t * cfp, const char * section, const char * key);
 
-extern const char * assay_config_set(assay_config_t * cfp, const char * section, const char * key, const char * value);
+extern int assay_config_set(assay_config_t * cfp, const char * section, const char * key, const char * value);
 
 /******************************************************************************/
 
