@@ -398,16 +398,16 @@ const char * assay_config_get(assay_config_t * cfp, const char * section, const 
         /* Do nothing. */
     } else {
         value = prp->value;
-        prp->section->config->cache = prp;
+        cfp->cache = prp;
     }
 
     return value;
 }
 
-int assay_config_set(assay_config_t * cfp, const char * section, const char * key, const char * value)
+void assay_config_set(assay_config_t * cfp, const char * section, const char * key, const char * value)
 {
     assay_property_t * prp = (assay_property_t *)0;
-    assay_section_t * scp;
+    assay_section_t * scp = (assay_section_t *)0;
 
     if (cfp->cache == (assay_property_t *)0) {
         /* Do nothing. */
@@ -417,25 +417,31 @@ int assay_config_set(assay_config_t * cfp, const char * section, const char * ke
         /* Do nothing. */
     } else {
         prp = cfp->cache;
+        scp = prp->section;
     }
 
-    if (prp != (assay_property_t *)0) {
+    if (scp != (assay_section_t *)0) {
         /* Do nothing. */
-    } else if ((scp = assay_section_seek(cfp, section)) == (assay_section_t *)0) {
-        /* Do nothing. */
-    } else if ((prp = assay_property_seek(scp, key)) == (assay_property_t *)0) {
+    } else if ((scp = assay_section_seek(cfp, section)) != (assay_section_t *)0) {
         /* Do nothing. */
     } else {
-        /* Do nothing. */
+        scp = assay_section_create(cfp, section);
     }
+
+    /* Invariant: scp points to the specified section. */
 
     if (prp != (assay_property_t *)0) {
-        assay_value_set(prp, value, strlen(value) + 1);
-        return !0;
+        /* Do nothing. */
+    } else if ((prp = assay_property_seek(scp, key)) != (assay_property_t *)0) {
+        cfp->cache = prp;
+    } else {
+        prp = assay_property_create(scp, key);
+        cfp->cache = prp;
     }
 
-    return 0;
+    /* Invariant: prp points to the specified property in the section. */
 
+    assay_value_set(prp, value, strlen(value) + 1);
 }
 
 /* AUDIT *********************************************************************/
