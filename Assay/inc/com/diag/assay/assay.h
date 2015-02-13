@@ -28,6 +28,7 @@
  */
 
 #include <stddef.h>
+#include <stdio.h>
 
 /* OPAQUE TYPES ***************************************************************/
 
@@ -54,9 +55,17 @@ extern assay_section_t * assay_section_create(assay_config_t * cfp, const char *
 
 extern assay_section_t * assay_section_seek(assay_config_t * cfp, const char * section);
 
+/* (There is deliberately no assay_section_destroy function. */
+
+/* SECTION ITERATORS **********************************************************/
+
 extern assay_section_t * assay_section_first(assay_config_t * cfp);
 
 extern assay_section_t * assay_section_next(assay_section_t * scp);
+
+extern assay_section_t * assay_section_prev(assay_section_t * scp);
+
+extern assay_section_t * assay_section_last(assay_config_t * cfp);
 
 /* PROPERTY PRIMITIVES ********************************************************/
 
@@ -64,19 +73,27 @@ extern assay_property_t * assay_property_create(assay_section_t * scp, const cha
 
 extern assay_property_t * assay_property_seek(assay_section_t * scp, const char * key);
 
+extern void assay_property_destroy(assay_property_t * prp);
+
+/* PROPERTY ITERATORS *********************************************************/
+
 extern assay_property_t * assay_property_first(assay_section_t * scp);
 
 extern assay_property_t * assay_property_next(assay_property_t * prp);
 
-extern void assay_property_destroy(assay_property_t * prp);
+extern assay_property_t * assay_property_prev(assay_property_t * prp);
 
-/* KEY PRIMITIVES *************************************************************/
+extern assay_property_t * assay_property_last(assay_section_t * scp);
+
+/* GETTORS ********************************************************************/
+
+extern const char * assay_section_get(assay_section_t * scp);
 
 extern const char * assay_key_get(assay_property_t * prp);
 
-/* VALUE PRIMITIVES ***********************************************************/
-
 extern const char * assay_value_get(assay_property_t * prp, size_t * lengthp);
+
+/* SETTORS ********************************************************************/
 
 extern assay_property_t * assay_value_set(assay_property_t * prp, const char * value, size_t length);
 
@@ -85,6 +102,10 @@ extern assay_property_t * assay_value_set(assay_property_t * prp, const char * v
 extern const char * assay_config_get(assay_config_t * cfp, const char * section, const char * key);
 
 extern int assay_config_set(assay_config_t * cfp, const char * section, const char * key, const char * value);
+
+/* AUDIT **********************************************************************/
+
+extern void * assay_config_audit(assay_config_t * cfp);
 
 /******************************************************************************/
 

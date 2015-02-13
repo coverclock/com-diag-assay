@@ -488,7 +488,7 @@ $(OUT)/$(BIN_DIR)/setup:	Makefile
 	echo 'export LD_DRIVER_PATH=$$COM_DIAG_$(SYMBOL)_ROOT/../drv' >> $@
 	echo 'export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:$$COM_DIAG_$(SYMBOL)_ROOT/../lib' >> $@
 	echo 'export LD_MODULE_PATH=$$COM_DIAG_$(SYMBOL)_ROOT/../mod' >> $@
-	echo 'export COM_DIAG_$(SYMBOL)_LOG_MASK=0xffff' >> $@
+	echo 'export COM_DIAG_DIMINUTO_LOG_MASK=0xffff' >> $@
 	chmod 644 $@
 
 $(OUT)/$(SYM_DIR)/setup:	Makefile
@@ -498,7 +498,7 @@ $(OUT)/$(SYM_DIR)/setup:	Makefile
 	echo 'export LD_DRIVER_PATH=$$COM_DIAG_$(SYMBOL)_ROOT/../drv' >> $@
 	echo 'export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:$$COM_DIAG_$(SYMBOL)_ROOT/../lib' >> $@
 	echo 'export LD_MODULE_PATH=$$COM_DIAG_$(SYMBOL)_ROOT/../mod' >> $@
-	echo 'export COM_DIAG_$(SYMBOL)_LOG_MASK=0xffff' >> $@
+	echo 'export COM_DIAG_DIMINUTO_LOG_MASK=0xffff' >> $@
 	chmod 644 $@
 
 # For generating a setup script for a bash shell (for example, "bash generate > setup").
@@ -510,7 +510,7 @@ $(OUT)/$(BIN_DIR)/generate:	Makefile
 	echo 'echo export LD_DRIVER_PATH=$$COM_DIAG_$(SYMBOL)_ROOT/../drv' >> $@
 	echo 'echo export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:$$COM_DIAG_$(SYMBOL)_ROOT/../lib' >> $@
 	echo 'echo export LD_MODULE_PATH=$$COM_DIAG_$(SYMBOL)_ROOT/../mod' >> $@
-	echo 'echo export COM_DIAG_$(SYMBOL)_LOG_MASK=0xffff' >> $@
+	echo 'echo export COM_DIAG_DIMINUTO_LOG_MASK=0xffff' >> $@
 	chmod 755 $@
 
 $(OUT)/$(SYM_DIR)/generate:	Makefile
@@ -520,7 +520,7 @@ $(OUT)/$(SYM_DIR)/generate:	Makefile
 	echo 'echo export LD_DRIVER_PATH=$$COM_DIAG_$(SYMBOL)_ROOT/../drv' >> $@
 	echo 'echo export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:$$COM_DIAG_$(SYMBOL)_ROOT/../lib' >> $@
 	echo 'echo export LD_MODULE_PATH=$$COM_DIAG_$(SYMBOL)_ROOT/../mod' >> $@
-	echo 'echo export COM_DIAG_$(SYMBOL)_LOG_MASK=0xffff' >> $@
+	echo 'echo export COM_DIAG_DIMINUTO_LOG_MASK=0xffff' >> $@
 	chmod 755 $@
 
 ########## Helpers
