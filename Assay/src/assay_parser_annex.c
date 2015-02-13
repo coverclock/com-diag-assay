@@ -37,6 +37,15 @@ int assay_parser_debug(int enable)
 
 /******************************************************************************/
 
+static void assay_parser_action_begin(assay_parser_action_t * ap)
+{
+    if (ap->buffer == (char *)0) {
+        ap->length = 64;
+        ap->buffer = malloc(ap->length);
+    }
+    ap->index = 0;
+}
+
 static void assay_parser_action_next(assay_parser_action_t * ap, int ch)
 {
     if (ap->index >= ap->length) {
@@ -50,16 +59,6 @@ static void assay_parser_action_next(assay_parser_action_t * ap, int ch)
     ap->buffer[ap->index++] = ch;
 }
 
-static void assay_parser_action_begin(assay_parser_action_t * ap, int ch)
-{
-    if (ap->buffer == (char *)0) {
-        ap->length = 64;
-        ap->buffer = malloc(ap->length);
-    }
-    ap->index = 0;
-    assay_parser_action_next(ap, ch);
-}
-
 static void assay_parser_action_end(assay_parser_action_t * ap)
 {
     assay_parser_action_next(ap, '\0');
@@ -69,9 +68,9 @@ static void assay_parser_action_end(assay_parser_action_t * ap)
 
 static assay_parser_action_t section = { 0 };
 
-void assay_parser_section_begin(int ch)
+void assay_parser_section_begin(void)
 {
-    assay_parser_action_begin(&section, ch);
+    assay_parser_action_begin(&section);
 }
 
 void assay_parser_section_next(int ch)
@@ -91,9 +90,9 @@ void assay_parser_section_end(void)
 
 static assay_parser_action_t key = { 0 };
 
-void assay_parser_key_begin(int ch)
+void assay_parser_key_begin(void)
 {
-    assay_parser_action_begin(&key, ch);
+    assay_parser_action_begin(&key);
 }
 
 void assay_parser_key_next(int ch)
@@ -113,9 +112,9 @@ void assay_parser_key_end(void)
 
 static assay_parser_action_t value = { 0 };
 
-void assay_parser_value_begin(int ch)
+void assay_parser_value_begin(void)
 {
-   assay_parser_action_begin(&value, ch);
+   assay_parser_action_begin(&value);
 }
 
 void assay_parser_value_next(int ch)
@@ -148,3 +147,8 @@ void assay_parser_value_end(void)
 }
 
 /******************************************************************************/
+
+void assay_parser_property_commit(void)
+{
+
+}

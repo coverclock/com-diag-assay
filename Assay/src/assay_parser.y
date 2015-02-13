@@ -31,62 +31,62 @@ whitespace:         SP
                     | whitespace SP
                     ;
 
-section_char:       CH                      { assay_parser_section_next($1); }
-                    |  ESC                  { assay_parser_section_next($1); }
+section_char:       CH                                                          { assay_parser_section_next($1); }
+                    |  ESC                                                      { assay_parser_section_next($1); }
                     ;
 
 section_tail:       section_char
                     | section_char section_tail
                     ;
 
-section_init:       CH                      { assay_parser_section_begin($1); }
-                    | ESC                   { assay_parser_section_begin($1); }
+section_init:       CH                                                          { assay_parser_section_begin(); assay_parser_section_next($1); }
+                    | ESC                                                       { assay_parser_section_begin(); assay_parser_section_next($1); }
                     ;
 
 section_string:     section_init
                     | section_init section_tail
                     ;
 
-section:            LB section_string RB    { assay_parser_section_end(); }
+section:            LB section_string RB                                        { assay_parser_section_end(); }
                     ;
 
-key_char:           CH                      { assay_parser_key_next($1); }
-                    | ESC                   { assay_parser_key_next($1); }
+key_char:           CH                                                          { assay_parser_key_next($1); }
+                    | ESC                                                       { assay_parser_key_next($1); }
                     ;
 
 key_tail:           key_char
                     | key_char key_tail
                     ;
 
-key_init:           CH                      { assay_parser_key_begin($1); }
-                    | ESC                   { assay_parser_key_begin($1); }
+key_init:           CH                                                          { assay_parser_key_begin(); assay_parser_key_next($1); assay_parser_value_begin(); assay_parser_value_end(); }
+                    | ESC                                                       { assay_parser_key_begin(); assay_parser_key_next($1); assay_parser_value_begin(); assay_parser_value_end(); }
                     ;
 
 key_string:         key_init
                     | key_init key_tail
                     ;
 
-key:                key_string              { assay_parser_key_end(); }
+key:                key_string                                                  { assay_parser_key_end(); }
                     ;
 
-value_char:         CH                      { assay_parser_value_next($1); }
-                    | ESC                   { assay_parser_value_next($1); }
-                    | SP                    { assay_parser_value_next($1); }
+value_char:         CH                                                          { assay_parser_value_next($1); }
+                    | ESC                                                       { assay_parser_value_next($1); }
+                    | SP                                                        { assay_parser_value_next($1); }
                     ;
 
 value_tail:         value_char
                     | value_char value_tail
                     ;
 
-value_init:         CH                      { assay_parser_value_begin($1); }
-                    | ESC                   { assay_parser_value_begin($1); }
+value_init:         CH                                                          { assay_parser_value_begin(); assay_parser_value_next($1); }
+                    | ESC                                                       { assay_parser_value_begin(); assay_parser_value_next($1); }
                     ;
 
 value_string:       value_init
                     | value_init value_tail
                     ;
 
-value:              value_string            { assay_parser_value_end(); }
+value:              value_string                                                { assay_parser_value_end(); }
                     ;
 
 assignment_tail:    EQ
@@ -119,24 +119,24 @@ statement:          EOL
                     | section comment EOL
                     | section whitespace EOL
                     | section whitespace comment EOL
-                    | section assignment EOL
-                    | section assignment comment EOL
-                    | section whitespace assignment EOL
-                    | section whitespace assignment comment EOL
-                    | assignment EOL
-                    | assignment comment EOL
+                    | section assignment EOL                                    { assay_parser_property_commit(); }
+                    | section assignment comment EOL                            { assay_parser_property_commit(); }
+                    | section whitespace assignment EOL                         { assay_parser_property_commit(); }
+                    | section whitespace assignment comment EOL                 { assay_parser_property_commit(); }
+                    | assignment EOL                                            { assay_parser_property_commit(); }
+                    | assignment comment EOL                                    { assay_parser_property_commit(); }
                     | whitespace EOL
                     | whitespace comment EOL
                     | whitespace section EOL
                     | whitespace section comment EOL
                     | whitespace section whitespace EOL
                     | whitespace section whitespace comment EOL
-                    | whitespace section assignment EOL
-                    | whitespace section assignment comment EOL
-                    | whitespace section whitespace assignment EOL
-                    | whitespace section whitespace assignment comment EOL
-                    | whitespace assignment EOL
-                    | whitespace assignment comment EOL
+                    | whitespace section assignment EOL                         { assay_parser_property_commit(); }
+                    | whitespace section assignment comment EOL                 { assay_parser_property_commit(); }
+                    | whitespace section whitespace assignment EOL              { assay_parser_property_commit(); }
+                    | whitespace section whitespace assignment comment EOL      { assay_parser_property_commit(); }
+                    | whitespace assignment EOL                                 { assay_parser_property_commit(); }
+                    | whitespace assignment comment EOL                         { assay_parser_property_commit(); }
                    ;
 
 statement_list:     statement

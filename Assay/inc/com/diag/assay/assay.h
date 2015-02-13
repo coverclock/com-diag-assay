@@ -30,6 +30,8 @@
 #include <stddef.h>
 #include <stdio.h>
 
+static const char ASSAY_SECTION_DEFAULT[] = "general";
+
 /* OPAQUE TYPES ***************************************************************/
 
 struct AssayConfig;
