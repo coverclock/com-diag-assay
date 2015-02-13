@@ -35,6 +35,11 @@ assay_config_t * assay_config_create(void)
     return cfp;
 }
 
+assay_property_t * assay_config_cached(assay_config_t * cfp)
+{
+    return cfp->cache;
+}
+
 assay_config_t * assay_config_load(assay_config_t * cfp, FILE * fp)
 {
     return 0;

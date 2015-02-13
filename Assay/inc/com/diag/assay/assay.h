@@ -45,6 +45,8 @@ typedef struct AssayProperty assay_property_t;
 
 extern assay_config_t * assay_config_create(void);
 
+extern assay_property_t * assay_config_cached(assay_config_t * cfp);
+
 extern assay_config_t * assay_config_load(assay_config_t * cfp, FILE * fp);
 
 extern void assay_config_destroy(assay_config_t * cfp);
