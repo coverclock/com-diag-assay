@@ -11,6 +11,8 @@
  * http://www.diag.com/navigation/downloads/Assay.html<BR>
  */
 
+static const char ASSAY_PARSER_SECTION_DEFAULT[] = "general";
+
 /******************************************************************************/
 
 extern int assay_parser_debug(int enable);

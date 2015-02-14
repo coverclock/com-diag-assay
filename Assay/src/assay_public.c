@@ -11,9 +11,34 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "assay.h"
+#include "com/diag/assay/assay.h"
+#include "com/diag/diminuto/diminuto_tree.h"
 #include "com/diag/diminuto/diminuto_containerof.h"
 #include "com/diag/diminuto/diminuto_log.h"
+
+/*******************************************************************************
+ * TYPES
+ ******************************************************************************/
+
+struct AssayProperty {
+    diminuto_tree_t     tree;
+    assay_section_t *   section;
+    const char *        key;
+    const void *        value;
+    size_t              length;
+};
+
+struct AssaySection {
+    diminuto_tree_t     tree;
+    assay_config_t *    config;
+    const char *        section;
+    diminuto_tree_t *   properties;
+};
+
+struct AssayConfig {
+    diminuto_tree_t *   sections;
+    assay_property_t *  cache;
+};
 
 typedef enum AssayAction {
     NONE,
@@ -22,7 +47,9 @@ typedef enum AssayAction {
     RIGHT,
 } assay_action_t;
 
-/* CONFIG PRIMITIVES **********************************************************/
+/*******************************************************************************
+ * CONFIGURATION PRIMITIVES
+ ******************************************************************************/
 
 assay_config_t * assay_config_create(void)
 {
@@ -58,7 +85,7 @@ void assay_config_destroy(assay_config_t * cfp)
             prp = diminuto_containerof(assay_property_t, tree, ptp);
             diminuto_tree_remove(ptp);
             free((void *)(prp->key));
-            free(prp->value);
+            free((void *)prp->value);
             free(prp);
         }
         diminuto_tree_remove(stp);
@@ -68,7 +95,9 @@ void assay_config_destroy(assay_config_t * cfp)
     free(cfp);
 }
 
-/* SECTION PRIMITIVES *********************************************************/
+/*******************************************************************************
+ * SECTION PRIMITIVES
+ ******************************************************************************/
 
 static assay_section_t * assay_section_find_close(assay_section_t * scp, const char * section, int * rcp)
 {
@@ -151,7 +180,9 @@ assay_section_t * assay_section_seek(assay_config_t * cfp, const char * section)
     return scp;
 }
 
-/* SECTION ITERATORS **********************************************************/
+/*******************************************************************************
+ * SECTION ITERATORS
+ ******************************************************************************/
 
 assay_section_t * assay_section_first(assay_config_t * cfp)
 {
@@ -203,7 +234,9 @@ assay_section_t * assay_section_last(assay_config_t * cfp)
     return scp;
 }
 
-/* PROPERTY PRIMITIVES ********************************************************/
+/*******************************************************************************
+ * PROPERTY PRIMITIVES
+ ******************************************************************************/
 
 static assay_property_t * assay_property_find_close(assay_property_t * prp, const char * key, int * rcp)
 {
@@ -294,11 +327,13 @@ void assay_property_destroy(assay_property_t * prp)
     }
     diminuto_tree_remove(&(prp->tree));
     free((void *)(prp->key));
-    free(prp->value);
+    free((void *)prp->value);
     free(prp);
 }
 
-/* PROPERTY ITERATORS *********************************************************/
+/*******************************************************************************
+ * PROPERTY ITERATORS
+ ******************************************************************************/
 
 assay_property_t * assay_property_first(assay_section_t * scp)
 {
@@ -350,7 +385,9 @@ assay_property_t * assay_property_last(assay_section_t * scp)
     return prp;
 }
 
-/* GETTORS *******************************************************************/
+/*******************************************************************************
+ * GETTORS
+ ******************************************************************************/
 
 const char * assay_section_get(assay_section_t * scp)
 {
@@ -362,11 +399,11 @@ const char * assay_key_get(assay_property_t * prp)
     return prp->key;
 }
 
-const char * assay_value_get(assay_property_t * prp, size_t * lengthp)
+const void * assay_value_get(assay_property_t * prp, size_t * lengthp)
 {
-    const char * value;
+    const void * value;
 
-    if ((value = (const char *)prp->value) == (void *)0) {
+    if ((value = prp->value) == (void *)0) {
         /* Do nothing. */
     } else if (lengthp == (size_t *)0) {
         /* Do nothing. */
@@ -377,21 +414,25 @@ const char * assay_value_get(assay_property_t * prp, size_t * lengthp)
     return value;
 }
 
-/* SETTORS *******************************************************************/
+/*******************************************************************************
+ * SETTORS
+ ******************************************************************************/
 
-assay_property_t * assay_value_set(assay_property_t * prp, const char * value, size_t length)
+assay_property_t * assay_value_set(assay_property_t * prp, const void * value, size_t length)
 {
-     free(prp->value);
+     free((void *)prp->value);
      prp->length = length;
      prp->value = malloc(prp->length);
-     memcpy(prp->value, value, prp->length);
+     memcpy((void *)prp->value, value, prp->length);
 
     return prp;
 }
 
-/* CONFIG COMPOSITES **********************************************************/
+/*******************************************************************************
+ * COMPOSITES
+ ******************************************************************************/
 
-const char * assay_config_get(assay_config_t * cfp, const char * section, const char * key)
+const void * assay_config_get_binary(assay_config_t * cfp, const char * section, const char * key, size_t * lengthp)
 {
     const char * value = (const char *)0;
     assay_property_t * prp;
@@ -402,14 +443,14 @@ const char * assay_config_get(assay_config_t * cfp, const char * section, const 
     } else if ((prp = assay_property_seek(scp, key)) == (assay_property_t *)0) {
         /* Do nothing. */
     } else {
-        value = prp->value;
+        value = assay_value_get(prp, lengthp);
         cfp->cache = prp;
     }
 
     return value;
 }
 
-void assay_config_set(assay_config_t * cfp, const char * section, const char * key, const char * value)
+void assay_config_set_binary(assay_config_t * cfp, const char * section, const char * key, const void * value, size_t length)
 {
     assay_property_t * prp = (assay_property_t *)0;
     assay_section_t * scp = (assay_section_t *)0;
@@ -446,10 +487,12 @@ void assay_config_set(assay_config_t * cfp, const char * section, const char * k
 
     /* Invariant: prp points to the specified property in the section. */
 
-    assay_value_set(prp, value, strlen(value) + 1);
+    assay_value_set(prp, value, length);
 }
 
-/* AUDIT *********************************************************************/
+/*******************************************************************************
+ * AUDIT
+ ******************************************************************************/
 
 void * assay_config_audit(assay_config_t * cfp)
 {
