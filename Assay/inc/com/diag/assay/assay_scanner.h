@@ -11,8 +11,6 @@
  * http://www.diag.com/navigation/downloads/Assay.html<BR>
  */
 
-extern int assay_scanner_debug(int enable);
-
 extern const char * assay_scanner_token2name(int token);
 
 extern int assay_scanner_text2value(const char * string);

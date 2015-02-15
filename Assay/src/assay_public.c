@@ -161,7 +161,7 @@ assay_section_t * assay_section_create(assay_config_t * cfp, const char * sectio
     return scp;
 }
 
-assay_section_t * assay_section_seek(assay_config_t * cfp, const char * section)
+assay_section_t * assay_section_search(assay_config_t * cfp, const char * section)
 {
     assay_section_t * scp = (assay_section_t *)0;
     int rc = 0;
@@ -295,7 +295,7 @@ assay_property_t * assay_property_create(assay_section_t * scp, const char * key
     return prp;
 }
 
-assay_property_t * assay_property_seek(assay_section_t * scp, const char * key)
+assay_property_t * assay_property_search(assay_section_t * scp, const char * key)
 {
 	assay_property_t * prp = (assay_property_t *)0;
     int rc = 0;
@@ -426,9 +426,9 @@ const void * assay_config_get_binary(assay_config_t * cfp, const char * section,
     assay_property_t * prp;
     assay_section_t * scp;
 
-    if ((scp = assay_section_seek(cfp, section)) == (assay_section_t *)0) {
+    if ((scp = assay_section_search(cfp, section)) == (assay_section_t *)0) {
         /* Do nothing. */
-    } else if ((prp = assay_property_seek(scp, key)) == (assay_property_t *)0) {
+    } else if ((prp = assay_property_search(scp, key)) == (assay_property_t *)0) {
         /* Do nothing. */
     } else {
         value = assay_value_get(prp, lengthp);
@@ -456,7 +456,7 @@ void assay_config_set_binary(assay_config_t * cfp, const char * section, const c
 
     if (scp != (assay_section_t *)0) {
         /* Do nothing. */
-    } else if ((scp = assay_section_seek(cfp, section)) != (assay_section_t *)0) {
+    } else if ((scp = assay_section_search(cfp, section)) != (assay_section_t *)0) {
         /* Do nothing. */
     } else {
         scp = assay_section_create(cfp, section);
@@ -466,7 +466,7 @@ void assay_config_set_binary(assay_config_t * cfp, const char * section, const c
 
     if (prp != (assay_property_t *)0) {
         /* Do nothing. */
-    } else if ((prp = assay_property_seek(scp, key)) != (assay_property_t *)0) {
+    } else if ((prp = assay_property_search(scp, key)) != (assay_property_t *)0) {
         cfp->cache = prp;
     } else {
         prp = assay_property_create(scp, key);

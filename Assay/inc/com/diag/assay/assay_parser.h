@@ -15,10 +15,6 @@ static const char ASSAY_PARSER_SECTION_DEFAULT[] = "general";
 
 /******************************************************************************/
 
-extern int assay_parser_debug(int enable);
-
-/******************************************************************************/
-
 extern void assay_parser_section_begin(void);
 
 extern void assay_parser_section_next(int ch);

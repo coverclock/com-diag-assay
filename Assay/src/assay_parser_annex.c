@@ -10,30 +10,18 @@
 
 #include "assay_parser.h"
 #include <stddef.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include "com/diag/assay/assay_parser.h"
 #include "com/diag/diminuto/diminuto_dump.h"
+#include "com/diag/diminuto/diminuto_log.h"
 
 typedef struct AssayParserAction {
     char * buffer;
     size_t length;
     size_t index;
 } assay_parser_action_t;
-
-/******************************************************************************/
-
-static int debug = !0;
-
-int assay_parser_debug(int enable)
-{
-    int was;
-    was = debug;
-    debug = enable;
-    return was;
-}
 
 /******************************************************************************/
 
@@ -81,9 +69,7 @@ void assay_parser_section_next(int ch)
 void assay_parser_section_end(void)
 {
     assay_parser_action_end(&section);
-    if (debug) {
-        fprintf(stderr, "assay_parser: section[%zu]=\"%s\"[%zu]\n", section.length, section.buffer, section.index);
-    }
+    DIMINUTO_LOG_INFORMATION("assay_parser: section[%zu]=\"%s\"[%zu]\n", section.length, section.buffer, section.index);
 }
 
 /******************************************************************************/
@@ -103,9 +89,7 @@ void assay_parser_key_next(int ch)
 void assay_parser_key_end(void)
 {
     assay_parser_action_end(&key);
-    if (debug) {
-        fprintf(stderr, "assay_parser: key[%zu]=\"%s\"[%zu]\n", key.length, key.buffer, key.index);
-    }
+    DIMINUTO_LOG_INFORMATION("assay_parser: key[%zu]=\"%s\"[%zu]\n", key.length, key.buffer, key.index);
 }
 
 /******************************************************************************/
@@ -125,7 +109,7 @@ void assay_parser_value_next(int ch)
 void assay_parser_value_end(void)
 {
     assay_parser_action_end(&value);
-    if (debug) {
+    if (DIMINUTO_LOG_ENABLED(DIMINUTO_LOG_MASK_INFORMATION)) {
         int printable = !0;
         size_t ii;
         size_t limit;
@@ -137,11 +121,10 @@ void assay_parser_value_end(void)
             }
         }
         if (printable) {
-            fprintf(stderr, "assay_parser: value[%zu]=\"%s\"[%zu]\n", value.length, value.buffer, value.index);
+            DIMINUTO_LOG_INFORMATION("assay_parser: value[%zu]=\"%s\"[%zu]\n", value.length, value.buffer, value.index);
         } else {
-            fprintf(stderr, "assay_parser: value[%zu]=<\n", value.length);
-            diminuto_dump(stderr, value.buffer, value.index);
-            fprintf(stderr, ">[%zu]\n", value.index);
+            DIMINUTO_LOG_INFORMATION("assay_parser: value[%zu]:\n", value.length);
+            diminuto_dump(diminuto_log_stream(), value.buffer, value.index);
         }
     }
 }

@@ -62,7 +62,7 @@ extern void assay_config_destroy(assay_config_t * cfp);
 
 extern assay_section_t * assay_section_create(assay_config_t * cfp, const char * section);
 
-extern assay_section_t * assay_section_seek(assay_config_t * cfp, const char * section);
+extern assay_section_t * assay_section_search(assay_config_t * cfp, const char * section);
 
 /* (There is deliberately no assay_section_destroy function. */
 
@@ -84,7 +84,7 @@ extern assay_section_t * assay_section_last(assay_config_t * cfp);
 
 extern assay_property_t * assay_property_create(assay_section_t * scp, const char * key);
 
-extern assay_property_t * assay_property_seek(assay_section_t * scp, const char * key);
+extern assay_property_t * assay_property_search(assay_section_t * scp, const char * key);
 
 extern void assay_property_destroy(assay_property_t * prp);
 
@@ -122,14 +122,18 @@ extern assay_property_t * assay_value_set(assay_property_t * prp, const void * v
 
 extern const void * assay_config_get_binary(assay_config_t * cfp, const char * section, const char * key, size_t * lengthp);
 
-static inline const char * assay_config_get(assay_config_t * cfp, const char * section, const char * key)
+extern void assay_config_set_binary(assay_config_t * cfp, const char * section, const char * key, const void * value, size_t length);
+
+/*******************************************************************************
+ * HELPERS
+ ******************************************************************************/
+
+static inline const char * assay_config_get_string(assay_config_t * cfp, const char * section, const char * key)
 {
     return (const char *)assay_config_get_binary(cfp, section, key, (size_t *)0);
 }
 
-extern void assay_config_set_binary(assay_config_t * cfp, const char * section, const char * key, const void * value, size_t length);
-
-static inline void assay_config_set(assay_config_t * cfp, const char * section, const char * key, const char * value)
+static inline void assay_config_set_string(assay_config_t * cfp, const char * section, const char * key, const char * value)
 {
     return assay_config_set_binary(cfp, section, key, value, strlen(value) + 1);
 }

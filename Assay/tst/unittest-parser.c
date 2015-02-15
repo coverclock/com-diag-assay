@@ -11,15 +11,20 @@
 #include "assay_parser.h"
 #include <stdio.h>
 #include "com/diag/assay/assay_parser.h"
+#include "com/diag/diminuto/diminuto_unittest.h"
+#include "com/diag/diminuto/diminuto_log.h"
 
 int yyerror(char * msg)
 {
     fprintf(stderr, "yyerror: \"%s\"\n", msg);
+    return 0;
 }
 
 int main(int argc, char ** argv)
 {
     extern FILE * yyin;
+
+    SETLOGMASK();
 
     do {
         yyparse();

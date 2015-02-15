@@ -13,6 +13,8 @@
 #include <string.h>
 #include <ctype.h>
 #include "com/diag/assay/assay_scanner.h"
+#include "com/diag/diminuto/diminuto_unittest.h"
+#include "com/diag/diminuto/diminuto_log.h"
 
 int main(int argc, int ** argv)
 {
@@ -20,15 +22,17 @@ int main(int argc, int ** argv)
     const char * name;
     extern char * yytext;
 
+    SETLOGMASK();
+
     do {
         token = yylex();
         name = assay_scanner_token2name(token);
         if (isprint(yylval)) {
-            fprintf(stderr, "\"%s\"[%zu] '%c' %d %s\n", yytext, strlen(yytext), yylval, token, name);
+        	DIMINUTO_LOG_INFORMATION("%s@%d: \"%s\"[%zu] '%c' %d %s\n", yytext, strlen(yytext), yylval, token, name);
         } else if (isprint(*yytext)) {
-            fprintf(stderr, "\"%s\"[%zu] \\x%2.2x %d %s\n", yytext, strlen(yytext), yylval, token, name);
+        	DIMINUTO_LOG_INFORMATION("%s@%d: \"%s\"[%zu] \\x%2.2x %d %s\n", yytext, strlen(yytext), yylval, token, name);
         } else {
-            fprintf(stderr, "\\x%2.2x[%zu] \\x%2.2x %d %s\n", *yytext, strlen(yytext), yylval, token, name);
+        	DIMINUTO_LOG_INFORMATION("%s@%d: \\x%2.2x[%zu] \\x%2.2x %d %s\n", *yytext, strlen(yytext), yylval, token, name);
         }
     } while (token != 0);
 }
