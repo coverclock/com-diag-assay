@@ -99,43 +99,39 @@ void assay_config_destroy(assay_config_t * cfp)
  * SECTION PRIMITIVES
  ******************************************************************************/
 
-static assay_section_t * assay_section_find_close(assay_section_t * scp, const char * section, int * rcp)
+static int section_compare(diminuto_tree_t * thisp, diminuto_tree_t * thatp)
 {
-    *rcp = strcmp(scp->section, section);
-    if (*rcp < 0) {
-        if (!diminuto_tree_isleaf(scp->tree.right)) {
-            scp = assay_section_find_close(diminuto_containerof(assay_section_t, tree, scp->tree.right), section, rcp);
-        }
-    } else if (*rcp > 0) {
-        if (!diminuto_tree_isleaf(scp->tree.left)) {
-            scp = assay_section_find_close(diminuto_containerof(assay_section_t, tree, scp->tree.left), section, rcp);
-        }
-    } else {
-        /* Do nothing. */
-    }
+    return strcmp(diminuto_containerof(assay_section_t, tree, thisp)->section, diminuto_containerof(assay_section_t, tree, thatp)->section);
+}
 
-    return scp;
+static assay_section_t * section_find_close(assay_config_t * cfp, const char * section, int * rcp)
+{
+    diminuto_tree_t * stp;
+    assay_section_t target;
+
+    target.section = section;
+    stp = diminuto_tree_search(cfp->sections, &(target.tree), section_compare, rcp);
+
+    return (stp == DIMINUTO_TREE_NULL) ? (assay_section_t *)0 : diminuto_containerof(assay_section_t, tree, stp);
 }
 
 assay_section_t * assay_section_create(assay_config_t * cfp, const char * section)
 {
     assay_section_t * scp;
     assay_section_t * tmp;
-    int rc;
+    int rc = 0;
     assay_action_t action;
 
-    if (diminuto_tree_isempty(&(cfp->sections))) {
+    tmp = section_find_close(cfp, section, &rc);
+    if (tmp == (assay_section_t *)0) {
         action = ROOT;
+    } else if (rc < 0) {
+        action = RIGHT;
+    } else if (rc > 0) {
+        action = LEFT;
     } else {
-        tmp = assay_section_find_close(diminuto_containerof(assay_section_t, tree, cfp->sections), section, &rc);
-        if (rc < 0) {
-            action = RIGHT;
-        } else if (rc > 0) {
-            action = LEFT;
-        } else {
-            action = NONE;
-            scp = tmp;
-        }
+        action = NONE;
+        scp = tmp;
     }
 
     if (action != NONE) {
@@ -168,13 +164,11 @@ assay_section_t * assay_section_create(assay_config_t * cfp, const char * sectio
 assay_section_t * assay_section_seek(assay_config_t * cfp, const char * section)
 {
     assay_section_t * scp = (assay_section_t *)0;
-    int rc;
+    int rc = 0;
 
-    if (!diminuto_tree_isempty(&(cfp->sections))) {
-        scp = assay_section_find_close(diminuto_containerof(assay_section_t, tree, cfp->sections), section, &rc);
-        if (rc != 0) {
-            scp = (assay_section_t *)0;
-        }
+    scp = section_find_close(cfp, section, &rc);
+    if (rc != 0) {
+        scp = (assay_section_t *)0;
     }
 
     return scp;
@@ -238,43 +232,39 @@ assay_section_t * assay_section_last(assay_config_t * cfp)
  * PROPERTY PRIMITIVES
  ******************************************************************************/
 
-static assay_property_t * assay_property_find_close(assay_property_t * prp, const char * key, int * rcp)
+static int property_compare(diminuto_tree_t * thisp, diminuto_tree_t * thatp)
 {
-    *rcp = strcmp(prp->key, key);
-    if (*rcp < 0) {
-        if (!diminuto_tree_isleaf(prp->tree.right)) {
-            prp = assay_property_find_close(diminuto_containerof(assay_property_t, tree, prp->tree.right), key, rcp);
-        }
-    } else if (*rcp > 0) {
-        if (!diminuto_tree_isleaf(prp->tree.left)) {
-            prp = assay_property_find_close(diminuto_containerof(assay_property_t, tree, prp->tree.left), key, rcp);
-        }
-    } else {
-        /* Do nothing. */
-    }
+    return strcmp(diminuto_containerof(assay_property_t, tree, thisp)->key, diminuto_containerof(assay_property_t, tree, thatp)->key);
+}
 
-    return prp;
+static assay_property_t * property_find_close(assay_section_t * scp, const char * key, int * rcp)
+{
+    diminuto_tree_t * ptp;
+    assay_property_t target;
+
+    target.key = key;
+    ptp = diminuto_tree_search(scp->properties, &(target.tree), property_compare, rcp);
+
+    return (ptp == DIMINUTO_TREE_NULL) ? (assay_property_t *)0 : diminuto_containerof(assay_property_t, tree, ptp);
 }
 
 assay_property_t * assay_property_create(assay_section_t * scp, const char * key)
 {
     assay_property_t * prp;
     assay_property_t * tmp;
-    int rc;
+    int rc = 0;
     assay_action_t action;
 
-    if (diminuto_tree_isempty(&(scp->properties))) {
+    tmp = property_find_close(scp, key, &rc);
+    if (tmp == (assay_property_t *)0) {
         action = ROOT;
+    } else if (rc < 0) {
+        action = RIGHT;
+    } else if (rc > 0) {
+        action = LEFT;
     } else {
-        tmp = assay_property_find_close(diminuto_containerof(assay_property_t, tree, scp->properties), key, &rc);
-        if (rc < 0) {
-            action = RIGHT;
-        } else if (rc > 0) {
-            action = LEFT;
-        } else {
-            action = NONE;
-            prp = tmp;
-        }
+        action = NONE;
+        prp = tmp;
     }
 
     if (action != NONE) {
@@ -308,14 +298,12 @@ assay_property_t * assay_property_create(assay_section_t * scp, const char * key
 assay_property_t * assay_property_seek(assay_section_t * scp, const char * key)
 {
 	assay_property_t * prp = (assay_property_t *)0;
-    int rc;
+    int rc = 0;
 
-    if (!diminuto_tree_isempty(&(scp->properties))) {
-        prp = assay_property_find_close(diminuto_containerof(assay_property_t, tree, scp->properties), key, &rc);
-        if (rc != 0) {
-            prp = (assay_property_t *)0;
-        }
-    }
+     prp = property_find_close(scp, key, &rc);
+     if (rc != 0) {
+         prp = (assay_property_t *)0;
+     }
 
     return prp;
 }
