@@ -88,7 +88,7 @@ void assay_parser_value_end(void)
     action_end(&value);
     if (!debug) {
         /* Do nothing. */
-    } else if (!DIMINUTO_LOG_ENABLED(DIMINUTO_LOG_MASK_INFORMATION)) {
+    } else if (!DIMINUTO_LOG_ENABLED(DIMINUTO_LOG_MASK_DEBUG)) {
         /* Do nothing. */
     } else {
         int printable = !0;
@@ -102,9 +102,9 @@ void assay_parser_value_end(void)
             }
         }
         if (printable) {
-            DIMINUTO_LOG_INFORMATION("assay_parser: value[%zu]=\"%s\"[%zu]\n", value.length, value.buffer, value.index);
+            DIMINUTO_LOG_DEBUG("assay_parser: value[%zu]=\"%s\"[%zu]\n", value.length, value.buffer, value.index);
         } else {
-            DIMINUTO_LOG_INFORMATION("assay_parser: value[%zu]:\n", value.length);
+            DIMINUTO_LOG_DEBUG("assay_parser: value[%zu]:\n", value.length);
             diminuto_dump(diminuto_log_stream(), value.buffer, value.index);
         }
     }
@@ -132,7 +132,7 @@ void assay_parser_key_end(void)
 {
     action_end(&key);
     if (debug) {
-        DIMINUTO_LOG_INFORMATION("assay_parser: key[%zu]=\"%s\"[%zu]\n", key.length, key.buffer, key.index);
+        DIMINUTO_LOG_DEBUG("assay_parser: key[%zu]=\"%s\"[%zu]\n", key.length, key.buffer, key.index);
     }
 }
 
@@ -156,7 +156,7 @@ void assay_parser_section_end(void)
 {
     action_end(&section);
     if (debug) {
-        DIMINUTO_LOG_INFORMATION("assay_parser: section[%zu]=\"%s\"[%zu]\n", section.length, section.buffer, section.index);
+        DIMINUTO_LOG_DEBUG("assay_parser: section[%zu]=\"%s\"[%zu]\n", section.length, section.buffer, section.index);
     }
 }
 

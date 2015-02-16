@@ -612,7 +612,7 @@ void assay_section_log(assay_section_t * scp)
         DIMINUTO_LOG_DEBUG("assay_section_t@%p[%zu]\n", scp, sizeof(*scp));
     } else {
         assay_property_t * prp;
-        DIMINUTO_LOG_DEBUG("assay_section_t@%p[%zu]: [%s]\n", scp, sizeof(*scp), assay_section_name_get(scp));
+        DIMINUTO_LOG_DEBUG("assay_section_t@%p[%zu]: name=\"%s\"\n", scp, sizeof(*scp), assay_section_name_get(scp));
         for (prp = assay_property_first(scp); prp != (assay_property_t *)0; prp = assay_property_next(prp)) {
         	assay_property_log(prp);
         }
@@ -628,10 +628,8 @@ void assay_config_log(assay_config_t * cfp)
     } else {
         assay_section_t * scp;
         DIMINUTO_LOG_DEBUG("assay_config_t@%p[%zu]:\n", cfp, sizeof(*cfp));
-        DIMINUTO_LOG_DEBUG("assay_config_t@%p: section:\n", cfp);
-        assay_section_log(cfp->section);
-        DIMINUTO_LOG_DEBUG("assay_config_t@%p: property:\n", cfp);
-        assay_property_log(cfp->property);
+        DIMINUTO_LOG_DEBUG("assay_config_t@%p: section=%p:\n", cfp, cfp->section);
+        DIMINUTO_LOG_DEBUG("assay_config_t@%p: property=%p:\n", cfp, cfp->property);
         DIMINUTO_LOG_DEBUG("assay_config_t@%p: sections:\n", cfp);
         for (scp = assay_section_first(cfp); scp != (assay_section_t *)0; scp = assay_section_next(scp)) {
         	assay_section_log(scp);
@@ -654,6 +652,24 @@ void * assay_config_audit(assay_config_t * cfp)
     diminuto_tree_t * lttp;
     int line;
 
+    if (cfp->section == (assay_section_t *)0) {
+        /* Do nothing. */
+    } else if (cfp->section->config == cfp) {
+        /* Do nothing. */
+    } else {
+        result = stp;
+        line = __LINE__;
+        goto exit;
+    }
+    if (cfp->property == (assay_property_t *)0) {
+        /* Do nothing. */
+    } else if (cfp->property->section == cfp->section) {
+        /* Do nothing. */
+    } else {
+        result = stp;
+        line = __LINE__;
+        goto exit;
+    }
     if ((stp = diminuto_tree_audit(&(cfp->sections))) != (diminuto_tree_t *)0) {
         result = stp;
         line = __LINE__;
