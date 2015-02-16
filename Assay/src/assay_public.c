@@ -432,6 +432,12 @@ assay_property_t * assay_property_value_set(assay_property_t * prp, const void *
  * COMPOSITES
  ******************************************************************************/
 
+static inline void section_cache(assay_config_t * cfp, assay_section_t * scp)
+{
+    cfp->section = scp;
+    cfp->property = (assay_property_t *)0;
+}
+
 static assay_section_t * section_resolve(assay_config_t * cfp, const char * name, int create)
 {
     assay_section_t * scp = (assay_section_t *)0;
@@ -449,7 +455,7 @@ static assay_section_t * section_resolve(assay_config_t * cfp, const char * name
     } else if ((scp = assay_section_search(cfp, name)) == (assay_section_t *)0) {
         /* Do nothing. */
     } else {
-        cfp->section = scp;
+        section_cache(cfp, scp);
     }
 
     if (scp != (assay_section_t *)0) {
@@ -459,10 +465,16 @@ static assay_section_t * section_resolve(assay_config_t * cfp, const char * name
     } else if ((scp = assay_section_create(cfp, name)) == (assay_section_t *)0) {
         /* Do nothing. */
     } else {
-        cfp->section = scp;
+        section_cache(cfp, scp);
     }
 
     return scp;
+}
+
+static inline void property_cache(assay_section_t * scp, assay_property_t * prp)
+{
+    scp->config->property = prp;
+    scp->config->section = prp->section;
 }
 
 static assay_property_t * property_resolve(assay_section_t * scp, const char * key, int create)
@@ -470,6 +482,8 @@ static assay_property_t * property_resolve(assay_section_t * scp, const char * k
     assay_property_t * prp = (assay_property_t *)0;
 
     if (scp->config->property == (assay_property_t *)0) {
+        /* Do nothing. */
+    } else if (scp->config->section != scp) {
         /* Do nothing. */
     } else if (strcmp(scp->config->property->key, key) != 0) {
         /* Do nothing. */
@@ -482,7 +496,7 @@ static assay_property_t * property_resolve(assay_section_t * scp, const char * k
     } else if ((prp = assay_property_search(scp, key)) == (assay_property_t *)0) {
         /* Do nothing. */
     } else {
-        scp->config->property = prp;
+        property_cache(scp, prp);
     }
 
     if (prp != (assay_property_t *)0) {
@@ -492,13 +506,13 @@ static assay_property_t * property_resolve(assay_section_t * scp, const char * k
     } else if ((prp = assay_property_create(scp, key)) == (assay_property_t *)0) {
         /* Do nothing. */
     } else {
-        scp->config->property = prp;
+        property_cache(scp, prp);
     }
 
     return prp;
 }
 
-const void * assay_config_get_binary(assay_config_t * cfp, const char * name, const char * key, size_t * lengthp)
+const void * assay_config_read_binary(assay_config_t * cfp, const char * name, const char * key, size_t * lengthp)
 {
     const char * value = (const char *)0;
     assay_section_t * scp;
@@ -515,7 +529,7 @@ const void * assay_config_get_binary(assay_config_t * cfp, const char * name, co
     return value;
 }
 
-void assay_config_set_binary(assay_config_t * cfp, const char * name, const char * key, const void * value, size_t length)
+void assay_config_write_binary(assay_config_t * cfp, const char * name, const char * key, const void * value, size_t length)
 {
     assay_property_value_set(property_resolve(section_resolve(cfp, name, !0), key, !0), value, length);
 }
