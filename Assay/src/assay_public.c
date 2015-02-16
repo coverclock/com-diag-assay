@@ -640,24 +640,27 @@ void assay_config_log(assay_config_t * cfp)
 void * assay_config_audit(assay_config_t * cfp)
 {
     void * result = (void *)0;
-    diminuto_tree_t * stp;
     assay_section_t * scp;
     assay_section_t * sltp;
     assay_section_t * sgtp;
-    diminuto_tree_t * ptp;
     assay_property_t * prp;
     assay_property_t * pltp;
     assay_property_t * pgtp;
-    diminuto_tree_t * gttp;
-    diminuto_tree_t * lttp;
+    diminuto_tree_t * stp;
+    diminuto_tree_t * ptp;
     int line;
 
+    if (cfp == (assay_config_t *)0) {
+        result = cfp;
+        line = __LINE__;
+        goto exit;
+    }
     if (cfp->section == (assay_section_t *)0) {
         /* Do nothing. */
     } else if (cfp->section->config == cfp) {
         /* Do nothing. */
     } else {
-        result = stp;
+        result = cfp;
         line = __LINE__;
         goto exit;
     }
@@ -666,17 +669,16 @@ void * assay_config_audit(assay_config_t * cfp)
     } else if (cfp->property->section == cfp->section) {
         /* Do nothing. */
     } else {
-        result = stp;
+        result = cfp;
         line = __LINE__;
         goto exit;
     }
     if ((stp = diminuto_tree_audit(&(cfp->sections))) != (diminuto_tree_t *)0) {
-        result = stp;
+        result = diminuto_containerof(assay_section_t, tree, stp);
         line = __LINE__;
         goto exit;
     }
-    for (stp = diminuto_tree_first(&(cfp->sections)); stp != DIMINUTO_TREE_NULL; stp = diminuto_tree_next(stp)) {
-        scp = diminuto_containerof(assay_section_t, tree, stp);
+    for (scp = assay_section_first(cfp); scp != (assay_section_t *)0; scp = assay_section_next(scp)) {
         if (scp->config != cfp) {
             result = scp;
             line = __LINE__;
@@ -687,24 +689,23 @@ void * assay_config_audit(assay_config_t * cfp)
             line = __LINE__;
             goto exit;
         }
-        lttp = diminuto_tree_prev(stp);
-        gttp = diminuto_tree_next(stp);
-        if ((lttp != DIMINUTO_TREE_NULL) && (gttp != DIMINUTO_TREE_NULL)) {
-            sltp = diminuto_containerof(assay_section_t, tree, lttp);
-            sgtp = diminuto_containerof(assay_section_t, tree, gttp);
-            if (strcmp(sltp->name, sgtp->name) >= 0) {
-                result = stp;
-                line = __LINE__;
-                goto exit;
-            }
-        }
-        if ((ptp = diminuto_tree_audit(&(scp->properties))) != (diminuto_tree_t *)0) {
-            result = ptp;
+        sltp = assay_section_prev(scp);
+        sgtp = assay_section_next(scp);
+        if ((sltp == (assay_section_t *)0) || (sgtp == (assay_section_t *)0)) {
+            /* Do nothing. */
+        } else if (strcmp(sltp->name, sgtp->name) < 0) {
+            /* Do nothing. */
+        } else {
+            result = scp;
             line = __LINE__;
             goto exit;
         }
-        for (ptp = diminuto_tree_first(&(scp->properties)); ptp != DIMINUTO_TREE_NULL; ptp = diminuto_tree_next(ptp)) {
-            prp = diminuto_containerof(assay_property_t, tree, ptp);
+        if ((ptp = diminuto_tree_audit(&(scp->properties))) != (diminuto_tree_t *)0) {
+            result = diminuto_containerof(assay_property_t, tree, ptp);
+            line = __LINE__;
+            goto exit;
+        }
+        for (prp = assay_property_first(scp); prp != (assay_property_t *)0; prp = assay_property_next(prp)) {
             if (prp->section != scp) {
                 result = prp;
                 line = __LINE__;
@@ -715,16 +716,16 @@ void * assay_config_audit(assay_config_t * cfp)
                 line = __LINE__;
                 goto exit;
             }
-            lttp = diminuto_tree_prev(ptp);
-            gttp = diminuto_tree_next(ptp);
-            if ((lttp != DIMINUTO_TREE_NULL) && (gttp != DIMINUTO_TREE_NULL)) {
-                pltp = diminuto_containerof(assay_property_t, tree, lttp);
-                pgtp = diminuto_containerof(assay_property_t, tree, gttp);
-                if (strcmp(pltp->key, pgtp->key) >= 0) {
-                    result = ptp;
-                    line = __LINE__;
-                    goto exit;
-                }
+            pltp = assay_property_prev(prp);
+            pgtp = assay_property_next(prp);
+            if ((pltp == (assay_property_t *)0) || (pgtp == (assay_property_t *)0)) {
+                /* Do nothing. */
+            } else if (strcmp(pltp->key, pgtp->key) < 0) {
+                /* Do nothing. */
+            } else {
+                result = prp;
+                line = __LINE__;
+                goto exit;
             }
         }
     }
