@@ -9,7 +9,6 @@
  * http://www.diag.com/navigation/downloads/Assay.html<BR>
  */
 
-#include <stdio.h>
 #include "com/diag/assay/assay_scanner.h"
 
 %}
@@ -58,8 +57,8 @@ key_tail:           key_char
                     | key_char key_tail
                     ;
 
-key_init:           CH                                                          { assay_parser_key_begin(); assay_parser_key_next($1); assay_parser_value_begin(); assay_parser_value_end(); }
-                    | ESC                                                       { assay_parser_key_begin(); assay_parser_key_next($1); assay_parser_value_begin(); assay_parser_value_end(); }
+key_init:           CH                                                          { assay_parser_key_begin(); assay_parser_key_next($1); }
+                    | ESC                                                       { assay_parser_key_begin(); assay_parser_key_next($1); }
                     ;
 
 key_string:         key_init
@@ -119,24 +118,24 @@ statement:          EOL
                     | section comment EOL
                     | section whitespace EOL
                     | section whitespace comment EOL
-                    | section assignment EOL                                    { assay_parser_property_commit(); }
-                    | section assignment comment EOL                            { assay_parser_property_commit(); }
-                    | section whitespace assignment EOL                         { assay_parser_property_commit(); }
-                    | section whitespace assignment comment EOL                 { assay_parser_property_commit(); }
-                    | assignment EOL                                            { assay_parser_property_commit(); }
-                    | assignment comment EOL                                    { assay_parser_property_commit(); }
+                    | section assignment EOL                                    { assay_parser_property_assign(); }
+                    | section assignment comment EOL                            { assay_parser_property_assign(); }
+                    | section whitespace assignment EOL                         { assay_parser_property_assign(); }
+                    | section whitespace assignment comment EOL                 { assay_parser_property_assign(); }
+                    | assignment EOL                                            { assay_parser_property_assign(); }
+                    | assignment comment EOL                                    { assay_parser_property_assign(); }
                     | whitespace EOL
                     | whitespace comment EOL
                     | whitespace section EOL
                     | whitespace section comment EOL
                     | whitespace section whitespace EOL
                     | whitespace section whitespace comment EOL
-                    | whitespace section assignment EOL                         { assay_parser_property_commit(); }
-                    | whitespace section assignment comment EOL                 { assay_parser_property_commit(); }
-                    | whitespace section whitespace assignment EOL              { assay_parser_property_commit(); }
-                    | whitespace section whitespace assignment comment EOL      { assay_parser_property_commit(); }
-                    | whitespace assignment EOL                                 { assay_parser_property_commit(); }
-                    | whitespace assignment comment EOL                         { assay_parser_property_commit(); }
+                    | whitespace section assignment EOL                         { assay_parser_property_assign(); }
+                    | whitespace section assignment comment EOL                 { assay_parser_property_assign(); }
+                    | whitespace section whitespace assignment EOL              { assay_parser_property_assign(); }
+                    | whitespace section whitespace assignment comment EOL      { assay_parser_property_assign(); }
+                    | whitespace assignment EOL                                 { assay_parser_property_assign(); }
+                    | whitespace assignment comment EOL                         { assay_parser_property_assign(); }
                    ;
 
 statement_list:     statement

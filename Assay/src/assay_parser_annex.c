@@ -17,13 +17,15 @@
 #include "com/diag/diminuto/diminuto_dump.h"
 #include "com/diag/diminuto/diminuto_log.h"
 
+/*******************************************************************************
+ * ACTION
+ ******************************************************************************/
+
 typedef struct AssayParserAction {
     char * buffer;
     size_t length;
     size_t index;
 } assay_parser_action_t;
-
-/******************************************************************************/
 
 static void assay_parser_action_begin(assay_parser_action_t * ap)
 {
@@ -52,47 +54,9 @@ static void assay_parser_action_end(assay_parser_action_t * ap)
     assay_parser_action_next(ap, '\0');
 }
 
-/******************************************************************************/
-
-static assay_parser_action_t section = { 0 };
-
-void assay_parser_section_begin(void)
-{
-    assay_parser_action_begin(&section);
-}
-
-void assay_parser_section_next(int ch)
-{
-    assay_parser_action_next(&section, ch);
-}
-
-void assay_parser_section_end(void)
-{
-    assay_parser_action_end(&section);
-    DIMINUTO_LOG_INFORMATION("assay_parser: section[%zu]=\"%s\"[%zu]\n", section.length, section.buffer, section.index);
-}
-
-/******************************************************************************/
-
-static assay_parser_action_t key = { 0 };
-
-void assay_parser_key_begin(void)
-{
-    assay_parser_action_begin(&key);
-}
-
-void assay_parser_key_next(int ch)
-{
-    assay_parser_action_next(&key, ch);
-}
-
-void assay_parser_key_end(void)
-{
-    assay_parser_action_end(&key);
-    DIMINUTO_LOG_INFORMATION("assay_parser: key[%zu]=\"%s\"[%zu]\n", key.length, key.buffer, key.index);
-}
-
-/******************************************************************************/
+/*******************************************************************************
+ * VALUE
+ ******************************************************************************/
 
 static assay_parser_action_t value = { 0 };
 
@@ -129,9 +93,57 @@ void assay_parser_value_end(void)
     }
 }
 
-/******************************************************************************/
+/*******************************************************************************
+ * KEY
+ ******************************************************************************/
 
-void assay_parser_property_commit(void)
+static assay_parser_action_t key = { 0 };
+
+void assay_parser_key_begin(void)
+{
+    assay_parser_action_begin(&key);
+    assay_parser_action_begin(&value);
+    assay_parser_action_end(&value);
+}
+
+void assay_parser_key_next(int ch)
+{
+    assay_parser_action_next(&key, ch);
+}
+
+void assay_parser_key_end(void)
+{
+    assay_parser_action_end(&key);
+    DIMINUTO_LOG_INFORMATION("assay_parser: key[%zu]=\"%s\"[%zu]\n", key.length, key.buffer, key.index);
+}
+
+/*******************************************************************************
+ * SECTION
+ ******************************************************************************/
+
+static assay_parser_action_t section = { 0 };
+
+void assay_parser_section_begin(void)
+{
+    assay_parser_action_begin(&section);
+}
+
+void assay_parser_section_next(int ch)
+{
+    assay_parser_action_next(&section, ch);
+}
+
+void assay_parser_section_end(void)
+{
+    assay_parser_action_end(&section);
+    DIMINUTO_LOG_INFORMATION("assay_parser: section[%zu]=\"%s\"[%zu]\n", section.length, section.buffer, section.index);
+}
+
+/*******************************************************************************
+ * PROPERTY
+ ******************************************************************************/
+
+void assay_parser_property_assign(void)
 {
 
 }

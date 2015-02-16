@@ -50,8 +50,6 @@ typedef struct AssayProperty assay_property_t;
 
 extern assay_config_t * assay_config_create(void);
 
-extern assay_property_t * assay_config_cached(assay_config_t * cfp);
-
 extern assay_config_t * assay_config_load(assay_config_t * cfp, FILE * fp);
 
 extern void assay_config_destroy(assay_config_t * cfp);
@@ -60,9 +58,11 @@ extern void assay_config_destroy(assay_config_t * cfp);
  * SECTION PRIMITIVES
  ******************************************************************************/
 
-extern assay_section_t * assay_section_create(assay_config_t * cfp, const char * section);
+extern assay_section_t * assay_section_create(assay_config_t * cfp, const char * name);
 
-extern assay_section_t * assay_section_search(assay_config_t * cfp, const char * section);
+extern assay_section_t * assay_section_search(assay_config_t * cfp, const char * name);
+
+extern assay_section_t * assay_section_cached(assay_config_t * cfp);
 
 /* (There is deliberately no assay_section_destroy function. */
 
@@ -79,12 +79,20 @@ extern assay_section_t * assay_section_prev(assay_section_t * scp);
 extern assay_section_t * assay_section_last(assay_config_t * cfp);
 
 /*******************************************************************************
+ * SECTION GETTORS
+ ******************************************************************************/
+
+extern const char * assay_section_name_get(assay_section_t * scp);
+
+/*******************************************************************************
  * PROPERTY PRIMITIVES
  ******************************************************************************/
 
 extern assay_property_t * assay_property_create(assay_section_t * scp, const char * key);
 
 extern assay_property_t * assay_property_search(assay_section_t * scp, const char * key);
+
+extern assay_property_t * assay_property_cached(assay_config_t * cfp);
 
 extern void assay_property_destroy(assay_property_t * prp);
 
@@ -101,46 +109,50 @@ extern assay_property_t * assay_property_prev(assay_property_t * prp);
 extern assay_property_t * assay_property_last(assay_section_t * scp);
 
 /*******************************************************************************
- * GETTORS
+ * PROPERTY GETTORS
  ******************************************************************************/
 
-extern const char * assay_section_get(assay_section_t * scp);
+extern const char * assay_property_key_get(assay_property_t * prp);
 
-extern const char * assay_key_get(assay_property_t * prp);
-
-extern const void * assay_value_get(assay_property_t * prp, size_t * lengthp);
+extern const void * assay_property_value_get(assay_property_t * prp, size_t * lengthp);
 
 /*******************************************************************************
- * SETTORS
+ * PROPERTY SETTORS
  ******************************************************************************/
 
-extern assay_property_t * assay_value_set(assay_property_t * prp, const void * value, size_t length);
+extern assay_property_t * assay_property_value_set(assay_property_t * prp, const void * value, size_t length);
 
 /*******************************************************************************
  * COMPOSITES
  ******************************************************************************/
 
-extern const void * assay_config_get_binary(assay_config_t * cfp, const char * section, const char * key, size_t * lengthp);
+extern const void * assay_config_get_binary(assay_config_t * cfp, const char * name, const char * key, size_t * lengthp);
 
-extern void assay_config_set_binary(assay_config_t * cfp, const char * section, const char * key, const void * value, size_t length);
+extern void assay_config_set_binary(assay_config_t * cfp, const char * name, const char * key, const void * value, size_t length);
 
 /*******************************************************************************
  * HELPERS
  ******************************************************************************/
 
-static inline const char * assay_config_get_string(assay_config_t * cfp, const char * section, const char * key)
+static inline const char * assay_config_get_string(assay_config_t * cfp, const char * name, const char * key)
 {
-    return (const char *)assay_config_get_binary(cfp, section, key, (size_t *)0);
+    return (const char *)assay_config_get_binary(cfp, name, key, (size_t *)0);
 }
 
-static inline void assay_config_set_string(assay_config_t * cfp, const char * section, const char * key, const char * value)
+static inline void assay_config_set_string(assay_config_t * cfp, const char * name, const char * key, const char * value)
 {
-    return assay_config_set_binary(cfp, section, key, value, strlen(value) + 1);
+    return assay_config_set_binary(cfp, name, key, value, strlen(value) + 1);
 }
 
 /*******************************************************************************
  * AUDIT
  ******************************************************************************/
+
+extern void assay_property_log(assay_property_t * prp);
+
+extern void assay_section_log(assay_section_t * scp);
+
+extern void assay_config_log(assay_config_t * cfp);
 
 extern void * assay_config_audit(assay_config_t * cfp);
 
