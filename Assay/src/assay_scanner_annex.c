@@ -15,8 +15,6 @@
 #include "com/diag/diminuto/diminuto_log.h"
 #include "com/diag/diminuto/diminuto_dump.h"
 
-/******************************************************************************/
-
 const char * assay_scanner_token2name(int token)
 {
     const char * name = (const char *)0;

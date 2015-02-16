@@ -28,11 +28,13 @@ int main(int argc, int ** argv)
         token = yylex();
         name = assay_scanner_token2name(token);
         if (isprint(yylval)) {
-        	DIMINUTO_LOG_INFORMATION("%s@%d: \"%s\"[%zu] '%c' %d %s\n", yytext, strlen(yytext), yylval, token, name);
+        	DIMINUTO_LOG_INFORMATION("%s@%d: \"%s\"[%zu] '%c' %d %s\n", __FILE__, __LINE__, yytext, strlen(yytext), yylval, token, name);
         } else if (isprint(*yytext)) {
-        	DIMINUTO_LOG_INFORMATION("%s@%d: \"%s\"[%zu] \\x%2.2x %d %s\n", yytext, strlen(yytext), yylval, token, name);
+        	DIMINUTO_LOG_INFORMATION("%s@%d: \"%s\"[%zu] \\x%2.2x %d %s\n", __FILE__, __LINE__, yytext, strlen(yytext), yylval, token, name);
         } else {
-        	DIMINUTO_LOG_INFORMATION("%s@%d: \\x%2.2x[%zu] \\x%2.2x %d %s\n", *yytext, strlen(yytext), yylval, token, name);
+        	DIMINUTO_LOG_INFORMATION("%s@%d: \\x%2.2x[%zu] \\x%2.2x %d %s\n", __FILE__, __LINE__, *yytext, strlen(yytext), yylval, token, name);
         }
     } while (token != 0);
+
+    EXIT();
 }

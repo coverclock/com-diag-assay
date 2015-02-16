@@ -50,8 +50,6 @@ typedef struct AssayProperty assay_property_t;
 
 extern assay_config_t * assay_config_create(void);
 
-extern assay_config_t * assay_config_load(assay_config_t * cfp, FILE * fp);
-
 extern void assay_config_destroy(assay_config_t * cfp);
 
 /*******************************************************************************
@@ -133,6 +131,8 @@ extern void assay_config_write_binary(assay_config_t * cfp, const char * name, c
 /*******************************************************************************
  * HELPERS
  ******************************************************************************/
+
+extern assay_config_t * assay_config_load(assay_config_t * cfp, FILE * fp);
 
 static inline const char * assay_config_read_string(assay_config_t * cfp, const char * name, const char * key)
 {

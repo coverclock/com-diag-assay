@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include "com/diag/assay/assay.h"
 #include "com/diag/assay/assay_parser.h"
 #include "com/diag/diminuto/diminuto_dump.h"
 #include "com/diag/diminuto/diminuto_log.h"
@@ -143,7 +144,11 @@ void assay_parser_section_end(void)
  * PROPERTY
  ******************************************************************************/
 
+assay_config_t * assay_parser_config = (assay_config_t *)0;
+
 void assay_parser_property_assign(void)
 {
-
+    if (assay_parser_config != (assay_config_t *)0) {
+        assay_config_write_binary(assay_parser_config, section.buffer, key.buffer, value.buffer, value.length);
+    }
 }

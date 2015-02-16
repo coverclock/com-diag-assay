@@ -11,6 +11,24 @@
  * http://www.diag.com/navigation/downloads/Assay.html<BR>
  */
 
+#include <stdio.h>
+
+/**
+ * Set the input stream for the scanner and return the prior value.
+ * @param fp points to the new input scanner stream.
+ * @return the pointer to the prior input scanner stream.
+ */
+static inline FILE * assay_scanner_input(FILE * fp)
+{
+    extern FILE * yyin;
+    FILE * prior;
+
+    prior = yyin;
+    yyin = fp;
+
+    return prior;
+}
+
 /**
  * Given a scanner token value, return a printable name for the token.
  * @param token is the scanner token value.

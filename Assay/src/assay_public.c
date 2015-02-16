@@ -12,6 +12,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "com/diag/assay/assay.h"
+#include "com/diag/assay/assay_scanner.h"
+#include "com/diag/assay/assay_parser.h"
 #include "com/diag/diminuto/diminuto_tree.h"
 #include "com/diag/diminuto/diminuto_containerof.h"
 #include "com/diag/diminuto/diminuto_log.h"
@@ -63,11 +65,6 @@ assay_config_t * assay_config_create(void)
     cfp->property = (assay_property_t *)0;
 
     return cfp;
-}
-
-assay_config_t * assay_config_load(assay_config_t * cfp, FILE * fp)
-{
-    return 0;
 }
 
 void assay_config_destroy(assay_config_t * cfp)
@@ -532,6 +529,24 @@ const void * assay_config_read_binary(assay_config_t * cfp, const char * name, c
 void assay_config_write_binary(assay_config_t * cfp, const char * name, const char * key, const void * value, size_t length)
 {
     assay_property_value_set(property_resolve(section_resolve(cfp, name, !0), key, !0), value, length);
+}
+
+assay_config_t * assay_config_load(assay_config_t * cfp, FILE * fp)
+{
+    FILE * priorfp;
+    assay_config_t * priorcfp;
+
+    priorfp = assay_scanner_input(fp);
+    priorcfp = assay_parser_output(cfp);
+
+    do {
+        yyparse();
+    } while (!feof(fp));
+
+    assay_parser_output(priorcfp);
+    assay_scanner_input(priorfp);
+
+    return cfp;
 }
 
 /*******************************************************************************
