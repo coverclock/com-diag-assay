@@ -689,9 +689,9 @@ void * assay_config_audit(assay_config_t * cfp)
             line = __LINE__;
             goto exit;
         }
-        sltp = assay_section_prev(scp);
-        sgtp = assay_section_next(scp);
-        if ((sltp == (assay_section_t *)0) || (sgtp == (assay_section_t *)0)) {
+        if ((sltp = assay_section_prev(scp)) == (assay_section_t *)0) {
+            /* Do nothing. */
+        } else if ((sgtp = assay_section_next(scp)) == (assay_section_t *)0) {
             /* Do nothing. */
         } else if (strcmp(sltp->name, sgtp->name) < 0) {
             /* Do nothing. */
@@ -716,9 +716,9 @@ void * assay_config_audit(assay_config_t * cfp)
                 line = __LINE__;
                 goto exit;
             }
-            pltp = assay_property_prev(prp);
-            pgtp = assay_property_next(prp);
-            if ((pltp == (assay_property_t *)0) || (pgtp == (assay_property_t *)0)) {
+            if ((pltp = assay_property_prev(prp)) == (assay_property_t *)0) {
+                /* Do nothing. */
+            } else if ((pgtp = assay_property_next(prp)) == (assay_property_t *)0) {
                 /* Do nothing. */
             } else if (strcmp(pltp->key, pgtp->key) < 0) {
                 /* Do nothing. */
