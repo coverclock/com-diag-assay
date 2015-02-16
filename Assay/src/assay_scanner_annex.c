@@ -15,6 +15,29 @@
 #include "com/diag/diminuto/diminuto_log.h"
 #include "com/diag/diminuto/diminuto_dump.h"
 
+static int debug = 0;
+
+int assay_scanner_debug(int enable)
+{
+    int prior;
+
+    prior = debug;
+    debug = enable;
+
+    return prior;
+}
+
+FILE * assay_scanner_input(FILE * fp)
+{
+    extern FILE * yyin;
+    FILE * prior;
+
+    prior = yyin;
+    yyin = fp;
+
+    return prior;
+}
+
 const char * assay_scanner_token2name(int token)
 {
     const char * name = (const char *)0;
@@ -58,7 +81,11 @@ int assay_scanner_text2value(const char * text)
         }
     }
 
-    if (DIMINUTO_LOG_ENABLED(DIMINUTO_LOG_MASK_DEBUG)) {
+    if (!debug) {
+        /* Do nothing. */
+    } else if (!DIMINUTO_LOG_ENABLED(DIMINUTO_LOG_MASK_DEBUG)) {
+        /* Do nothing. */
+    } else {
         int printable = !0;
         size_t ii;
         size_t limit;

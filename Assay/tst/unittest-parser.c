@@ -26,6 +26,8 @@ int main(int argc, char ** argv)
 
     SETLOGMASK();
 
+    assay_parser_debug(!0);
+
     do {
         yyparse();
     } while (!feof(yyin));

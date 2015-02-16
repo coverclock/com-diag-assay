@@ -132,8 +132,6 @@ extern void assay_config_write_binary(assay_config_t * cfp, const char * name, c
  * HELPERS
  ******************************************************************************/
 
-extern assay_config_t * assay_config_load(assay_config_t * cfp, FILE * fp);
-
 static inline const char * assay_config_read_string(assay_config_t * cfp, const char * name, const char * key)
 {
     return (const char *)assay_config_read_binary(cfp, name, key, (size_t *)0);
@@ -143,6 +141,14 @@ static inline void assay_config_write_string(assay_config_t * cfp, const char * 
 {
     return assay_config_write_binary(cfp, name, key, value, strlen(value) + 1);
 }
+
+/*******************************************************************************
+ * LOAD
+ ******************************************************************************/
+
+extern assay_config_t * assay_config_load_stream(assay_config_t * cfp, FILE * fp);
+
+extern assay_config_t * assay_config_load_file(assay_config_t * cfp, const char * path);
 
 /*******************************************************************************
  * AUDIT

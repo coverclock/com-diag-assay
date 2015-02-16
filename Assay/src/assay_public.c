@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 #include "com/diag/assay/assay.h"
 #include "com/diag/assay/assay_scanner.h"
 #include "com/diag/assay/assay_parser.h"
@@ -531,7 +532,7 @@ void assay_config_write_binary(assay_config_t * cfp, const char * name, const ch
     assay_property_value_set(property_resolve(section_resolve(cfp, name, !0), key, !0), value, length);
 }
 
-assay_config_t * assay_config_load(assay_config_t * cfp, FILE * fp)
+assay_config_t * assay_config_load_stream(assay_config_t * cfp, FILE * fp)
 {
     FILE * priorfp;
     assay_config_t * priorcfp;
@@ -547,6 +548,21 @@ assay_config_t * assay_config_load(assay_config_t * cfp, FILE * fp)
     assay_scanner_input(priorfp);
 
     return cfp;
+}
+
+assay_config_t * assay_config_load_file(assay_config_t * cfp, const char * path)
+{
+    assay_config_t * result = (assay_config_t *)0;
+    FILE * fp;
+
+    if ((fp = fopen(path, "r")) != (FILE *)0) {
+        result = assay_config_load_stream(cfp, fp);
+        fclose(fp);
+    } else {
+        diminuto_perror(path);
+    }
+
+    return result;
 }
 
 /*******************************************************************************

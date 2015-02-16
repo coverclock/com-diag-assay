@@ -18,6 +18,18 @@
 #include "com/diag/diminuto/diminuto_dump.h"
 #include "com/diag/diminuto/diminuto_log.h"
 
+static int debug = 0;
+
+int assay_parser_debug(int enable)
+{
+    int prior;
+
+    prior = debug;
+    debug = enable;
+
+    return prior;
+}
+
 /*******************************************************************************
  * ACTION
  ******************************************************************************/
@@ -28,7 +40,7 @@ typedef struct AssayParserAction {
     size_t index;
 } assay_parser_action_t;
 
-static void assay_parser_action_begin(assay_parser_action_t * ap)
+static void action_begin(assay_parser_action_t * ap)
 {
     if (ap->buffer == (char *)0) {
         ap->length = 64;
@@ -37,7 +49,7 @@ static void assay_parser_action_begin(assay_parser_action_t * ap)
     ap->index = 0;
 }
 
-static void assay_parser_action_next(assay_parser_action_t * ap, int ch)
+static void action_next(assay_parser_action_t * ap, int ch)
 {
     if (ap->index >= ap->length) {
         char * old;
@@ -50,9 +62,9 @@ static void assay_parser_action_next(assay_parser_action_t * ap, int ch)
     ap->buffer[ap->index++] = ch;
 }
 
-static void assay_parser_action_end(assay_parser_action_t * ap)
+static void action_end(assay_parser_action_t * ap)
 {
-    assay_parser_action_next(ap, '\0');
+    action_next(ap, '\0');
 }
 
 /*******************************************************************************
@@ -63,18 +75,22 @@ static assay_parser_action_t value = { 0 };
 
 void assay_parser_value_begin(void)
 {
-   assay_parser_action_begin(&value);
+   action_begin(&value);
 }
 
 void assay_parser_value_next(int ch)
 {
-    assay_parser_action_next(&value, ch);
+    action_next(&value, ch);
 }
 
 void assay_parser_value_end(void)
 {
-    assay_parser_action_end(&value);
-    if (DIMINUTO_LOG_ENABLED(DIMINUTO_LOG_MASK_INFORMATION)) {
+    action_end(&value);
+    if (!debug) {
+        /* Do nothing. */
+    } else if (!DIMINUTO_LOG_ENABLED(DIMINUTO_LOG_MASK_INFORMATION)) {
+        /* Do nothing. */
+    } else {
         int printable = !0;
         size_t ii;
         size_t limit;
@@ -102,20 +118,22 @@ static assay_parser_action_t key = { 0 };
 
 void assay_parser_key_begin(void)
 {
-    assay_parser_action_begin(&key);
-    assay_parser_action_begin(&value);
-    assay_parser_action_end(&value);
+    action_begin(&key);
+    action_begin(&value);
+    action_end(&value);
 }
 
 void assay_parser_key_next(int ch)
 {
-    assay_parser_action_next(&key, ch);
+    action_next(&key, ch);
 }
 
 void assay_parser_key_end(void)
 {
-    assay_parser_action_end(&key);
-    DIMINUTO_LOG_INFORMATION("assay_parser: key[%zu]=\"%s\"[%zu]\n", key.length, key.buffer, key.index);
+    action_end(&key);
+    if (debug) {
+        DIMINUTO_LOG_INFORMATION("assay_parser: key[%zu]=\"%s\"[%zu]\n", key.length, key.buffer, key.index);
+    }
 }
 
 /*******************************************************************************
@@ -126,18 +144,20 @@ static assay_parser_action_t section = { 0 };
 
 void assay_parser_section_begin(void)
 {
-    assay_parser_action_begin(&section);
+    action_begin(&section);
 }
 
 void assay_parser_section_next(int ch)
 {
-    assay_parser_action_next(&section, ch);
+    action_next(&section, ch);
 }
 
 void assay_parser_section_end(void)
 {
-    assay_parser_action_end(&section);
-    DIMINUTO_LOG_INFORMATION("assay_parser: section[%zu]=\"%s\"[%zu]\n", section.length, section.buffer, section.index);
+    action_end(&section);
+    if (debug) {
+        DIMINUTO_LOG_INFORMATION("assay_parser: section[%zu]=\"%s\"[%zu]\n", section.length, section.buffer, section.index);
+    }
 }
 
 /*******************************************************************************
@@ -146,9 +166,19 @@ void assay_parser_section_end(void)
 
 assay_config_t * assay_parser_config = (assay_config_t *)0;
 
+assay_config_t * assay_parser_output(assay_config_t * cfp)
+{
+    assay_config_t * prior;
+
+    prior = assay_parser_config;
+    assay_parser_config = cfp;
+
+    return prior;
+}
+
 void assay_parser_property_assign(void)
 {
     if (assay_parser_config != (assay_config_t *)0) {
-        assay_config_write_binary(assay_parser_config, section.buffer, key.buffer, value.buffer, value.length);
+        assay_config_write_binary(assay_parser_config, section.buffer, key.buffer, value.buffer, value.index);
     }
 }

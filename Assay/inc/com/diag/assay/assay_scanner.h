@@ -14,20 +14,18 @@
 #include <stdio.h>
 
 /**
+ * Enable or disable debugging in the scanner and return the prior value.
+ * @param enable is true to enable, false to disable.
+ * @return the prior value.
+ */
+extern int assay_scanner_debug(int enable);
+
+/**
  * Set the input stream for the scanner and return the prior value.
  * @param fp points to the new input scanner stream.
  * @return the pointer to the prior input scanner stream.
  */
-static inline FILE * assay_scanner_input(FILE * fp)
-{
-    extern FILE * yyin;
-    FILE * prior;
-
-    prior = yyin;
-    yyin = fp;
-
-    return prior;
-}
+extern FILE * assay_scanner_input(FILE * fp);
 
 /**
  * Given a scanner token value, return a printable name for the token.

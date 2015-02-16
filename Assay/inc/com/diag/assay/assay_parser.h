@@ -20,20 +20,18 @@ static const char ASSAY_PARSER_SECTION_DEFAULT[] = "general";
  ******************************************************************************/
 
 /**
+ * Enable or disable debugging in the parser and return the prior value.
+ * @param enable is true to enable, false to disable.
+ * @return the prior value.
+ */
+extern int assay_parser_debug(int enable);
+
+/**
  * Set the output configuration for the parser and return the prior value.
  * @param cfp points to the new output parser configuration.
  * @return the pointer to the prior output parser configuration.
  */
-static inline assay_config_t * assay_parser_output(assay_config_t * cfp)
-{
-    extern assay_config_t * assay_parser_config;
-    assay_config_t * prior;
-
-    prior = assay_parser_config;
-    assay_parser_config = cfp;
-
-    return prior;
-}
+extern assay_config_t * assay_parser_output(assay_config_t * cfp);
 
 /*******************************************************************************
  * SECTION
