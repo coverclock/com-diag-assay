@@ -33,6 +33,14 @@ extern int assay_parser_debug(int enable);
  */
 extern assay_config_t * assay_parser_output(assay_config_t * cfp);
 
+extern const char * assay_parser_file(const char * path);
+
+extern int assay_parser_line(int origin);
+
+extern void assay_parser_next(void);
+
+extern void assay_parser_error(const char * msg);
+
 /*******************************************************************************
  * SECTION
  ******************************************************************************/

@@ -15,11 +15,15 @@
 #include <ctype.h>
 #include "com/diag/assay/assay.h"
 #include "com/diag/assay/assay_parser.h"
+#include "com/diag/assay/assay_scanner.h"
 #include "com/diag/diminuto/diminuto_dump.h"
 #include "com/diag/diminuto/diminuto_log.h"
 #include "com/diag/diminuto/diminuto_escape.h"
 
 static int debug = 0;
+static assay_config_t * config = (assay_config_t *)0;
+static const char * file = "";
+static int line = 0;
 
 int assay_parser_debug(int enable)
 {
@@ -29,6 +33,48 @@ int assay_parser_debug(int enable)
     debug = enable;
 
     return prior;
+}
+
+assay_config_t * assay_parser_output(assay_config_t * cfp)
+{
+    assay_config_t * prior;
+
+    prior = config;
+    config = cfp;
+
+    return prior;
+}
+
+const char * assay_parser_file(const char * path)
+{
+    const char * prior;
+
+    prior = file;
+    file = path;
+
+    return prior;
+}
+
+int assay_parser_line(int origin)
+{
+    int prior;
+
+    prior = line;
+    line = origin;
+
+    return prior;
+}
+
+void assay_parser_next(void)
+{
+    ++line;
+}
+
+void assay_parser_error(const char * msg)
+{
+    extern char * yytext;
+    DIMINUTO_LOG_WARNING("assay: message=\"%s\" file=\"%s\" line=%d text=\"%s\"\n", msg, file, line + 1, yytext);
+    assay_scanner_error();
 }
 
 /*******************************************************************************
@@ -153,21 +199,9 @@ void assay_parser_section_end(void)
  * PROPERTY
  ******************************************************************************/
 
-assay_config_t * assay_parser_config = (assay_config_t *)0;
-
-assay_config_t * assay_parser_output(assay_config_t * cfp)
-{
-    assay_config_t * prior;
-
-    prior = assay_parser_config;
-    assay_parser_config = cfp;
-
-    return prior;
-}
-
 void assay_parser_property_assign(void)
 {
-    if (assay_parser_config != (assay_config_t *)0) {
-        assay_config_write_binary(assay_parser_config, section.buffer, key.buffer, value.buffer, value.index);
+    if (config != (assay_config_t *)0) {
+        assay_config_write_binary(config, section.buffer, key.buffer, value.buffer, value.index);
     }
 }

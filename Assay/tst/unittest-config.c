@@ -48,18 +48,36 @@ static assay_config_t * import(const char * path)
     return cfp;
 }
 
-int main(void)
+static void census(assay_config_t * cfp, int * sectionsp, int * propertiesp) {
+    assay_section_t * scp;
+    assay_property_t * prp;
+    *sectionsp = 0;
+    *propertiesp = 0;
+    for (scp = assay_section_first(cfp); scp != (assay_section_t *)0; scp = assay_section_next(scp)) {
+        ++(*sectionsp);
+        for (prp = assay_property_first(scp); prp != (assay_property_t *)0; prp = assay_property_next(prp)) {
+            ++(*propertiesp);
+        }
+    }
+}
+
+int main(int argc, char ** argv)
 {
     SETLOGMASK();
 
-    assay_scanner_debug(!0);
-    assay_parser_debug(!0);
+    if ((argc > 1) && (strcmp(argv[1], "-d") == 0)) {
+        assay_scanner_debug(!0);
+        assay_parser_debug(!0);
+    }
 
     {
         assay_config_t * cfp;
         const char * value;
+        int sections;
+        int properties;
         ASSERT((cfp = import(PATH1)) != (assay_config_t *)0);
         ASSERT(assay_config_audit(cfp) == (void *)0);
+        census(cfp, &sections, &properties);
         ASSERT(((value = assay_config_read_string(cfp, "section1", "keyword1")) != (const char *)0) && (strcmp(value, "value1") == 0));
         ASSERT(((value = assay_config_read_string(cfp, "section1", "keyword2")) != (const char *)0) && (strcmp(value, "value2") == 0));
         ASSERT(((value = assay_config_read_string(cfp, "section two", "keyword3")) != (const char *)0) && (strcmp(value, "value three") == 0));
@@ -70,6 +88,8 @@ int main(void)
         ASSERT(((value = assay_config_read_string(cfp, "section@four.com", "Charles E. Weller")) != (const char *)0) && (strcmp(value, "Now is the time for all good men to come to the aid of their party.") == 0));
         ASSERT(((value = assay_config_read_string(cfp, "section@four.com", "1926")) != (const char *)0) && (strcmp(value, " How now brown cow ") == 0));
         ASSERT(((value = assay_config_read_string(cfp, "section@four.com", "Lord Admiral Nelson")) != (const char *)0) && (strcmp(value, "\b England expects each man to do his duty. \b ") == 0));
+        ASSERT(sections == 4);
+        ASSERT(properties == 10);
         assay_config_destroy(cfp);
     }
 

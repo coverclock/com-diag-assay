@@ -25,6 +25,17 @@
  *
  * Asterisk Project, "Asterisk Configuration Files",
  * https://wiki.asterisk.org/wiki/display/AST/Asterisk+Configuration+Files
+ *
+ * John R. Levine, Tony Mason, Doug Brown, "lex & yacc", 2nd ed., O'Reilly,
+ * 1995
+ *
+ * John R. Levine, "flex & bison", O'Reilly, 2009
+ *
+ * Tom Niemann, "LEX & YACC TUTORIAL",
+ * http://epaperpress.com/lexandyacc/download/LexAndYaccTutorial.pdf
+ *
+ * Saumya, K. Debray, "Lex and Yacc: A Brisk Tutorial",
+ * http://www.cs.arizona.edu/~debray/Teaching/CSc453/DOCS/tutorial-large.pdf
  */
 
 #include <stddef.h>

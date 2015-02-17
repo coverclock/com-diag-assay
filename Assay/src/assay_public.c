@@ -553,15 +553,24 @@ assay_config_t * assay_config_load_stream(assay_config_t * cfp, FILE * fp)
 
 assay_config_t * assay_config_load_file(assay_config_t * cfp, const char * path)
 {
-    assay_config_t * result = (assay_config_t *)0;
+    assay_config_t * result;
+    const char * priorfile;
+    int priorline;
     FILE * fp;
 
-    if ((fp = fopen(path, "r")) != (FILE *)0) {
+    priorfile = assay_parser_file(path);
+    priorline = assay_parser_line(0);
+
+    if ((fp = fopen(path, "r")) == (FILE *)0) {
+        diminuto_perror(path);
+        result = (assay_config_t *)0;
+    } else {
         result = assay_config_load_stream(cfp, fp);
         fclose(fp);
-    } else {
-        diminuto_perror(path);
     }
+
+    assay_parser_line(priorline);
+    assay_parser_file(priorfile);
 
     return result;
 }

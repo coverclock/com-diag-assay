@@ -9,7 +9,7 @@
  * http://www.diag.com/navigation/downloads/Assay.html<BR>
  */
 
-#include "com/diag/assay/assay_scanner.h"
+#include "com/diag/assay/assay_parser.h"
 
 %}
 
@@ -114,30 +114,30 @@ comment:            SC
                     | SC comment_string
                     ;
 
-statement:          EOL
-                    | comment EOL
-                    | section EOL
-                    | section comment EOL
-                    | section whitespace EOL
-                    | section whitespace comment EOL
-                    | section assignment EOL                                    { assay_parser_property_assign(); }
-                    | section assignment comment EOL                            { assay_parser_property_assign(); }
-                    | section whitespace assignment EOL                         { assay_parser_property_assign(); }
-                    | section whitespace assignment comment EOL                 { assay_parser_property_assign(); }
-                    | assignment EOL                                            { assay_parser_property_assign(); }
-                    | assignment comment EOL                                    { assay_parser_property_assign(); }
-                    | whitespace EOL
-                    | whitespace comment EOL
-                    | whitespace section EOL
-                    | whitespace section comment EOL
-                    | whitespace section whitespace EOL
-                    | whitespace section whitespace comment EOL
-                    | whitespace section assignment EOL                         { assay_parser_property_assign(); }
-                    | whitespace section assignment comment EOL                 { assay_parser_property_assign(); }
-                    | whitespace section whitespace assignment EOL              { assay_parser_property_assign(); }
-                    | whitespace section whitespace assignment comment EOL      { assay_parser_property_assign(); }
-                    | whitespace assignment EOL                                 { assay_parser_property_assign(); }
-                    | whitespace assignment comment EOL                         { assay_parser_property_assign(); }
+statement:          EOL                                                         { assay_parser_next(); }
+                    | comment EOL                                               { assay_parser_next(); }
+                    | section EOL                                               { assay_parser_next(); }
+                    | section comment EOL                                       { assay_parser_next(); }
+                    | section whitespace EOL                                    { assay_parser_next(); }
+                    | section whitespace comment EOL                            { assay_parser_next(); }
+                    | section assignment EOL                                    { assay_parser_next(); assay_parser_property_assign(); }
+                    | section assignment comment EOL                            { assay_parser_next(); assay_parser_property_assign(); }
+                    | section whitespace assignment EOL                         { assay_parser_next(); assay_parser_property_assign(); }
+                    | section whitespace assignment comment EOL                 { assay_parser_next(); assay_parser_property_assign(); }
+                    | assignment EOL                                            { assay_parser_next(); assay_parser_property_assign(); }
+                    | assignment comment EOL                                    { assay_parser_next(); assay_parser_property_assign(); }
+                    | whitespace EOL                                            { assay_parser_next(); }
+                    | whitespace comment EOL                                    { assay_parser_next(); }
+                    | whitespace section EOL                                    { assay_parser_next(); }
+                    | whitespace section comment EOL                            { assay_parser_next(); }
+                    | whitespace section whitespace EOL                         { assay_parser_next(); }
+                    | whitespace section whitespace comment EOL                 { assay_parser_next(); }
+                    | whitespace section assignment EOL                         { assay_parser_next(); assay_parser_property_assign(); }
+                    | whitespace section assignment comment EOL                 { assay_parser_next(); assay_parser_property_assign(); }
+                    | whitespace section whitespace assignment EOL              { assay_parser_next(); assay_parser_property_assign(); }
+                    | whitespace section whitespace assignment comment EOL      { assay_parser_next(); assay_parser_property_assign(); }
+                    | whitespace assignment EOL                                 { assay_parser_next(); assay_parser_property_assign(); }
+                    | whitespace assignment comment EOL                         { assay_parser_next(); assay_parser_property_assign(); }
                    ;
 
 statement_list:     statement
@@ -148,3 +148,10 @@ file:               statement_list
                     ;
 
 %%
+
+int yyerror(char * msg)
+{
+    assay_parser_error(msg);
+    yyclearin;
+    return 0;
+}

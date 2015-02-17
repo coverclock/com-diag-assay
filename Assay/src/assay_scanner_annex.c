@@ -38,6 +38,15 @@ FILE * assay_scanner_input(FILE * fp)
     return prior;
 }
 
+void assay_scanner_error()
+{
+    int token;
+
+    do {
+        token = yylex();
+    } while ((token != 0) && (token != EOL));
+}
+
 const char * assay_scanner_token2name(int token)
 {
     const char * name = (const char *)0;
