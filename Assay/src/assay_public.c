@@ -22,6 +22,12 @@
 #include "com/diag/diminuto/diminuto_escape.h"
 
 /*******************************************************************************
+ * CONSTANTS
+ ******************************************************************************/
+
+const char ASSAY_SECTION_DEFAULT[] = "general";
+
+/*******************************************************************************
  * TYPES
  ******************************************************************************/
 
@@ -44,6 +50,7 @@ struct AssayConfig {
     diminuto_tree_t *   sections;
     assay_section_t *   section;
     assay_property_t *  property;
+    int                 errors;
 };
 
 typedef enum AssayAction {
@@ -65,6 +72,7 @@ assay_config_t * assay_config_create(void)
     cfp->sections = DIMINUTO_TREE_EMPTY;
     cfp->section = (assay_section_t *)0;
     cfp->property = (assay_property_t *)0;
+    cfp->errors = 0;
 
     return cfp;
 }
@@ -90,6 +98,30 @@ void assay_config_destroy(assay_config_t * cfp)
         free(scp);
     }
     free(cfp);
+}
+
+int assay_config_error(assay_config_t * cfp)
+{
+    return ++(cfp->errors);
+}
+
+/*******************************************************************************
+ * CONFIGURATION GETTORS
+ ******************************************************************************/
+
+assay_section_t * assay_section_cached(assay_config_t * cfp)
+{
+    return cfp->section;
+}
+
+assay_property_t * assay_property_cached(assay_config_t * cfp)
+{
+    return cfp->property;
+}
+
+int assay_config_errors(assay_config_t * cfp)
+{
+    return cfp->errors;
 }
 
 /*******************************************************************************
@@ -169,11 +201,6 @@ assay_section_t * assay_section_search(assay_config_t * cfp, const char * name)
     }
 
     return scp;
-}
-
-assay_section_t * assay_section_cached(assay_config_t * cfp)
-{
-    return cfp->section;
 }
 
 /*******************************************************************************
@@ -319,11 +346,6 @@ assay_property_t * assay_property_search(assay_section_t * scp, const char * key
     return prp;
 }
 
-assay_property_t * assay_property_cached(assay_config_t * cfp)
-{
-    return cfp->property;
-}
-
 void assay_property_destroy(assay_property_t * prp)
 {
     if (prp->section->config->property == prp) {
@@ -428,7 +450,7 @@ assay_property_t * assay_property_value_set(assay_property_t * prp, const void *
 }
 
 /*******************************************************************************
- * COMPOSITES
+ * COMPOSITE OPERATORS
  ******************************************************************************/
 
 static inline void section_cache(assay_config_t * cfp, assay_section_t * scp)
@@ -533,6 +555,10 @@ void assay_config_write_binary(assay_config_t * cfp, const char * name, const ch
     assay_property_value_set(property_resolve(section_resolve(cfp, name, !0), key, !0), value, length);
 }
 
+/*******************************************************************************
+ * IMPORTERS
+ ******************************************************************************/
+
 assay_config_t * assay_config_load_stream(assay_config_t * cfp, FILE * fp)
 {
     FILE * priorfp;
@@ -540,6 +566,8 @@ assay_config_t * assay_config_load_stream(assay_config_t * cfp, FILE * fp)
 
     priorfp = assay_scanner_input(fp);
     priorcfp = assay_parser_output(cfp);
+
+    assay_parser_section_init(ASSAY_SECTION_DEFAULT);
 
     do {
         yyparse();
@@ -576,7 +604,7 @@ assay_config_t * assay_config_load_file(assay_config_t * cfp, const char * path)
 }
 
 /*******************************************************************************
- * AUDIT
+ * AUDITORS
  ******************************************************************************/
 
 void assay_property_log(assay_property_t * prp)
@@ -631,6 +659,7 @@ void assay_config_log(assay_config_t * cfp)
         DIMINUTO_LOG_DEBUG("assay_config_t@%p[%zu]:\n", cfp, sizeof(*cfp));
         DIMINUTO_LOG_DEBUG("assay_config_t@%p: section=%p:\n", cfp, cfp->section);
         DIMINUTO_LOG_DEBUG("assay_config_t@%p: property=%p:\n", cfp, cfp->property);
+        DIMINUTO_LOG_DEBUG("assay_config_t@%p: errors=%d:\n", cfp, cfp->errors);
         DIMINUTO_LOG_DEBUG("assay_config_t@%p: sections:\n", cfp);
         for (scp = assay_section_first(cfp); scp != (assay_section_t *)0; scp = assay_section_next(scp)) {
         	assay_section_log(scp);

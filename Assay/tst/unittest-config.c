@@ -78,6 +78,9 @@ int main(int argc, char ** argv)
         ASSERT((cfp = import(PATH1)) != (assay_config_t *)0);
         ASSERT(assay_config_audit(cfp) == (void *)0);
         census(cfp, &sections, &properties);
+        ASSERT(((value = assay_config_read_string(cfp, ASSAY_SECTION_DEFAULT, "general1")) != (const char *)0) && (strcmp(value, "This is a general parameter.") == 0));
+        ASSERT(((value = assay_config_read_string(cfp, ASSAY_SECTION_DEFAULT, "general2")) != (const char *)0) && (strcmp(value, "This is another general parameter.") == 0));
+        ASSERT(((value = assay_config_read_string(cfp, ASSAY_SECTION_DEFAULT, "general3")) != (const char *)0) && (strcmp(value, "This is yet another general parameter.") == 0));
         ASSERT(((value = assay_config_read_string(cfp, "section1", "keyword1")) != (const char *)0) && (strcmp(value, "value1") == 0));
         ASSERT(((value = assay_config_read_string(cfp, "section1", "keyword2")) != (const char *)0) && (strcmp(value, "value2") == 0));
         ASSERT(((value = assay_config_read_string(cfp, "section two", "keyword3")) != (const char *)0) && (strcmp(value, "value three") == 0));
@@ -88,8 +91,8 @@ int main(int argc, char ** argv)
         ASSERT(((value = assay_config_read_string(cfp, "section@four.com", "Charles E. Weller")) != (const char *)0) && (strcmp(value, "Now is the time for all good men to come to the aid of their party.") == 0));
         ASSERT(((value = assay_config_read_string(cfp, "section@four.com", "1926")) != (const char *)0) && (strcmp(value, " How now brown cow ") == 0));
         ASSERT(((value = assay_config_read_string(cfp, "section@four.com", "Lord Admiral Nelson")) != (const char *)0) && (strcmp(value, "\b England expects each man to do his duty. \b ") == 0));
-        ASSERT(sections == 4);
-        ASSERT(properties == 10);
+        ASSERT(sections == 5);
+        ASSERT(properties == 13);
         assay_config_destroy(cfp);
     }
 

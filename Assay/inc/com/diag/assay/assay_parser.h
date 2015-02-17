@@ -13,8 +13,6 @@
 
 #include "com/diag/assay/assay.h"
 
-static const char ASSAY_PARSER_SECTION_DEFAULT[] = "general";
-
 /*******************************************************************************
  * CONFIGURATION
  ******************************************************************************/
@@ -33,12 +31,33 @@ extern int assay_parser_debug(int enable);
  */
 extern assay_config_t * assay_parser_output(assay_config_t * cfp);
 
+/**
+ * Record the name of the input file. This is used for subsequent error
+ * messages.
+ * @param path is the path to the input file.
+ * @return the path to the prior input file.
+ */
 extern const char * assay_parser_file(const char * path);
 
+/**
+ * Record the beginning line number of the input file. This is used for
+ * subsequent error messages.
+ * @param origin is the beginning line number of the input file (typically zero).
+ * @return the prior line number.
+ */
 extern int assay_parser_line(int origin);
 
+/**
+ * Increment the line number of the input file being processed. This is called
+ * by the parser as it parses the input file.
+ */
 extern void assay_parser_next(void);
 
+/**
+ * Indicate that a parse error has occurred. This is called by the parser
+ * as it parses the input file.
+ * @param msg is a message passed from the parser.
+ */
 extern void assay_parser_error(const char * msg);
 
 /*******************************************************************************
@@ -62,6 +81,13 @@ extern void assay_parser_section_next(int ch);
  * Indicate the end of a section name in the parsed stream of input tokens.
  */
 extern void assay_parser_section_end(void);
+
+/**
+ * Initialize the section name to this value as if it had been read from the
+ * configuration file. This is the section into which properties will be loaded
+ * before any section name appears in the file.
+ */
+extern void assay_parser_section_init(const char * name);
 
 /*******************************************************************************
  * KEY
