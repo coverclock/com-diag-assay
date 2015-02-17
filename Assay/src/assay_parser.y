@@ -90,9 +90,11 @@ value:              value_string                                                
 
 assignment_tail:    EQ
                     | EQ value
+                    | EQ whitespace value
                     ;
 
 assignment:         key assignment_tail
+                    | key whitespace assignment_tail
                     ;
 
 comment_char:       CH
