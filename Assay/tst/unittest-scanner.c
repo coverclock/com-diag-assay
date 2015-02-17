@@ -17,16 +17,21 @@ int main(int argc, int ** argv)
 {
     int token;
     const char * name;
+    extern FILE * yyin;
     extern char * yytext;
 
     SETLOGMASK();
 
     assay_scanner_debug(!0);
 
+    ASSERT((yyin = fopen("etc/test1.ini", "r")) != (FILE *)0);
+
     do {
         token = yylex();
         name = assay_scanner_token2name(token);
     } while (token != 0);
+
+    ASSERT(fclose(yyin) == 0);
 
     EXIT();
 }

@@ -81,6 +81,8 @@ static void action_end(assay_parser_action_t * ap)
 void assay_parser_section_begin(void)
 {
     action_begin(&section);
+    action_begin(&key);
+    action_end(&key);
 }
 
 void assay_parser_section_next(int ch)
@@ -221,12 +223,7 @@ void assay_parser_next(void)
 void assay_parser_error(const char * msg)
 {
     extern char * yytext;
-    int errors;
-
-    errors = assay_config_error(config);
 
     section.buffer[section.index] = '\0';
-    DIMINUTO_LOG_WARNING("assay: \"%s\" file=\"%s\" line=%d section=\"%s\" text=\"%s\" errors=%d\n", msg, file, line + 1, section.buffer, yytext, errors);
-
-    assay_scanner_error();
+    DIMINUTO_LOG_WARNING("assay_parser: *%s* file=\"%s\" line=%d section=\"%s\" text=\"%s\" errors=%d\n", msg, file, line + 1, section.buffer, yytext, assay_config_error(config));
 }

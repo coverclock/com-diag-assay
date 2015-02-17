@@ -138,7 +138,8 @@ statement:          EOL                                                         
                     | whitespace section whitespace assignment comment EOL      { assay_parser_next(); assay_parser_property_assign(); }
                     | whitespace assignment EOL                                 { assay_parser_next(); assay_parser_property_assign(); }
                     | whitespace assignment comment EOL                         { assay_parser_next(); assay_parser_property_assign(); }
-                   ;
+                    | error EOL                                                 { assay_parser_next(); }
+                    ;
 
 statement_list:     statement
                     | statement_list statement
@@ -152,6 +153,8 @@ file:               statement_list
 int yyerror(char * msg)
 {
     assay_parser_error(msg);
+#if 0
     yyclearin;
+#endif
     return 0;
 }

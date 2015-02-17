@@ -22,9 +22,13 @@ int main(int argc, char ** argv)
 
     assay_parser_debug(!0);
 
+    ASSERT((yyin = fopen("etc/test1.ini", "r")) != (FILE *)0);
+
     do {
         yyparse();
     } while (!feof(yyin));
+
+    ASSERT(fclose(yyin) == 0);
 
     EXIT();
 }

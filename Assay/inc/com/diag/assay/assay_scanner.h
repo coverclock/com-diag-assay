@@ -28,12 +28,6 @@ extern int assay_scanner_debug(int enable);
 extern FILE * assay_scanner_input(FILE * fp);
 
 /**
- * Do whatever is necessary to place the scanner in a known state following
- * presumably an error in the parse.
- */
-extern void assay_scanner_error();
-
-/**
  * Given a scanner token value, return a printable name for the token.
  * @param token is the scanner token value.
  * @return a printable name.

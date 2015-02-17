@@ -11,6 +11,7 @@
 #include "assay_parser.h"
 #include <string.h>
 #include "com/diag/assay/assay_scanner.h"
+#include "com/diag/assay/assay_parser.h"
 #include "com/diag/diminuto/diminuto_log.h"
 #include "com/diag/diminuto/diminuto_dump.h"
 #include "com/diag/diminuto/diminuto_escape.h"
@@ -38,15 +39,6 @@ FILE * assay_scanner_input(FILE * fp)
     return prior;
 }
 
-void assay_scanner_error()
-{
-    int token;
-
-    do {
-        token = yylex();
-    } while ((token != 0) && (token != EOL));
-}
-
 const char * assay_scanner_token2name(int token)
 {
     const char * name = (const char *)0;
@@ -62,6 +54,10 @@ const char * assay_scanner_token2name(int token)
     case SC:        name = "SC";        break;
     case SP:        name = "SP";        break;
     default:        name = "ERR";       break;
+    }
+
+    if (debug) {
+        DIMINUTO_LOG_DEBUG("assay_scanner: token=%d symbol=%s\n", token, name);
     }
 
     return name;
