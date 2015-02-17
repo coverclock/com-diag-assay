@@ -17,9 +17,42 @@
 
 static const char PATH1[] = "etc/test1.ini";
 
-static inline void dump(assay_config_t * cfp)
+static assay_config_t * import(const char * path)
 {
-    assay_config_log(cfp);
+    assay_config_t * cfp;
+    cfp = assay_config_load_file(assay_config_create(), path);
+    printf("%s\n", path);
+    if (cfp != (assay_config_t *)0) {
+        assay_section_t * scp;
+        for (scp = assay_section_first(cfp); scp != (assay_section_t *)0; scp = assay_section_next(scp)) {
+            const char * name;
+            assay_property_t * prp;
+            name = assay_section_name_get(scp);
+            printf(" [%s]\n", name);
+            for (prp = assay_property_first(scp); prp != (assay_property_t *)0; prp = assay_property_next(prp)) {
+                const char * key;
+                const char * value;
+                size_t length;
+                size_t ii;
+                int printable = !0;;
+                key = assay_property_key_get(prp);
+                value = (const char *)assay_property_value_get(prp, &length);
+                for (ii = 0; ii < length - 1; ++ii) {
+                    if (!isprint(value[ii])) {
+                        printable = 0;
+                        break;
+                    }
+                }
+                if (printable) {
+                    printf("  %s=\"%s\"\n", key, value);
+                } else {
+                    printf("  %s=\n", key);
+                	diminuto_dump_generic(stdout, value, length, 0, '.', 0, 0, 3, 1, 2 * sizeof(int64_t), ": ", " ", "|", ' ', ' ', "|\n");
+                }
+            }
+        }
+    }
+    return cfp;
 }
 
 int main(void)
@@ -28,9 +61,7 @@ int main(void)
 
     {
         assay_config_t * cfp;
-        ASSERT((cfp = assay_config_create()) != (assay_config_t *)0);
-        ASSERT(assay_config_load_file(cfp, PATH1) == cfp);
-        dump(cfp);
+        ASSERT((cfp = import(PATH1)) != (assay_config_t *)0);
         ASSERT(assay_config_audit(cfp) == (void *)0);
         assay_config_destroy(cfp);
     }

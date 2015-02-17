@@ -26,11 +26,6 @@ static const char ONE[] = "One";
 static const char TWO[] = "Two";
 static const char THREE[] = "Three";
 
-static inline void dump(assay_config_t * cfp)
-{
-    assay_config_log(cfp);
-}
-
 int main(void)
 {
     SETLOGMASK();
@@ -215,7 +210,7 @@ int main(void)
             ASSERT(assay_property_prev(prp[4]) == prp[5]);
             ASSERT(assay_property_last(scp[2]) == prp[4]);
         }
-        dump(cfp);
+        assay_config_log(cfp);
         ASSERT(assay_config_audit(cfp) == (void *)0);
         {
             assay_section_t * scp;
@@ -275,7 +270,7 @@ int main(void)
             ASSERT(strcmp(value, "333") == 0);
             ASSERT(assay_property_value_set(prp, "C", strlen("C") + 1) == prp);
         }
-        dump(cfp);
+        assay_config_log(cfp);
         ASSERT(assay_config_audit(cfp) == (void *)0);
         {
             assay_section_t * scp;
@@ -395,7 +390,7 @@ int main(void)
             /**/
             assay_config_write_string(cfp, BRAVO, ONE, "11");
             ASSERT((value = assay_config_read_string(cfp, ALFA, ONE)) != (const char *)0);
-            dump(cfp);
+            assay_config_log(cfp);
             ASSERT(strcmp(value, "1") == 0);
             ASSERT((value = assay_config_read_string(cfp, ALFA, TWO)) == (const char *)0);
             ASSERT((value = assay_config_read_string(cfp, ALFA, THREE)) == (const char *)0);
