@@ -12,6 +12,7 @@
 #include "com/diag/diminuto/diminuto_unittest.h"
 #include "com/diag/diminuto/diminuto_log.h"
 #include "com/diag/diminuto/diminuto_dump.h"
+#include "com/diag/diminuto/diminuto_escape.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -33,21 +34,13 @@ static assay_config_t * import(const char * path)
                 const char * key;
                 const char * value;
                 size_t length;
-                size_t ii;
-                int printable = !0;;
                 key = assay_property_key_get(prp);
                 value = (const char *)assay_property_value_get(prp, &length);
-                for (ii = 0; ii < length - 1; ++ii) {
-                    if (!isprint(value[ii])) {
-                        printable = 0;
-                        break;
-                    }
-                }
-                if (printable) {
+                if (diminuto_escape_printable(value)) {
                     printf("  %s=\"%s\"\n", key, value);
                 } else {
                     printf("  %s=\n", key);
-                	diminuto_dump_generic(stdout, value, length, 0, '.', 0, 0, 3, 1, 2 * sizeof(int64_t), ": ", " ", "|", ' ', ' ', "|\n");
+                    diminuto_dump_generic(stdout, value, length, 0, '.', 0, 0, 3, 1, 16, ": ", " ", "|", ' ', ' ', "|\n");
                 }
             }
         }

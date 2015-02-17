@@ -19,6 +19,7 @@
 #include "com/diag/diminuto/diminuto_containerof.h"
 #include "com/diag/diminuto/diminuto_log.h"
 #include "com/diag/diminuto/diminuto_dump.h"
+#include "com/diag/diminuto/diminuto_escape.h"
 
 /*******************************************************************************
  * TYPES
@@ -581,25 +582,16 @@ void assay_property_log(assay_property_t * prp)
         size_t length;
         key = assay_property_key_get(prp);
         value = assay_property_value_get(prp, &length);
-        if (value == (void *)0) {
+        if (!DIMINUTO_LOG_ENABLED(DIMINUTO_LOG_MASK_DEBUG)) {
+            /* Do nothing. */
+        } else if (value == (void *)0) {
             DIMINUTO_LOG_DEBUG("assay_property_t@%p[%zu]: key=\"%s\" value==%p\n", prp, sizeof(*prp), key, value);
+        } else if (diminuto_escape_printable(value)) {
+            DIMINUTO_LOG_DEBUG("assay_property_t@%p[%zu]: key=\"%s\" value=\"%s\"[%zu]\n", prp, sizeof(*prp), key, value, length);
         } else {
-            size_t ii;
-            int printable;
-            printable = !0;
-            for (ii = 0; ii < length - 1; ++ii) {
-                if (!isprint(value[ii])) {
-                    printable = 0;
-                    break;
-                }
-            }
-            if (printable) {
-                DIMINUTO_LOG_DEBUG("assay_property_t@%p[%zu]: key=\"%s\" value=\"%s\"[%zu]\n", prp, sizeof(*prp), key, value, length);
-            } else {
-                DIMINUTO_LOG_DEBUG("assay_property_t@%p[%zu]: key=\"%s\" value=<\n", prp, sizeof(*prp), key);
-                diminuto_dump(diminuto_log_stream(), value, length);
-                DIMINUTO_LOG_DEBUG(">[%zu]\n", length);
-            }
+            DIMINUTO_LOG_DEBUG("assay_property_t@%p[%zu]: key=\"%s\" value=<\n", prp, sizeof(*prp), key);
+            diminuto_dump(diminuto_log_stream(), value, length);
+            DIMINUTO_LOG_DEBUG(">[%zu]\n", length);
         }
     }
 }

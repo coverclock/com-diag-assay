@@ -10,10 +10,10 @@
 
 #include "assay_parser.h"
 #include <string.h>
-#include <ctype.h>
 #include "com/diag/assay/assay_scanner.h"
 #include "com/diag/diminuto/diminuto_log.h"
 #include "com/diag/diminuto/diminuto_dump.h"
+#include "com/diag/diminuto/diminuto_escape.h"
 
 static int debug = 0;
 
@@ -85,23 +85,11 @@ int assay_scanner_text2value(const char * text)
         /* Do nothing. */
     } else if (!DIMINUTO_LOG_ENABLED(DIMINUTO_LOG_MASK_DEBUG)) {
         /* Do nothing. */
+    } else if (diminuto_escape_printable(text)) {
+        DIMINUTO_LOG_DEBUG("assay_scanner: value=0x%2.2x text=\"%s\"\n", value, text);
     } else {
-        int printable = !0;
-        size_t ii;
-        size_t limit;
-        limit = strlen(text);
-        for (ii = 0; ii < limit; ++ii) {
-            if (!isprint(text[ii])) {
-                printable = 0;
-                break;
-            }
-        }
-        if (printable) {
-            DIMINUTO_LOG_DEBUG("assay_scanner: value=0x%2.2x text=\"%s\"\n", value, text);
-        } else {
-            DIMINUTO_LOG_DEBUG("assay_scanner: value=0x%2.2x text:\n", value);
-            diminuto_dump(diminuto_log_stream(), text, limit + 1);
-        }
+        DIMINUTO_LOG_DEBUG("assay_scanner: value=0x%2.2x text:\n", value);
+        diminuto_dump(diminuto_log_stream(), text, strlen(text) + 1);
     }
 
     return value;

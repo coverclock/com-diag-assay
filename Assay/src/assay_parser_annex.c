@@ -17,6 +17,7 @@
 #include "com/diag/assay/assay_parser.h"
 #include "com/diag/diminuto/diminuto_dump.h"
 #include "com/diag/diminuto/diminuto_log.h"
+#include "com/diag/diminuto/diminuto_escape.h"
 
 static int debug = 0;
 
@@ -90,25 +91,13 @@ void assay_parser_value_end(void)
         /* Do nothing. */
     } else if (!DIMINUTO_LOG_ENABLED(DIMINUTO_LOG_MASK_DEBUG)) {
         /* Do nothing. */
+    } else if (diminuto_escape_printable(value.buffer)) {
+        DIMINUTO_LOG_DEBUG("assay_parser: value[%zu]=\"%s\"[%zu]\n", value.length, value.buffer, value.index);
     } else {
-        int printable = !0;
-        size_t ii;
-        size_t limit;
-        limit = value.index - 1; /* Ignore trailing NUL. */
-        for (ii = 0; ii < limit; ++ii) {
-            if (!isprint(value.buffer[ii])) {
-                printable = 0;
-                break;
-            }
-        }
-        if (printable) {
-            DIMINUTO_LOG_DEBUG("assay_parser: value[%zu]=\"%s\"[%zu]\n", value.length, value.buffer, value.index);
-        } else {
-            DIMINUTO_LOG_DEBUG("assay_parser: value[%zu]:\n", value.length);
-            diminuto_dump(diminuto_log_stream(), value.buffer, value.index);
-        }
+        DIMINUTO_LOG_DEBUG("assay_parser: value[%zu]:\n", value.length);
+        diminuto_dump(diminuto_log_stream(), value.buffer, value.index);
     }
-}
+ }
 
 /*******************************************************************************
  * KEY
