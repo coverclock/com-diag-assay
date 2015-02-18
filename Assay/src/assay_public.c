@@ -564,10 +564,10 @@ assay_config_t * assay_config_load_stream(assay_config_t * cfp, FILE * fp)
     FILE * priorfp;
     assay_config_t * priorcfp;
 
-    yyrestart(fp);
-
     priorfp = assay_scanner_input(fp);
     priorcfp = assay_parser_output(cfp);
+
+    yyrestart(fp);
 
     do {
         yyparse();
@@ -581,7 +581,6 @@ assay_config_t * assay_config_load_stream(assay_config_t * cfp, FILE * fp)
 
 assay_config_t * assay_config_load_file(assay_config_t * cfp, const char * path)
 {
-    assay_config_t * result;
     const char * priorfile;
     int priorline;
     FILE * fp;
@@ -589,18 +588,23 @@ assay_config_t * assay_config_load_file(assay_config_t * cfp, const char * path)
     priorfile = assay_parser_file(path);
     priorline = assay_parser_line(0);
 
-    if ((fp = fopen(path, "r")) == (FILE *)0) {
-        diminuto_perror(path);
-        result = (assay_config_t *)0;
-    } else {
-        result = assay_config_load_stream(cfp, fp);
+    DIMINUTO_LOG_INFORMATION("assay_config_load_file: loading config=%p file=\"%s\" line=%d path=\"%s\"\n", cfp, priorfile, priorline + 1, path);
+
+    if (strcmp(path, "-") == 0) {
+        cfp = assay_config_load_stream(cfp, stdin);
+    } else if ((fp = fopen(path, "r")) != (FILE *)0) {
+        cfp = assay_config_load_stream(cfp, fp);
         fclose(fp);
+    } else {
+        assay_config_error(cfp);
+        DIMINUTO_LOG_WARNING("assay_config_load_file: *%s* config=%p file=\"%s\" line=%d path=\"%s\" errors=%d\n", strerror(errno), cfp, priorfile, priorline + 1, path, assay_config_errors(cfp));
+        cfp = (assay_config_t *)0;
     }
 
     assay_parser_line(priorline);
     assay_parser_file(priorfile);
 
-    return result;
+    return cfp;
 }
 
 /*******************************************************************************
@@ -758,7 +762,9 @@ void * assay_config_audit(assay_config_t * cfp)
         }
     }
     result = (void *)0;
+
 exit:
+
     if (result != (void *)0) {
         DIMINUTO_LOG_WARNING("assay_config_audit: *audit failed* config=%p object=%p type=%s check=%d\n", cfp, result, type, line);
     }

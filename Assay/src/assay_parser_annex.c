@@ -36,7 +36,7 @@ typedef struct AssayParserAction {
 
 static int debug = 0;
 static assay_config_t * config = (assay_config_t *)0;
-static const char * file = "";
+static const char * file = "stdin";
 static int line = 0;
 
 static assay_parser_action_t operator = { 0 };
@@ -126,7 +126,12 @@ void assay_parser_argument_end(void)
 
 void assay_parser_operation_execute(void)
 {
-DIMINUTO_LOG_DEBUG("APPLYING %s to %s\n", operator.buffer, argument.buffer);
+    if (strcmp(operator.buffer, "include") == 0) {
+        assay_config_load_file(config, argument.buffer);
+    } else {
+        assay_config_error(config);
+        DIMINUTO_LOG_WARNING("assay_parser_operation_execute: *invalid* config=%p operator=\"%s\" argument=\"%s\" file=\"%s\" line=%d errors=%d\n", config, operator.buffer, argument.buffer, file, line + 1, assay_config_error(config));
+    }
 }
 
 /*******************************************************************************
@@ -279,9 +284,11 @@ void assay_parser_error(const char * msg)
     extern char * yytext;
     extern int yychar;
 
-    DIMINUTO_LOG_WARNING("assay_parser_error: *%s* file=\"%s\" line=%d text=\"%s\" token=%d=%s errors=%d\n", msg, file, line + 1, yytext, yychar, assay_scanner_token2name(yychar), assay_config_error(config));
+    DIMINUTO_LOG_WARNING("assay_parser_error: *%s* config=%p file=\"%s\" line=%d text=\"%s\" token=%d=%s errors=%d\n", msg, config, file, line + 1, yytext, yychar, assay_scanner_token2name(yychar), assay_config_error(config));
 
     assay_parser_value_end();
     assay_parser_key_end();
     assay_parser_section_end();
+    assay_parser_argument_end();
+    assay_parser_operator_end();
 }
