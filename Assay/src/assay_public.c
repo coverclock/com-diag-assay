@@ -564,10 +564,10 @@ assay_config_t * assay_config_load_stream(assay_config_t * cfp, FILE * fp)
     FILE * priorfp;
     assay_config_t * priorcfp;
 
+    yyrestart(fp);
+
     priorfp = assay_scanner_input(fp);
     priorcfp = assay_parser_output(cfp);
-
-    assay_parser_section_init(ASSAY_SECTION_DEFAULT);
 
     do {
         yyparse();
@@ -678,10 +678,12 @@ void * assay_config_audit(assay_config_t * cfp)
     assay_property_t * pgtp;
     diminuto_tree_t * stp;
     diminuto_tree_t * ptp;
+    const char * type = "";
     int line;
 
+    type = "array_config_t";
+    result = cfp;
     if (cfp == (assay_config_t *)0) {
-        result = cfp;
         line = __LINE__;
         goto exit;
     }
@@ -690,7 +692,6 @@ void * assay_config_audit(assay_config_t * cfp)
     } else if (cfp->section->config == cfp) {
         /* Do nothing. */
     } else {
-        result = cfp;
         line = __LINE__;
         goto exit;
     }
@@ -699,23 +700,22 @@ void * assay_config_audit(assay_config_t * cfp)
     } else if (cfp->property->section == cfp->section) {
         /* Do nothing. */
     } else {
-        result = cfp;
         line = __LINE__;
         goto exit;
     }
+    type = "array_section_t";
     if ((stp = diminuto_tree_audit(&(cfp->sections))) != (diminuto_tree_t *)0) {
         result = diminuto_containerof(assay_section_t, tree, stp);
         line = __LINE__;
         goto exit;
     }
     for (scp = assay_section_first(cfp); scp != (assay_section_t *)0; scp = assay_section_next(scp)) {
+        result = scp;
         if (scp->config != cfp) {
-            result = scp;
             line = __LINE__;
             goto exit;
         }
         if (scp->name == (const char *)0) {
-            result = scp;
             line = __LINE__;
             goto exit;
         }
@@ -726,23 +726,22 @@ void * assay_config_audit(assay_config_t * cfp)
         } else if (strcmp(sltp->name, sgtp->name) < 0) {
             /* Do nothing. */
         } else {
-            result = scp;
             line = __LINE__;
             goto exit;
         }
+        type = "array_property_t";
         if ((ptp = diminuto_tree_audit(&(scp->properties))) != (diminuto_tree_t *)0) {
             result = diminuto_containerof(assay_property_t, tree, ptp);
             line = __LINE__;
             goto exit;
         }
         for (prp = assay_property_first(scp); prp != (assay_property_t *)0; prp = assay_property_next(prp)) {
+            result = prp;
             if (prp->section != scp) {
-                result = prp;
                 line = __LINE__;
                 goto exit;
             }
             if (prp->key == (const char *)0) {
-                result = prp;
                 line = __LINE__;
                 goto exit;
             }
@@ -753,17 +752,15 @@ void * assay_config_audit(assay_config_t * cfp)
             } else if (strcmp(pltp->key, pgtp->key) < 0) {
                 /* Do nothing. */
             } else {
-                result = prp;
                 line = __LINE__;
                 goto exit;
             }
         }
     }
-
+    result = (void *)0;
 exit:
-
     if (result != (void *)0) {
-        DIMINUTO_LOG_DEBUG("%s@%d: assay_config_audit FAILED!\n", __FILE__, line);
+        DIMINUTO_LOG_WARNING("assay_config_audit: *audit failed* config=%p object=%p type=%s check=%d\n", cfp, result, type, line);
     }
 
     return result;

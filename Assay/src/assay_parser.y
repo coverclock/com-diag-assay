@@ -18,6 +18,7 @@
 %token EQ
 %token ESC
 %token LB
+%token OT
 %token RB
 %token SC
 %token SP
@@ -28,6 +29,48 @@
 
 whitespace:         SP
                     | whitespace SP
+                    ;
+
+operator_char:      CH                                                          { assay_parser_operator_next($1); }
+                    | ESC                                                       { assay_parser_operator_next($1); }
+                    ;
+
+operator_tail:      operator_char
+                    | operator_char operator_tail
+                    ;
+
+operator_init:      CH                                                          { assay_parser_operator_begin(); assay_parser_operator_next($1); }
+                    | ESC                                                       { assay_parser_operator_begin(); assay_parser_operator_next($1); }
+                    ;
+
+operator_string:    operator_init
+                    | operator_init operator_tail
+                    ;
+
+operator:           operator_string                                             { assay_parser_operator_end(); }
+                    ;
+
+argument_char:      CH                                                          { assay_parser_argument_next($1); }
+                    | ESC                                                       { assay_parser_argument_next($1); }
+                    ;
+
+argument_tail:      argument_char
+                    | argument_char argument_tail
+                    ;
+
+argument_init:      CH                                                          { assay_parser_argument_begin(); assay_parser_argument_next($1); }
+                    | ESC                                                       { assay_parser_argument_begin(); assay_parser_argument_next($1); }
+                    ;
+
+argument_string:    argument_init
+                    | argument_init argument_tail
+                    ;
+
+argument:           argument_string                                             { assay_parser_argument_end(); }
+                    ;
+
+operation:          OT operator whitespace argument                             { assay_parser_operation_execute(); }
+                    | OT whitespace operator whitespace argument                { assay_parser_operation_execute(); }
                     ;
 
 section_char:       CH                                                          { assay_parser_section_next($1); }
@@ -93,14 +136,15 @@ assignment_tail:    EQ
                     | EQ whitespace value
                     ;
 
-assignment:         key assignment_tail
-                    | key whitespace assignment_tail
+assignment:         key assignment_tail                                         { assay_parser_property_assign(); }
+                    | key whitespace assignment_tail                            { assay_parser_property_assign(); }
                     ;
 
 comment_char:       CH
                     | ESC
                     | EQ
                     | LB
+                    | OT
                     | RB
                     | SC
                     | SP
@@ -120,24 +164,27 @@ statement:          EOL                                                         
                     | section comment EOL                                       { assay_parser_next(); }
                     | section whitespace EOL                                    { assay_parser_next(); }
                     | section whitespace comment EOL                            { assay_parser_next(); }
-                    | section assignment EOL                                    { assay_parser_next(); assay_parser_property_assign(); }
-                    | section assignment comment EOL                            { assay_parser_next(); assay_parser_property_assign(); }
-                    | section whitespace assignment EOL                         { assay_parser_next(); assay_parser_property_assign(); }
-                    | section whitespace assignment comment EOL                 { assay_parser_next(); assay_parser_property_assign(); }
-                    | assignment EOL                                            { assay_parser_next(); assay_parser_property_assign(); }
-                    | assignment comment EOL                                    { assay_parser_next(); assay_parser_property_assign(); }
+                    | section assignment EOL                                    { assay_parser_next(); }
+                    | section assignment comment EOL                            { assay_parser_next(); }
+                    | section whitespace assignment EOL                         { assay_parser_next(); }
+                    | section whitespace assignment comment EOL                 { assay_parser_next(); }
+                    | assignment EOL                                            { assay_parser_next(); }
+                    | assignment comment EOL                                    { assay_parser_next(); }
+                    | operation EOL                                             { assay_parser_next(); }
+                    | operation comment EOL                                     { assay_parser_next(); }
+                    | operation whitespace comment EOL                          { assay_parser_next(); }
                     | whitespace EOL                                            { assay_parser_next(); }
                     | whitespace comment EOL                                    { assay_parser_next(); }
                     | whitespace section EOL                                    { assay_parser_next(); }
                     | whitespace section comment EOL                            { assay_parser_next(); }
                     | whitespace section whitespace EOL                         { assay_parser_next(); }
                     | whitespace section whitespace comment EOL                 { assay_parser_next(); }
-                    | whitespace section assignment EOL                         { assay_parser_next(); assay_parser_property_assign(); }
-                    | whitespace section assignment comment EOL                 { assay_parser_next(); assay_parser_property_assign(); }
-                    | whitespace section whitespace assignment EOL              { assay_parser_next(); assay_parser_property_assign(); }
-                    | whitespace section whitespace assignment comment EOL      { assay_parser_next(); assay_parser_property_assign(); }
-                    | whitespace assignment EOL                                 { assay_parser_next(); assay_parser_property_assign(); }
-                    | whitespace assignment comment EOL                         { assay_parser_next(); assay_parser_property_assign(); }
+                    | whitespace section assignment EOL                         { assay_parser_next(); }
+                    | whitespace section assignment comment EOL                 { assay_parser_next(); }
+                    | whitespace section whitespace assignment EOL              { assay_parser_next(); }
+                    | whitespace section whitespace assignment comment EOL      { assay_parser_next(); }
+                    | whitespace assignment EOL                                 { assay_parser_next(); }
+                    | whitespace assignment comment EOL                         { assay_parser_next(); }
                     | error EOL                                                 { assay_parser_next(); }
                     ;
 
@@ -153,8 +200,5 @@ file:               statement_list
 int yyerror(char * msg)
 {
     assay_parser_error(msg);
-#if 0
-    yyclearin;
-#endif
     return 0;
 }

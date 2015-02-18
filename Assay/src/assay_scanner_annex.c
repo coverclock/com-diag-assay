@@ -50,6 +50,7 @@ const char * assay_scanner_token2name(int token)
     case EQ:        name = "EQ";        break;
     case ESC:       name = "ESC";       break;
     case LB:        name = "LB";        break;
+    case OT:        name = "OT";        break;
     case RB:        name = "RB";        break;
     case SC:        name = "SC";        break;
     case SP:        name = "SP";        break;

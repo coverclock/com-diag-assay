@@ -39,6 +39,8 @@ static assay_config_t * config = (assay_config_t *)0;
 static const char * file = "";
 static int line = 0;
 
+static assay_parser_action_t operator = { 0 };
+static assay_parser_action_t argument = { 0 };
 static assay_parser_action_t section = { 0 };
 static assay_parser_action_t key = { 0 };
 static assay_parser_action_t value = { 0 };
@@ -75,6 +77,59 @@ static void action_end(assay_parser_action_t * ap)
 }
 
 /*******************************************************************************
+ * OPERATOR
+ ******************************************************************************/
+
+void assay_parser_operator_begin(void)
+{
+    action_begin(&operator);
+}
+
+void assay_parser_operator_next(int ch)
+{
+    action_next(&operator, ch);
+}
+
+void assay_parser_operator_end(void)
+{
+    action_end(&operator);
+    if (debug) {
+        DIMINUTO_LOG_DEBUG("assay_parser: operator[%zu]=\"%s\"[%zu]\n", operator.length, operator.buffer, operator.index);
+    }
+}
+
+/*******************************************************************************
+ * ARGUMENT
+ ******************************************************************************/
+
+void assay_parser_argument_begin(void)
+{
+    action_begin(&argument);
+}
+
+void assay_parser_argument_next(int ch)
+{
+    action_next(&argument, ch);
+}
+
+void assay_parser_argument_end(void)
+{
+    action_end(&argument);
+    if (debug) {
+        DIMINUTO_LOG_DEBUG("assay_parser: argument[%zu]=\"%s\"[%zu]\n", argument.length, argument.buffer, argument.index);
+    }
+}
+
+/*******************************************************************************
+ * OPERATION
+ ******************************************************************************/
+
+void assay_parser_operation_execute(void)
+{
+DIMINUTO_LOG_DEBUG("APPLYING %s to %s\n", operator.buffer, argument.buffer);
+}
+
+/*******************************************************************************
  * SECTION
  ******************************************************************************/
 
@@ -96,15 +151,6 @@ void assay_parser_section_end(void)
     if (debug) {
         DIMINUTO_LOG_DEBUG("assay_parser: section[%zu]=\"%s\"[%zu]\n", section.length, section.buffer, section.index);
     }
-}
-
-void assay_parser_section_init(const char * name)
-{
-    assay_parser_section_begin();
-    while (*name != '\0') {
-        assay_parser_section_next(*(name++));
-    }
-    assay_parser_section_end();
 }
 
 /*******************************************************************************
@@ -166,9 +212,17 @@ void assay_parser_value_end(void)
 
 void assay_parser_property_assign(void)
 {
-    if (config != (assay_config_t *)0) {
-        assay_config_write_binary(config, section.buffer, key.buffer, value.buffer, value.index);
+    const char * name = ASSAY_SECTION_DEFAULT;
+
+    if (section.buffer == (char *)0) {
+        /* Do nothing. */
+    } else if (section.index == 0) {
+        /* Do nothing. */
+    } else {
+        name = section.buffer;
     }
+
+    assay_config_write_binary(config, name, key.buffer, value.buffer, value.index);
 }
 
 /*******************************************************************************
@@ -223,7 +277,11 @@ void assay_parser_next(void)
 void assay_parser_error(const char * msg)
 {
     extern char * yytext;
+    extern int yychar;
 
-    section.buffer[section.index] = '\0';
-    DIMINUTO_LOG_WARNING("assay_parser: *%s* file=\"%s\" line=%d section=\"%s\" text=\"%s\" errors=%d\n", msg, file, line + 1, section.buffer, yytext, assay_config_error(config));
+    DIMINUTO_LOG_WARNING("assay_parser_error: *%s* file=\"%s\" line=%d text=\"%s\" token=%d=%s errors=%d\n", msg, file, line + 1, yytext, yychar, assay_scanner_token2name(yychar), assay_config_error(config));
+
+    assay_parser_value_end();
+    assay_parser_key_end();
+    assay_parser_section_end();
 }

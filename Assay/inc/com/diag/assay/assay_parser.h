@@ -61,6 +61,61 @@ extern void assay_parser_next(void);
 extern void assay_parser_error(const char * msg);
 
 /*******************************************************************************
+ * OPERATOR
+ ******************************************************************************/
+
+/**
+ * Indicate the beginning of an operator in the parsed stream of input
+ * tokens.
+ */
+extern void assay_parser_operator_begin(void);
+
+/**
+ * Append a character to the operator being assembled from the parsed
+ * stream of input tokens.
+ * @param ch is the character to be appended.
+ */
+extern void assay_parser_operator_next(int ch);
+
+/**
+ * Indicate the end of a operator in the parsed stream of input tokens.
+ */
+extern void assay_parser_operator_end(void);
+
+/*******************************************************************************
+ * ARGUMENT
+ ******************************************************************************/
+
+/**
+ * Indicate the beginning of an operator argument in the parsed stream of input
+ * tokens.
+ */
+extern void assay_parser_argument_begin(void);
+
+/**
+ * Append a character to the operator argument being assembled from the parsed
+ * stream of input tokens.
+ * @param ch is the character to be appended.
+ */
+extern void assay_parser_argument_next(int ch);
+
+/**
+ * Indicate the end of a operator argument in the parsed stream of input
+ * tokens.
+ */
+extern void assay_parser_argument_end(void);
+
+/*******************************************************************************
+ * OPERATION
+ ******************************************************************************/
+
+/**
+ * Execute an operation using the operator and argument assembled from the
+ * parsed stream of input tokens.
+ */
+extern void assay_parser_operation_execute(void);
+
+/*******************************************************************************
  * SECTION
  ******************************************************************************/
 
@@ -81,13 +136,6 @@ extern void assay_parser_section_next(int ch);
  * Indicate the end of a section name in the parsed stream of input tokens.
  */
 extern void assay_parser_section_end(void);
-
-/**
- * Initialize the section name to this value as if it had been read from the
- * configuration file. This is the section into which properties will be loaded
- * before any section name appears in the file.
- */
-extern void assay_parser_section_init(const char * name);
 
 /*******************************************************************************
  * KEY

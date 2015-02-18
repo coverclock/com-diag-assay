@@ -27,6 +27,7 @@
 "\n"                                        { yylval = assay_scanner_text2value(yytext); return EOL; }
 "\r\n"                                      { yylval = assay_scanner_text2value(yytext); return EOL; }
 "\r"                                        { yylval = assay_scanner_text2value(yytext); return EOL; }
+"#"                                         { yylval = assay_scanner_text2value(yytext); return OT; }
 "="                                         { yylval = assay_scanner_text2value(yytext); return EQ; }
 ":"                                         { yylval = assay_scanner_text2value(yytext); return EQ; }
 ";"                                         { yylval = assay_scanner_text2value(yytext); return SC; }
