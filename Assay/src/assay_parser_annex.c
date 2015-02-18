@@ -36,7 +36,7 @@ typedef struct AssayParserAction {
 
 static int debug = 0;
 static assay_config_t * config = (assay_config_t *)0;
-static const char * file = "stdin";
+static const char * file = "-";
 static int line = 0;
 
 static assay_parser_action_t operator = { 0 };
@@ -73,7 +73,9 @@ static void action_next(assay_parser_action_t * ap, int ch)
 
 static void action_end(assay_parser_action_t * ap)
 {
-    action_next(ap, '\0');
+    if ((ap->index <= 0) || (ap->buffer[ap->index - 1] != '\0')) {
+        action_next(ap, '\0');
+    }
 }
 
 /*******************************************************************************
@@ -130,7 +132,7 @@ void assay_parser_operation_execute(void)
         assay_config_load_file(config, argument.buffer);
     } else {
         assay_config_error(config);
-        DIMINUTO_LOG_WARNING("assay_parser_operation_execute: *invalid* config=%p operator=\"%s\" argument=\"%s\" file=\"%s\" line=%d errors=%d\n", config, operator.buffer, argument.buffer, file, line + 1, assay_config_error(config));
+        DIMINUTO_LOG_WARNING("assay_parser_operation_execute: *invalid* config=%p operator=\"%s\" argument=\"%s\" file=\"%s\" line=%d errors=%d\n", config, operator.buffer, argument.buffer, file, line, assay_config_error(config));
     }
 }
 

@@ -69,7 +69,7 @@ argument_string:    argument_init
 argument:           argument_string                                             { assay_parser_argument_end(); }
                     ;
 
-operation:          OT operator whitespace argument                             { assay_parser_operation_execute(); }
+operation:          OT operator whitespace argument                             
                     | OT whitespace operator whitespace argument                { assay_parser_operation_execute(); }
                     ;
 
@@ -136,8 +136,8 @@ assignment_tail:    EQ
                     | EQ whitespace value
                     ;
 
-assignment:         key assignment_tail                                         { assay_parser_property_assign(); }
-                    | key whitespace assignment_tail                            { assay_parser_property_assign(); }
+assignment:         key assignment_tail
+                    | key whitespace assignment_tail
                     ;
 
 comment_char:       CH
@@ -163,28 +163,28 @@ statement:          EOL                                                         
                     | section EOL                                               { assay_parser_next(); }
                     | section comment EOL                                       { assay_parser_next(); }
                     | section whitespace EOL                                    { assay_parser_next(); }
-                    | section whitespace comment EOL                            { assay_parser_next(); }
-                    | section assignment EOL                                    { assay_parser_next(); }
-                    | section assignment comment EOL                            { assay_parser_next(); }
-                    | section whitespace assignment EOL                         { assay_parser_next(); }
-                    | section whitespace assignment comment EOL                 { assay_parser_next(); }
-                    | assignment EOL                                            { assay_parser_next(); }
-                    | assignment comment EOL                                    { assay_parser_next(); }
-                    | operation EOL                                             { assay_parser_next(); }
-                    | operation comment EOL                                     { assay_parser_next(); }
-                    | operation whitespace comment EOL                          { assay_parser_next(); }
+                    | section whitespace comment EOL                            { assay_parser_next(); assay_parser_property_assign(); }
+                    | section assignment EOL                                    { assay_parser_next(); assay_parser_property_assign(); }
+                    | section assignment comment EOL                            { assay_parser_next(); assay_parser_property_assign(); }
+                    | section whitespace assignment EOL                         { assay_parser_next(); assay_parser_property_assign(); }
+                    | section whitespace assignment comment EOL                 { assay_parser_next(); assay_parser_property_assign(); }
+                    | assignment EOL                                            { assay_parser_next(); assay_parser_property_assign(); }
+                    | assignment comment EOL                                    { assay_parser_next(); assay_parser_property_assign(); }
                     | whitespace EOL                                            { assay_parser_next(); }
                     | whitespace comment EOL                                    { assay_parser_next(); }
                     | whitespace section EOL                                    { assay_parser_next(); }
                     | whitespace section comment EOL                            { assay_parser_next(); }
                     | whitespace section whitespace EOL                         { assay_parser_next(); }
                     | whitespace section whitespace comment EOL                 { assay_parser_next(); }
-                    | whitespace section assignment EOL                         { assay_parser_next(); }
-                    | whitespace section assignment comment EOL                 { assay_parser_next(); }
-                    | whitespace section whitespace assignment EOL              { assay_parser_next(); }
-                    | whitespace section whitespace assignment comment EOL      { assay_parser_next(); }
-                    | whitespace assignment EOL                                 { assay_parser_next(); }
-                    | whitespace assignment comment EOL                         { assay_parser_next(); }
+                    | whitespace section assignment EOL                         { assay_parser_next(); assay_parser_property_assign(); }
+                    | whitespace section assignment comment EOL                 { assay_parser_next(); assay_parser_property_assign(); }
+                    | whitespace section whitespace assignment EOL              { assay_parser_next(); assay_parser_property_assign(); }
+                    | whitespace section whitespace assignment comment EOL      { assay_parser_next(); assay_parser_property_assign(); }
+                    | whitespace assignment EOL                                 { assay_parser_next(); assay_parser_property_assign(); }
+                    | whitespace assignment comment EOL                         { assay_parser_next(); assay_parser_property_assign(); }
+                    | operation EOL                                             { assay_parser_next(); assay_parser_operation_execute(); }
+                    | operation comment EOL                                     { assay_parser_next(); assay_parser_operation_execute(); }
+                    | operation whitespace comment EOL                          { assay_parser_next(); assay_parser_operation_execute(); }
                     | error EOL                                                 { assay_parser_next(); }
                     ;
 

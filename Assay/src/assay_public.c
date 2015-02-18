@@ -576,6 +576,8 @@ assay_config_t * assay_config_load_stream(assay_config_t * cfp, FILE * fp)
     assay_parser_output(priorcfp);
     assay_scanner_input(priorfp);
 
+    yyrestart(priorfp);
+
     return cfp;
 }
 
@@ -588,7 +590,7 @@ assay_config_t * assay_config_load_file(assay_config_t * cfp, const char * path)
     priorfile = assay_parser_file(path);
     priorline = assay_parser_line(0);
 
-    DIMINUTO_LOG_INFORMATION("assay_config_load_file: loading config=%p file=\"%s\" line=%d path=\"%s\"\n", cfp, priorfile, priorline + 1, path);
+    DIMINUTO_LOG_INFORMATION("assay_config_load_file: loading config=%p file=\"%s\" line=%d path=\"%s\"\n", cfp, priorfile, priorline, path);
 
     if (strcmp(path, "-") == 0) {
         cfp = assay_config_load_stream(cfp, stdin);
@@ -597,7 +599,7 @@ assay_config_t * assay_config_load_file(assay_config_t * cfp, const char * path)
         fclose(fp);
     } else {
         assay_config_error(cfp);
-        DIMINUTO_LOG_WARNING("assay_config_load_file: *%s* config=%p file=\"%s\" line=%d path=\"%s\" errors=%d\n", strerror(errno), cfp, priorfile, priorline + 1, path, assay_config_errors(cfp));
+        DIMINUTO_LOG_WARNING("assay_config_load_file: *%s* config=%p file=\"%s\" line=%d path=\"%s\" errors=%d\n", strerror(errno), cfp, priorfile, priorline, path, assay_config_errors(cfp));
         cfp = (assay_config_t *)0;
     }
 
