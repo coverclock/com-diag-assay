@@ -42,4 +42,10 @@ extern const char * assay_scanner_token2name(int token);
  */
 extern int assay_scanner_text2value(const char * text);
 
+/**
+ * Implement the yywrap() function called by the scanner.
+ * @return 0 to continue scanning or 1 for end of file.
+ */
+extern int assay_scanner_wrap(void);
+
 #endif

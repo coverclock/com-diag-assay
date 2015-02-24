@@ -16,19 +16,19 @@
 
 int main(int argc, char ** argv)
 {
-    extern FILE * yyin;
+    extern FILE * assay_yyin;
 
     SETLOGMASK();
 
     assay_parser_debug(!0);
 
-    ASSERT((yyin = fopen("etc/test1.ini", "r")) != (FILE *)0);
+    ASSERT((assay_yyin = fopen("etc/test0.ini", "r")) != (FILE *)0);
 
     do {
-        yyparse();
-    } while (!feof(yyin));
+        assay_yyparse();
+    } while (!feof(assay_yyin));
 
-    ASSERT(fclose(yyin) == 0);
+    ASSERT(fclose(assay_yyin) == 0);
 
     EXIT();
 }

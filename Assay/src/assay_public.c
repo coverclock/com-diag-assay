@@ -567,16 +567,13 @@ assay_config_t * assay_config_load_stream(assay_config_t * cfp, FILE * fp)
     priorfp = assay_scanner_input(fp);
     priorcfp = assay_parser_output(cfp);
 
-    yyrestart(fp);
-
     do {
-        yyparse();
+fprintf(stderr, "YYPARSE\n");
+        assay_yyparse();
     } while (!feof(fp));
 
     assay_parser_output(priorcfp);
     assay_scanner_input(priorfp);
-
-    yyrestart(priorfp);
 
     return cfp;
 }

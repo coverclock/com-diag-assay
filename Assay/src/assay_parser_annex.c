@@ -52,7 +52,7 @@ static assay_parser_action_t value = { 0 };
 static void action_begin(assay_parser_action_t * ap)
 {
     if (ap->buffer == (char *)0) {
-        ap->length = 64;
+        ap->length = 8;
         ap->buffer = malloc(ap->length);
     }
     ap->index = 0;
@@ -60,6 +60,9 @@ static void action_begin(assay_parser_action_t * ap)
 
 static void action_next(assay_parser_action_t * ap, int ch)
 {
+    if (ap->buffer == (char *)0) {
+        action_begin(ap);
+    }
     if (ap->index >= ap->length) {
         char * old;
         old = ap->buffer;
@@ -128,7 +131,9 @@ void assay_parser_argument_end(void)
 
 void assay_parser_operation_execute(void)
 {
-    if (strcmp(operator.buffer, "include") == 0) {
+    if (config == (assay_config_t *)0) {
+        /* Do nothing. */
+    } else if (strcmp(operator.buffer, "include") == 0) {
         assay_config_load_file(config, argument.buffer);
     } else {
         assay_config_error(config);
@@ -229,7 +234,9 @@ void assay_parser_property_assign(void)
         name = section.buffer;
     }
 
-    assay_config_write_binary(config, name, key.buffer, value.buffer, value.index);
+    if (config != (assay_config_t *)0) {
+        assay_config_write_binary(config, name, key.buffer, value.buffer, value.index);
+    }
 }
 
 /*******************************************************************************
@@ -283,10 +290,15 @@ void assay_parser_next(void)
 
 void assay_parser_error(const char * msg)
 {
-    extern char * yytext;
-    extern int yychar;
+    int errors = -1;
+    extern char * assay_yytext;
 
-    DIMINUTO_LOG_WARNING("assay_parser_error: *%s* config=%p file=\"%s\" line=%d text=\"%s\" token=%d=%s errors=%d\n", msg, config, file, line + 1, yytext, yychar, assay_scanner_token2name(yychar), assay_config_error(config));
+    if (config != (assay_config_t *)0) {
+        assay_config_error(config);
+        errors = assay_config_errors(config);
+    }
+
+    DIMINUTO_LOG_WARNING("assay_parser_error: *%s* config=%p file=\"%s\" line=%d text=\"%s\" errors=%d\n", msg, config, file, line + 1, assay_yytext, errors);
 
     assay_parser_value_end();
     assay_parser_key_end();

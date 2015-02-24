@@ -13,6 +13,9 @@
 
 %}
 
+%define api.prefix {assay_yy}
+%define api.pure
+
 %token CH
 %token EOL
 %token EQ

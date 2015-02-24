@@ -30,11 +30,15 @@ int assay_scanner_debug(int enable)
 
 FILE * assay_scanner_input(FILE * fp)
 {
-    extern FILE * yyin;
+    extern FILE * assay_yyin;
     FILE * prior;
 
-    prior = yyin;
-    yyin = fp;
+    prior = assay_yyin;
+    if (fp != prior) {
+        //yyless(0);
+    	assay_yyin = fp;
+        assay_yyrestart(fp);
+    }
 
     return prior;
 }
@@ -99,4 +103,9 @@ int assay_scanner_text2value(const char * text)
     }
 
     return value;
+}
+
+int assay_scanner_wrap()
+{
+    return 1;
 }
