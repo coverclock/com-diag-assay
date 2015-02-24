@@ -12,12 +12,11 @@
 #include "assay_parser.h"
 #include "com/diag/assay/assay_scanner.h"
 
-extern int assay_yylex (int yylval);
-#define YY_DECL int assay_yylex (int yylval)
+#define YY_DECL int assay_yylex(int * assay_yylvalp)
+#define yylval (*assay_yylvalp)
+YY_DECL;
 
-int assay_yywrap() {
-    return assay_scanner_wrap();
-}
+int assay_yywrap() { return assay_scanner_wrap(); }
 
 %}
 
