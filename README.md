@@ -44,10 +44,12 @@ This file is part of the Digital Aggregates Corporation Assay package.
 Assay is a C library that provides functions to parse a configuration file
 in yet one more variation on the widely used and under specified INI
 format. The syntax of this particular format is specified by an LALR(1)
-grammar. Portions of the C code, specifically its lexical scanner and
-shift-reduce parser, are generated using the Flex (Lex) and Bison (Yacc)
-tools. Assay is built on top of the Diminuto library of GNU/Linux-based
-software tools.
+grammar, but was heavily influenced by the syntax of configuration files
+used in the Asterisk PBX. Portions of the C code, specifically its lexical
+scanner and shift-reduce parser, are generated using the Flex (Lex) and
+Bison (Yacc) tools. Assay is built on top of the Diminuto library of
+GNU/Linux-based software tools and makes heavy use of its balanced
+Red-Black tree implementation.
 
 This software is an original work of its author(s).
 
@@ -65,3 +67,19 @@ Contact:
     Wheat Ridge CO 80033 USA
     http://www.diag.com
     mailto:coverclock@diag.com
+
+Here is an example of what an INI file might look like.
+
+    ; This property goes into the default section named "general".
+    keyword01 = value01
+
+    [Section1]
+    keyword11=value11
+    keyword12: value12
+    keyword\ 13 : value 13
+
+    #include common.ini
+
+    [Section\ 2]
+
+    keyword3 = \ value\t3
