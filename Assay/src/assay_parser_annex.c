@@ -57,8 +57,8 @@ static int debug = 0;
 static void action_begin(assay_action_t * ap)
 {
     if (ap->buffer == (char *)0) {
-        ap->length = 8;
-        ap->buffer = malloc(ap->length);
+        ap->length = ASSAY_BUFFER_DEFAULT_SIZE;
+        ap->buffer = (char *)malloc(ap->length);
     }
     ap->index = 0;
 }
@@ -72,7 +72,7 @@ static void action_next(assay_action_t * ap, int ch)
         char * old;
         old = ap->buffer;
         ap->length *= 2;
-        ap->buffer = malloc(ap->length);
+        ap->buffer = (char *)malloc(ap->length);
         memcpy(ap->buffer, old, ap->index);
         free(old);
     }
@@ -84,6 +84,14 @@ static void action_end(assay_action_t * ap)
     if ((ap->index <= 0) || (ap->buffer[ap->index - 1] != '\0')) {
         action_next(ap, '\0');
     }
+}
+
+static void action_fini(assay_action_t * ap)
+{
+    free(ap->buffer);
+    ap->buffer = (char *)0;
+    ap->length = 0;
+    ap->index = 0;
 }
 
 /*******************************************************************************
@@ -323,5 +331,20 @@ void assay_parser_error(void * lxp, const char * msg)
     }
     if (errors < 0) {
         DIMINUTO_LOG_WARNING("assay_parser_error: *%s*\n", msg);
+    }
+}
+
+void assay_parser_fini(void * lxp)
+{
+    if (lxp != (void *)0) {
+        assay_config_t * cfp;
+        cfp = (assay_config_t *)assay_scanner_yyget_extra((yyscan_t)lxp);
+        if (cfp != (assay_config_t *)0) {
+            action_fini(&(cfp->vaction));
+            action_fini(&(cfp->kaction));
+            action_fini(&(cfp->saction));
+            action_fini(&(cfp->aaction));
+            action_fini(&(cfp->oaction));
+        }
     }
 }

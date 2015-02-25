@@ -42,6 +42,7 @@ int main(int argc, int ** argv)
 
     ASSERT(fclose(stream) == 0);
 
+    assay_parser_fini(scanner);
     assay_scanner_yylex_destroy(scanner);
     assay_config_destroy(cfp);
 

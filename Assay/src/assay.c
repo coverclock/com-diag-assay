@@ -40,7 +40,9 @@ typedef enum AssayInsertion {
  * CONSTANTS
  ******************************************************************************/
 
-const char ASSAY_SECTION_DEFAULT[] = ASSAY_SECTION_DEFAULT_NAME;
+const char ASSAY_CHARACTERS_SPECIAL[] = ASSAY_CHARACTERS_SPECIAL_STRING;
+
+const char ASSAY_SECTION_DEFAULT[] = ASSAY_SECTION_DEFAULT_STRING;
 
 /*******************************************************************************
  * CONFIGURATION PRIMITIVES
@@ -52,8 +54,7 @@ assay_config_t * assay_config_create(void)
 
     cfp = (assay_config_t *)malloc(sizeof(assay_config_t));
     memset(cfp, 0, sizeof(*cfp));
-    cfp->stream = stdin;
-    cfp->file = "-";
+    cfp->file = "";
 
     return cfp;
 }
@@ -78,11 +79,6 @@ void assay_config_destroy(assay_config_t * cfp)
         free((void *)(scp->name));
         free(scp);
     }
-    free(cfp->oaction.buffer);
-    free(cfp->aaction.buffer);
-    free(cfp->saction.buffer);
-    free(cfp->kaction.buffer);
-    free(cfp->vaction.buffer);
     free(cfp);
 }
 
@@ -561,6 +557,10 @@ assay_config_t * assay_config_import_stream(assay_config_t * cfp, FILE * stream)
         assay_parser_yyparse(scanner);
     } while (!feof(stream));
 
+    if (priorstream == (FILE *)0) {
+        assay_parser_fini(scanner);
+    }
+
     assay_scanner_yylex_destroy(scanner);
 
     cfp->stream = priorstream;
@@ -632,25 +632,53 @@ assay_config_t * assay_config_import_command(assay_config_t * cfp, const char * 
 
 assay_config_t * assay_config_export_stream(assay_config_t * cfp, FILE * stream)
 {
-    char * buffer = (char *)0;
-    size_t tsize = 0;
+    char * buffer;
+    char * old;
     assay_section_t * scp;
     assay_property_t * prp;
     const char * name;
     const char * key;
     const char * value;
+    size_t size;
     size_t fsize;
+    size_t tsize;
 
+    size = ASSAY_BUFFER_DEFAULT_SIZE;
+    buffer = (char *)malloc(size);
     for (scp = assay_section_first(cfp); scp != (assay_section_t *)0; scp = assay_section_next(scp)) {
         name = assay_section_name_get(scp);
-        fprintf(stream, "[%s]\n", name);
+        fsize = strlen(name);
+        tsize = (fsize * 4 /* '\xFF' */) + 1 /* '\0' */;
+        if (tsize > size) {
+            old = buffer;
+            buffer = (char *)malloc(tsize);
+            size = tsize;
+            free(old);
+        }
+        diminuto_escape_expand(buffer, name, tsize, fsize, ASSAY_CHARACTERS_SPECIAL);
+        fprintf(stream, "[%s]\n", buffer);
         for (prp = assay_property_first(scp); prp != (assay_property_t *)0; prp = assay_property_next(prp)) {
             key = assay_property_key_get(prp);
+            fsize = strlen(key);
+            tsize = (fsize * 4 /* '\xFF' */) + 1 /* '\0' */;
+            if (tsize > size) {
+                old = buffer;
+                buffer = (char *)malloc(tsize);
+                size = tsize;
+                free(old);
+            }
+            diminuto_escape_expand(buffer, key, tsize, fsize, ASSAY_CHARACTERS_SPECIAL);
+            fprintf(stream, "%s=%s\n", key, buffer);
             value = (const char *)assay_property_value_get(prp, &fsize);
             fsize -= 1 /* '\0' */;
             tsize = (fsize * 4 /* '\xFF' */) + 1 /* '\0' */;
-            buffer = (char *)realloc(buffer, tsize);
-            diminuto_escape_expand(buffer, value, tsize, fsize, " #=:;[]" /* assay_scanner.l */);
+            if (tsize > size) {
+                old = buffer;
+                buffer = (char *)malloc(tsize);
+                size = tsize;
+                free(old);
+            }
+            diminuto_escape_expand(buffer, value, tsize, fsize, ASSAY_CHARACTERS_SPECIAL);
             fprintf(stream, "%s=%s\n", key, buffer);
         }
     }

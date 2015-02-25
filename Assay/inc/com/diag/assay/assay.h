@@ -65,7 +65,11 @@ typedef struct AssayProperty assay_property_t;
  * CONSTANTS
  ******************************************************************************/
 
-#define ASSAY_SECTION_DEFAULT_NAME "general"
+#define ASSAY_CHARACTERS_SPECIAL_STRING " #=:;[]"
+
+extern const char ASSAY_CHARACTERS_SPECIAL[];
+
+#define ASSAY_SECTION_DEFAULT_STRING "general"
 
 extern const char ASSAY_SECTION_DEFAULT[];
 

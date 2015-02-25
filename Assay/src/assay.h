@@ -14,6 +14,8 @@
 #include "com/diag/assay/assay.h"
 #include "com/diag/diminuto/diminuto_tree.h"
 
+#define ASSAY_BUFFER_DEFAULT_SIZE (32)
+
 /**
  * This structure contains a buffer used during parsing.
  */

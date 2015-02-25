@@ -26,7 +26,7 @@ extern int assay_parser_debug(int enable);
 /**
  * Increment the line number of the input file being processed. This is called
  * by the parser as it parses the input file.
- * @param cfp points to the configuration.
+ * @param lxp points to the lexical scanner.
  */
 extern void assay_parser_next(void * lxp);
 
@@ -37,6 +37,13 @@ extern void assay_parser_next(void * lxp);
  * @param msg is a message passed from the parser.
  */
 extern void assay_parser_error(void * lxp, const char * msg);
+
+/**
+ * Free memory allocated temporarily for buffers used while parsing. This is
+ * called by the public API after importing.
+ * @param lxp points to the lexical scanner.
+ */
+extern void assay_parser_fini(void * lxp);
 
 /*******************************************************************************
  * OPERATOR
