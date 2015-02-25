@@ -306,9 +306,12 @@ void assay_parser_error(void * lxp, const char * msg)
         assay_config_t * cfp;
         cfp = (assay_config_t *)assay_scanner_yyget_extra((yyscan_t)lxp);
         if (cfp != (assay_config_t *)0) {
+            const char * text;
             assay_config_error(cfp);
             errors = assay_config_errors(cfp);
-            DIMINUTO_LOG_WARNING("assay_parser_error: *%s* config=%p file=\"%s\" line=%d errors=%d\n", msg, cfp, cfp->file, cfp->line + 1, errors);
+            text = assay_scanner_yyget_text((yyscan_t)lxp);
+            if (text == (const char *)0) { text = ""; }
+            DIMINUTO_LOG_WARNING("assay_parser_error: *%s* scanner=%p config=%p file=\"%s\" line=%d text=\"%s\" errors=%d\n", msg, lxp, cfp, cfp->file, cfp->line + 1, text, errors);
             action_end(&(cfp->vaction));
             action_end(&(cfp->kaction));
             action_end(&(cfp->saction));
