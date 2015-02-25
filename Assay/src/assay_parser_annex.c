@@ -150,7 +150,9 @@ void assay_parser_operation_execute(void * lxp)
 {
     ASSAY_PARSER_ACTION_BEGIN(oaction);
         if (strcmp(acp->buffer, "include") == 0) {
-        assay_config_import_file(cfp, cfp->aaction.buffer);
+            assay_config_import_file(cfp, cfp->aaction.buffer);
+        } else if (strcmp(acp->buffer, "exec") == 0) {
+            assay_config_import_command(cfp, cfp->aaction.buffer);
         } else {
             assay_config_error(cfp);
             DIMINUTO_LOG_WARNING("assay_parser_operation_execute: *invalid* config=%p operator=\"%s\" argument=\"%s\" file=\"%s\" line=%d errors=%d\n", cfp, acp->buffer, cfp->aaction.buffer, cfp->file, cfp->line, assay_config_error(cfp));

@@ -376,6 +376,15 @@ extern assay_config_t * assay_config_export_stream(assay_config_t * cfp, FILE * 
  */
 extern assay_config_t * assay_config_import_file(assay_config_t * cfp, const char * file);
 
+/**
+ * Import a configuration from the standard output of a shell command. The shell
+ * command is executed using popen(3).
+ * @param cfp points to the configuration.
+ * @param command is the shell command.
+ * @return a pointer to the configuration or null if an error occurred.
+ */
+extern assay_config_t * assay_config_import_command(assay_config_t * cfp, const char * command);
+
 /*******************************************************************************
  * AUDITORS
  ******************************************************************************/

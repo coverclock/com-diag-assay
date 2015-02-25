@@ -83,3 +83,6 @@ Here is an example of what an INI file might look like.
     [Section\ 2]
 
     keyword3 = \ value\t3
+
+    #exec generated.sh
+

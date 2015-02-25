@@ -57,6 +57,7 @@ operator:           operator_string                                             
 
 argument_char:      CH                                                          { assay_parser_argument_next(scanner, $1); }
                     | ESC                                                       { assay_parser_argument_next(scanner, $1); }
+                    | SP                                                        { assay_parser_argument_next(scanner, $1); }
                     ;
 
 argument_tail:      argument_char

@@ -558,7 +558,6 @@ assay_config_t * assay_config_import_stream(assay_config_t * cfp, FILE * stream)
     assay_scanner_yyset_in(stream , scanner);
 
     do {
-fprintf(stderr, "YYPARSE\n");
         assay_parser_yyparse(scanner);
     } while (!feof(stream));
 
@@ -582,16 +581,46 @@ assay_config_t * assay_config_import_file(assay_config_t * cfp, const char * fil
     cfp->file = file;
     cfp->line = 0;
 
-    DIMINUTO_LOG_INFORMATION("assay_config_import_file: loading config=%p file=\"%s\" line=%d include=\"%s\"\n", cfp, priorfile, priorline, file);
+    DIMINUTO_LOG_INFORMATION("assay_config_import_file: include config=%p file=\"%s\" line=%d include=\"%s\"\n", cfp, priorfile, priorline, file);
 
     if ((file[0] == '-') && (file[1] == '\0')) {
         result = assay_config_import_stream(cfp, stdin);
-    } else if ((fp = fopen(file, "r")) != (FILE *)0) {
+    } else if ((fp = fopen(file, "re")) != (FILE *)0) {
         result = assay_config_import_stream(cfp, fp);
         fclose(fp);
     } else {
         assay_config_error(cfp);
         DIMINUTO_LOG_WARNING("assay_config_import_file: *%s* config=%p file=\"%s\" line=%d include=\"%s\" errors=%d\n", strerror(errno), cfp, priorfile, priorline, file, assay_config_errors(cfp));
+        result = (assay_config_t *)0;
+    }
+
+    cfp->line = priorline;
+    cfp->file = priorfile;
+
+    return result;
+}
+
+assay_config_t * assay_config_import_command(assay_config_t * cfp, const char * command)
+{
+    assay_config_t * result;
+    const char * priorfile;
+    int priorline;
+    FILE * fp;
+
+    priorfile = cfp->file;
+    priorline = cfp->line;
+
+    cfp->file = command;
+    cfp->line = 0;
+
+    DIMINUTO_LOG_INFORMATION("assay_config_import_command: exec config=%p file=\"%s\" line=%d command=\"%s\"\n", cfp, priorfile, priorline, command);
+
+    if ((fp = popen(command, "re")) != (FILE *)0) {
+        result = assay_config_import_stream(cfp, fp);
+        pclose(fp);
+    } else {
+        assay_config_error(cfp);
+        DIMINUTO_LOG_WARNING("assay_config_import_command: *%s* config=%p file=\"%s\" line=%d command=\"%s\" errors=%d\n", strerror(errno), cfp, priorfile, priorline, command, assay_config_errors(cfp));
         result = (assay_config_t *)0;
     }
 
