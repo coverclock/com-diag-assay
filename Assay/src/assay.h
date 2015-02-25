@@ -14,12 +14,18 @@
 #include "com/diag/assay/assay.h"
 #include "com/diag/diminuto/diminuto_tree.h"
 
+/**
+ * This structure contains a buffer used during parsing.
+ */
 typedef struct AssayAction {
     char * buffer;
     size_t length;
     size_t index;
 } assay_action_t;
 
+/**
+ * This structure contains the fields of a property.
+ */
 struct AssayProperty {
     diminuto_tree_t     tree;
     assay_section_t *   section;
@@ -28,6 +34,9 @@ struct AssayProperty {
     size_t              length;
 };
 
+/**
+ * This structure contains the fields of a section.
+ */
 struct AssaySection {
     diminuto_tree_t     tree;
     assay_config_t *    config;
@@ -35,7 +44,9 @@ struct AssaySection {
     diminuto_tree_t *   properties;
 };
 
-
+/**
+ * This structure contains the fields of a configuration.
+ */
 struct AssayConfig {
     diminuto_tree_t *   sections;
     assay_section_t *   section;

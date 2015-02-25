@@ -34,7 +34,7 @@ int main(int argc, int ** argv)
     ASSERT(scanner != (yyscan_t)0);
 
     ASSERT((stream = fopen("etc/test0.ini", "r")) != (FILE *)0);
-    assay_scanner_yyset_in(stream , &scanner);
+    assay_scanner_yyset_in(stream , scanner);
 
     do {
         assay_parser_yyparse(scanner);

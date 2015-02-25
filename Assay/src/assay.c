@@ -555,11 +555,11 @@ assay_config_t * assay_config_import_stream(assay_config_t * cfp, FILE * stream)
 
     scanner = 0;
     assay_scanner_yylex_init_extra(cfp, &scanner);
-    assay_scanner_yyset_in(stream , &scanner);
+    assay_scanner_yyset_in(stream , scanner);
 
     do {
 fprintf(stderr, "YYPARSE\n");
-        assay_parser_yyparse(&scanner);
+        assay_parser_yyparse(scanner);
     } while (!feof(stream));
 
     assay_scanner_yylex_destroy(scanner);
@@ -603,31 +603,31 @@ assay_config_t * assay_config_import_file(assay_config_t * cfp, const char * fil
 
 assay_config_t * assay_config_export_stream(assay_config_t * cfp, FILE * stream)
 {
-    if (cfp != (assay_config_t *)0) {
-        char * buffer = (char *)0;
-        size_t tsize = 0;
-        assay_section_t * scp;
-        assay_property_t * prp;
-        const char * name;
-        const char * key;
-        const char * value;
-        size_t fsize;
-        for (scp = assay_section_first(cfp); scp != (assay_section_t *)0; scp = assay_section_next(scp)) {
-            name = assay_section_name_get(scp);
-            fprintf("[%s]\n", name);
-            for (prp = assay_property_first(scp); prp != (assay_property_t *)0; prp = assay_property_next(prp)) {
-                key = assay_property_key_get(prp);
-                value = (const char *)assay_property_value_get(prp, &fsize);
-                fsize -= 1 /* '\0' */;
-                tsize = (fsize * 4 /* '\xFF' */) + 1 /* '\0' */;
-                buffer = (char *)realloc(buffer, tsize);
-                diminuto_escape_expand(buffer, value, tsize, fsize, "#=:;[]" /* assay_scanner.l */);
-                fprintf(stream, "%s=%s\n", key, buffer);
-            }
+    char * buffer = (char *)0;
+    size_t tsize = 0;
+    assay_section_t * scp;
+    assay_property_t * prp;
+    const char * name;
+    const char * key;
+    const char * value;
+    size_t fsize;
+
+    for (scp = assay_section_first(cfp); scp != (assay_section_t *)0; scp = assay_section_next(scp)) {
+        name = assay_section_name_get(scp);
+        fprintf(stream, "[%s]\n", name);
+        for (prp = assay_property_first(scp); prp != (assay_property_t *)0; prp = assay_property_next(prp)) {
+            key = assay_property_key_get(prp);
+            value = (const char *)assay_property_value_get(prp, &fsize);
+            fsize -= 1 /* '\0' */;
+            tsize = (fsize * 4 /* '\xFF' */) + 1 /* '\0' */;
+            buffer = (char *)realloc(buffer, tsize);
+            diminuto_escape_expand(buffer, value, tsize, fsize, "#=:;[]" /* assay_scanner.l */);
+            fprintf(stream, "%s=%s\n", key, buffer);
         }
-        if (buffer != (char *)0) {
-            free(buffer);
-        }
+    }
+
+    if (buffer != (char *)0) {
+        free(buffer);
     }
 
     return cfp;

@@ -99,6 +99,7 @@ int assay_scanner_wrap(void * lxp)
 {
     int eof = 1; /* Normally I'd use !0 here but the Lex docs specify 1. */
 
+#if 0
     if (lxp != (void *)0) {
         assay_config_t * cfp;
         cfp = (assay_config_t *)assay_scanner_yyget_extra((yyscan_t)lxp);
@@ -108,6 +109,7 @@ int assay_scanner_wrap(void * lxp)
             }
         }
     }
+#endif
 
     return eof;
 }
