@@ -6,12 +6,17 @@
  * Licensed under the terms in README.h<BR>
  * Chip Overclock (coverclock@diag.com)<BR>
  * http://www.diag.com/navigation/downloads/Assay.html<BR>
+ *
+ * This is the glue between the Flex/Lexx scanner and Assay.
  */
 
-#include "assay_parser.h"
+#include <stdio.h>
 #include <string.h>
+#include "assay.h"
+#include "assay_parser.h"
+#define YYSTYPE ASSAY_PARSER_YYSTYPE
+#include "assay_scanner.h"
 #include "com/diag/assay/assay_scanner.h"
-#include "com/diag/assay/assay_parser.h"
 #include "com/diag/diminuto/diminuto_log.h"
 #include "com/diag/diminuto/diminuto_dump.h"
 #include "com/diag/diminuto/diminuto_escape.h"
@@ -24,21 +29,6 @@ int assay_scanner_debug(int enable)
 
     prior = debug;
     debug = enable;
-
-    return prior;
-}
-
-FILE * assay_scanner_input(FILE * fp)
-{
-    extern FILE * assay_yyin;
-    FILE * prior;
-
-    prior = assay_yyin;
-    if (fp != prior) {
-        //yyless(0);
-    	assay_yyin = fp;
-        assay_yyrestart(fp);
-    }
 
     return prior;
 }
@@ -105,7 +95,19 @@ int assay_scanner_text2value(const char * text)
     return value;
 }
 
-int assay_scanner_wrap()
+int assay_scanner_wrap(void * lxp)
 {
-    return 1;
+    int eof = 1; /* Normally I'd use !0 here but the Lex docs specify 1. */
+
+    if (lxp != (void *)0) {
+        assay_config_t * cfp;
+        cfp = (assay_config_t *)assay_scanner_yyget_extra((yyscan_t)lxp);
+        if (cfp != (assay_config_t *)0) {
+            if (cfp->stream != (FILE *)0) {
+                eof = feof(cfp->stream) ? 1 : 0;
+            }
+        }
+    }
+
+    return eof;
 }

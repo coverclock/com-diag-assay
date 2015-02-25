@@ -204,9 +204,13 @@ $(OUT)/$(GEN_DIR)/$(PROJECT)_parser.h:	$(OUT)/$(GEN_DIR)/$(PROJECT)_parser.c
 
 $(OUT)/$(SRC_DIR)/$(PROJECT)_scanner.o:	$(OUT)/$(GEN_DIR)/$(PROJECT)_scanner.c $(OUT)/$(GEN_DIR)/$(PROJECT)_parser.h
 
+$(OUT)/$(GEN_DIR)/$(PROJECT)_scanner.h:	$(OUT)/$(GEN_DIR)/$(PROJECT)_scanner.c
+
 $(OUT)/$(SRC_DIR)/$(PROJECT)_parser_annex.o:	$(OUT)/$(GEN_DIR)/$(PROJECT)_parser.h
 
 $(OUT)/$(SRC_DIR)/$(PROJECT)_scanner_annex.o:	$(OUT)/$(GEN_DIR)/$(PROJECT)_parser.h
+
+$(OUT)/$(SRC_DIR)/$(PROJECT).o:	$(OUT)/$(GEN_DIR)/$(PROJECT)_parser.h $(OUT)/$(GEN_DIR)/$(PROJECT)_scanner.h
 
 ########## Packaging and Distribution
 
@@ -607,11 +611,11 @@ $(OUT)/%:	%.sh
 
 $(OUT)/$(GEN_DIR)/%.c:	$(SRC_DIR)/%.y
 	D=`dirname $@`; mkdir -p $$D
-	bison -t -d -v -o $@ $<
+	bison -v -o $@ --defines=$(addsuffix .h,$(basename $@)) $<
 
 $(OUT)/$(GEN_DIR)/%.c:	$(SRC_DIR)/%.l
 	D=`dirname $@`; mkdir -p $$D
-	flex -o $@ $<
+	flex -o $@ --header-file=$(addsuffix .h,$(basename $@)) $<
 
 $(OUT)/$(SRC_DIR)/%.o:	$(OUT)/$(GEN_DIR)/%.c
 	D=`dirname $@`; mkdir -p $$D

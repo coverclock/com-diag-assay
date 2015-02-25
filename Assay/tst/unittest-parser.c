@@ -8,27 +8,43 @@
  * http://www.diag.com/navigation/downloads/Assay.html<BR>
  */
 
-#include "assay_parser.h"
 #include <stdio.h>
+#include "assay_parser.h"
+#define YYSTYPE ASSAY_PARSER_YYSTYPE
+#include "assay_scanner.h"
+#include "com/diag/assay/assay.h"
 #include "com/diag/assay/assay_parser.h"
 #include "com/diag/diminuto/diminuto_unittest.h"
 #include "com/diag/diminuto/diminuto_log.h"
 
-int main(int argc, char ** argv)
+int main(int argc, int ** argv)
 {
-    extern FILE * assay_yyin;
+    assay_config_t * cfp = 0;
+    yyscan_t scanner = 0;
+    FILE * stream;
+    YYSTYPE lval;
 
     SETLOGMASK();
 
     assay_parser_debug(!0);
 
-    ASSERT((assay_yyin = fopen("etc/test0.ini", "r")) != (FILE *)0);
+    ASSERT((cfp = assay_config_create()) != (assay_config_t *)0);
+
+    assay_scanner_yylex_init_extra(cfp, &scanner);
+    ASSERT(scanner != (yyscan_t)0);
+
+    ASSERT((stream = fopen("etc/test0.ini", "r")) != (FILE *)0);
+    assay_scanner_yyset_in(stream , &scanner);
 
     do {
-        assay_yyparse();
-    } while (!feof(assay_yyin));
+        assay_parser_yyparse(scanner);
+    } while (!feof(stream));
 
-    ASSERT(fclose(assay_yyin) == 0);
+    ASSERT(fclose(stream) == 0);
+
+    assay_scanner_yylex_destroy(scanner);
+    assay_config_destroy(cfp);
 
     EXIT();
 }
+

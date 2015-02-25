@@ -11,21 +11,12 @@
  * http://www.diag.com/navigation/downloads/Assay.html<BR>
  */
 
-#include <stdio.h>
-
 /**
  * Enable or disable debugging in the scanner and return the prior value.
  * @param enable is true to enable, false to disable.
  * @return the prior value.
  */
 extern int assay_scanner_debug(int enable);
-
-/**
- * Set the input stream for the scanner and return the prior value.
- * @param fp points to the new input scanner stream.
- * @return the pointer to the prior input scanner stream.
- */
-extern FILE * assay_scanner_input(FILE * fp);
 
 /**
  * Given a scanner token value, return a printable name for the token.
@@ -44,8 +35,9 @@ extern int assay_scanner_text2value(const char * text);
 
 /**
  * Implement the yywrap() function called by the scanner.
+ * @param lxp points to the lexical scanner.
  * @return 0 to continue scanning or 1 for end of file.
  */
-extern int assay_scanner_wrap(void);
+extern int assay_scanner_wrap(void * lxp);
 
 #endif

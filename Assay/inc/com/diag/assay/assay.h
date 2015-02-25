@@ -62,6 +62,8 @@ typedef struct AssayProperty assay_property_t;
  * CONSTANTS
  ******************************************************************************/
 
+#define ASSAY_SECTION_DEFAULT_NAME "general"
+
 extern const char ASSAY_SECTION_DEFAULT[];
 
 /*******************************************************************************
@@ -75,7 +77,9 @@ extern const char ASSAY_SECTION_DEFAULT[];
 extern assay_config_t * assay_config_create(void);
 
 /**
- * Dynamically free an existing configuration.
+ * Dynamically free an existing configuration. This is a remarkably expensive
+ * operation to perform. However, most applications will never have to perform
+ * it.
  * @param cfp points to a configuration.
  */
 extern void assay_config_destroy(assay_config_t * cfp);
@@ -345,21 +349,29 @@ static inline void assay_config_write_string(assay_config_t * cfp, const char * 
  ******************************************************************************/
 
 /**
- * Load a configuration from a FILE stream.
+ * Import a configuration from a FILE stream.
  * @param cfp points to the configuration.
- * @param fp points to the FILE stream.
- * @return a pointer to the configuration.
+ * @param stream points to the FILE stream.
+ * @return a pointer to the configuration or null if an error occurred.
  */
-extern assay_config_t * assay_config_load_stream(assay_config_t * cfp, FILE * fp);
+extern assay_config_t * assay_config_import_stream(assay_config_t * cfp, FILE * stream);
 
 /**
- * Load a configuration from a file. The file is opened for reading and closed
+ * Export a configuration to a FILE stream.
+ * @param cfp points to the configuration.
+ * @param stream points to the FILE stream.
+ * @return a pointer to the configuration or null if an error occurred.
+ */
+extern assay_config_t * assay_config_export_stream(assay_config_t * cfp, FILE * stream);
+
+/**
+ * Import a configuration from a file. The file is opened for reading and closed
  * once parsed.
  * @param cfp points to the configuration.
- * @param path is the path name to the file.
- * @return a pointer to the configuration.
+ * @param file is the path name to the file.
+ * @return a pointer to the configuration or null if an error occurred.
  */
-extern assay_config_t * assay_config_load_file(assay_config_t * cfp, const char * path);
+extern assay_config_t * assay_config_import_file(assay_config_t * cfp, const char * file);
 
 /*******************************************************************************
  * AUDITORS

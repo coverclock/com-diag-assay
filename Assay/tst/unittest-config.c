@@ -22,7 +22,7 @@ static const char PATH1[] = "etc/test1.ini";
 static assay_config_t * import(const char * path)
 {
     assay_config_t * cfp;
-    cfp = assay_config_load_file(assay_config_create(), path);
+    cfp = assay_config_import_file(assay_config_create(), path);
     printf("%s\n", path);
     if (cfp != (assay_config_t *)0) {
         assay_section_t * scp;
@@ -98,6 +98,7 @@ int main(int argc, char ** argv)
         EXPECT(properties == 15);
         EXPECT(assay_config_errors(cfp) == 2);
         assay_config_destroy(cfp);
+        STATUS();
     }
 
     {
@@ -130,6 +131,7 @@ int main(int argc, char ** argv)
         EXPECT(properties == 15);
         EXPECT(assay_config_errors(cfp) == 2);
         assay_config_destroy(cfp);
+        STATUS();
     }
 
     EXIT();

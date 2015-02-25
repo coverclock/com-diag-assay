@@ -6,14 +6,18 @@
  * Licensed under the terms in README.h<BR>
  * Chip Overclock (coverclock@diag.com)<BR>
  * http://www.diag.com/navigation/downloads/Assay.html<BR>
+ *
+ * This is the glue between the Bison/Yacc parser and Assay.
  */
 
-#include "assay_parser.h"
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "com/diag/assay/assay.h"
+#include "assay.h"
+#include "assay_parser.h"
+#define YYSTYPE ASSAY_PARSER_YYSTYPE
+#include "assay_scanner.h"
 #include "com/diag/assay/assay_parser.h"
 #include "com/diag/assay/assay_scanner.h"
 #include "com/diag/diminuto/diminuto_dump.h"
@@ -21,35 +25,36 @@
 #include "com/diag/diminuto/diminuto_escape.h"
 
 /*******************************************************************************
- * TYPES
- ******************************************************************************/
-
-typedef struct AssayParserAction {
-    char * buffer;
-    size_t length;
-    size_t index;
-} assay_parser_action_t;
-
-/*******************************************************************************
- * STATE
+ * GLOBALS
  ******************************************************************************/
 
 static int debug = 0;
-static assay_config_t * config = (assay_config_t *)0;
-static const char * file = "-";
-static int line = 0;
 
-static assay_parser_action_t operator = { 0 };
-static assay_parser_action_t argument = { 0 };
-static assay_parser_action_t section = { 0 };
-static assay_parser_action_t key = { 0 };
-static assay_parser_action_t value = { 0 };
+/*******************************************************************************
+ * CODE GENERATORS
+ ******************************************************************************/
+
+#define ASSAY_PARSER_ACTION_BEGIN(_ACTION_) \
+    do { \
+        if (lxp != (void *)0) { \
+            assay_config_t * cfp; \
+            cfp = (assay_config_t *)assay_scanner_yyget_extra((yyscan_t)lxp); \
+            if (cfp != (assay_config_t *)0) { \
+                assay_action_t * acp; \
+                acp = &(cfp->_ACTION_); \
+                do {
+
+#define ASSAY_PARSER_ACTION_END \
+                } while (0); \
+            } \
+        } \
+    } while (0)
 
 /*******************************************************************************
  * ACTION
  ******************************************************************************/
 
-static void action_begin(assay_parser_action_t * ap)
+static void action_begin(assay_action_t * ap)
 {
     if (ap->buffer == (char *)0) {
         ap->length = 8;
@@ -58,7 +63,7 @@ static void action_begin(assay_parser_action_t * ap)
     ap->index = 0;
 }
 
-static void action_next(assay_parser_action_t * ap, int ch)
+static void action_next(assay_action_t * ap, int ch)
 {
     if (ap->buffer == (char *)0) {
         action_begin(ap);
@@ -74,7 +79,7 @@ static void action_next(assay_parser_action_t * ap, int ch)
     ap->buffer[ap->index++] = ch;
 }
 
-static void action_end(assay_parser_action_t * ap)
+static void action_end(assay_action_t * ap)
 {
     if ((ap->index <= 0) || (ap->buffer[ap->index - 1] != '\0')) {
         action_next(ap, '\0');
@@ -85,158 +90,188 @@ static void action_end(assay_parser_action_t * ap)
  * OPERATOR
  ******************************************************************************/
 
-void assay_parser_operator_begin(void)
+void assay_parser_operator_begin(void * lxp)
 {
-    action_begin(&operator);
+    ASSAY_PARSER_ACTION_BEGIN(oaction);
+        action_begin(acp);
+    ASSAY_PARSER_ACTION_END;
 }
 
-void assay_parser_operator_next(int ch)
+void assay_parser_operator_next(void * lxp, int ch)
 {
-    action_next(&operator, ch);
+    ASSAY_PARSER_ACTION_BEGIN(oaction);
+        action_next(acp, ch);
+    ASSAY_PARSER_ACTION_END;
 }
 
-void assay_parser_operator_end(void)
+void assay_parser_operator_end(void * lxp)
 {
-    action_end(&operator);
-    if (debug) {
-        DIMINUTO_LOG_DEBUG("assay_parser: operator[%zu]=\"%s\"[%zu]\n", operator.length, operator.buffer, operator.index);
-    }
+    ASSAY_PARSER_ACTION_BEGIN(oaction);
+        action_end(acp);
+        if (debug) {
+            DIMINUTO_LOG_DEBUG("assay_parser: operator[%zu]=\"%s\"[%zu]\n", acp->length, acp->buffer, acp->index);
+        }
+    ASSAY_PARSER_ACTION_END;
 }
 
 /*******************************************************************************
  * ARGUMENT
  ******************************************************************************/
 
-void assay_parser_argument_begin(void)
+void assay_parser_argument_begin(void * lxp)
 {
-    action_begin(&argument);
+    ASSAY_PARSER_ACTION_BEGIN(aaction);
+        action_begin(acp);
+    ASSAY_PARSER_ACTION_END;
 }
 
-void assay_parser_argument_next(int ch)
+void assay_parser_argument_next(void * lxp, int ch)
 {
-    action_next(&argument, ch);
+    ASSAY_PARSER_ACTION_BEGIN(aaction);
+        action_next(acp, ch);
+    ASSAY_PARSER_ACTION_END;
 }
 
-void assay_parser_argument_end(void)
+void assay_parser_argument_end(void * lxp)
 {
-    action_end(&argument);
-    if (debug) {
-        DIMINUTO_LOG_DEBUG("assay_parser: argument[%zu]=\"%s\"[%zu]\n", argument.length, argument.buffer, argument.index);
-    }
+    ASSAY_PARSER_ACTION_BEGIN(aaction);
+        action_end(acp);
+        if (debug) {
+            DIMINUTO_LOG_DEBUG("assay_parser: argument[%zu]=\"%s\"[%zu]\n", acp->length, acp->buffer, acp->index);
+        }
+    ASSAY_PARSER_ACTION_END;
 }
 
 /*******************************************************************************
  * OPERATION
  ******************************************************************************/
 
-void assay_parser_operation_execute(void)
+void assay_parser_operation_execute(void * lxp)
 {
-    if (config == (assay_config_t *)0) {
-        /* Do nothing. */
-    } else if (strcmp(operator.buffer, "include") == 0) {
-        assay_config_load_file(config, argument.buffer);
-    } else {
-        assay_config_error(config);
-        DIMINUTO_LOG_WARNING("assay_parser_operation_execute: *invalid* config=%p operator=\"%s\" argument=\"%s\" file=\"%s\" line=%d errors=%d\n", config, operator.buffer, argument.buffer, file, line, assay_config_error(config));
-    }
+    ASSAY_PARSER_ACTION_BEGIN(oaction);
+        if (strcmp(acp->buffer, "include") == 0) {
+        assay_config_import_file(cfp, cfp->aaction.buffer);
+        } else {
+            assay_config_error(cfp);
+            DIMINUTO_LOG_WARNING("assay_parser_operation_execute: *invalid* config=%p operator=\"%s\" argument=\"%s\" file=\"%s\" line=%d errors=%d\n", cfp, acp->buffer, cfp->aaction.buffer, cfp->file, cfp->line, assay_config_error(cfp));
+        }
+    ASSAY_PARSER_ACTION_END;
 }
 
 /*******************************************************************************
  * SECTION
  ******************************************************************************/
 
-void assay_parser_section_begin(void)
+void assay_parser_section_begin(void * lxp)
 {
-    action_begin(&section);
-    action_begin(&key);
-    action_end(&key);
+    ASSAY_PARSER_ACTION_BEGIN(saction);
+        action_begin(acp);
+        action_begin(&(cfp->kaction));
+        action_end(&(cfp->kaction));
+    ASSAY_PARSER_ACTION_END;
 }
 
-void assay_parser_section_next(int ch)
+void assay_parser_section_next(void * lxp, int ch)
 {
-    action_next(&section, ch);
+    ASSAY_PARSER_ACTION_BEGIN(saction);
+        action_next(acp, ch);
+    ASSAY_PARSER_ACTION_END;
 }
 
-void assay_parser_section_end(void)
+void assay_parser_section_end(void * lxp)
 {
-    action_end(&section);
-    if (debug) {
-        DIMINUTO_LOG_DEBUG("assay_parser: section[%zu]=\"%s\"[%zu]\n", section.length, section.buffer, section.index);
-    }
+    ASSAY_PARSER_ACTION_BEGIN(saction);
+        action_end(acp);
+        if (debug) {
+            DIMINUTO_LOG_DEBUG("assay_parser: section[%zu]=\"%s\"[%zu]\n", acp->length, acp->buffer, acp->index);
+        }
+    ASSAY_PARSER_ACTION_END;
 }
 
 /*******************************************************************************
  * KEY
  ******************************************************************************/
 
-void assay_parser_key_begin(void)
+void assay_parser_key_begin(void * lxp)
 {
-    action_begin(&key);
-    action_begin(&value);
-    action_end(&value);
+    ASSAY_PARSER_ACTION_BEGIN(kaction);
+        action_begin(acp);
+        action_begin(&(cfp->vaction));
+        action_end(&(cfp->vaction));
+    ASSAY_PARSER_ACTION_END;
 }
 
-void assay_parser_key_next(int ch)
+void assay_parser_key_next(void * lxp, int ch)
 {
-    action_next(&key, ch);
+    ASSAY_PARSER_ACTION_BEGIN(kaction);
+        action_next(acp, ch);
+    ASSAY_PARSER_ACTION_END;
 }
 
-void assay_parser_key_end(void)
+void assay_parser_key_end(void * lxp)
 {
-    action_end(&key);
-    if (debug) {
-        DIMINUTO_LOG_DEBUG("assay_parser: key[%zu]=\"%s\"[%zu]\n", key.length, key.buffer, key.index);
-    }
+    ASSAY_PARSER_ACTION_BEGIN(kaction);
+        action_end(acp);
+        if (debug) {
+            DIMINUTO_LOG_DEBUG("assay_parser: key[%zu]=\"%s\"[%zu]\n", acp->length, acp->buffer, acp->index);
+        }
+    ASSAY_PARSER_ACTION_END;
 }
 
 /*******************************************************************************
  * VALUE
  ******************************************************************************/
 
-void assay_parser_value_begin(void)
+void assay_parser_value_begin(void * lxp)
 {
-   action_begin(&value);
+    ASSAY_PARSER_ACTION_BEGIN(vaction);
+       action_begin(acp);
+   ASSAY_PARSER_ACTION_END;
 }
 
-void assay_parser_value_next(int ch)
+void assay_parser_value_next(void * lxp, int ch)
 {
-    action_next(&value, ch);
+    ASSAY_PARSER_ACTION_BEGIN(vaction);
+        action_next(acp, ch);
+    ASSAY_PARSER_ACTION_END;
 }
 
-void assay_parser_value_end(void)
+void assay_parser_value_end(void * lxp)
 {
-    action_end(&value);
-    if (!debug) {
-        /* Do nothing. */
-    } else if (!DIMINUTO_LOG_ENABLED(DIMINUTO_LOG_MASK_DEBUG)) {
-        /* Do nothing. */
-    } else if (diminuto_escape_printable(value.buffer)) {
-        DIMINUTO_LOG_DEBUG("assay_parser: value[%zu]=\"%s\"[%zu]\n", value.length, value.buffer, value.index);
-    } else {
-        DIMINUTO_LOG_DEBUG("assay_parser: value[%zu]:\n", value.length);
-        diminuto_dump(diminuto_log_stream(), value.buffer, value.index);
-    }
- }
+    ASSAY_PARSER_ACTION_BEGIN(vaction);
+        action_end(acp);
+        if (!debug) {
+            /* Do nothing. */
+        } else if (!DIMINUTO_LOG_ENABLED(DIMINUTO_LOG_MASK_DEBUG)) {
+            /* Do nothing. */
+        } else if (diminuto_escape_printable(acp->buffer)) {
+            DIMINUTO_LOG_DEBUG("assay_parser: value[%zu]=\"%s\"[%zu]\n", acp->length, acp->buffer, acp->index);
+        } else {
+            DIMINUTO_LOG_DEBUG("assay_parser: value[%zu]:\n", acp->length);
+            diminuto_dump(diminuto_log_stream(), acp->buffer, acp->index);
+        }
+    ASSAY_PARSER_ACTION_END;
+}
 
 /*******************************************************************************
  * PROPERTY
  ******************************************************************************/
 
-void assay_parser_property_assign(void)
+void assay_parser_property_assign(void * lxp)
 {
-    const char * name = ASSAY_SECTION_DEFAULT;
-
-    if (section.buffer == (char *)0) {
-        /* Do nothing. */
-    } else if (section.index == 0) {
-        /* Do nothing. */
-    } else {
-        name = section.buffer;
-    }
-
-    if (config != (assay_config_t *)0) {
-        assay_config_write_binary(config, name, key.buffer, value.buffer, value.index);
-    }
+    ASSAY_PARSER_ACTION_BEGIN(saction);
+        const char * name = ASSAY_SECTION_DEFAULT;
+        if (acp->buffer == (char *)0) {
+            /* Do nothing. */
+        } else if (acp->index == 0) {
+            /* Do nothing. */
+        } else if (acp->buffer[0] == '\0') {
+            /* Do nothing. */
+        } else {
+            name = acp->buffer;
+        }
+        assay_config_write_binary(cfp, name, cfp->kaction.buffer, cfp->vaction.buffer, cfp->vaction.index);
+    ASSAY_PARSER_ACTION_END;
 }
 
 /*******************************************************************************
@@ -253,56 +288,35 @@ int assay_parser_debug(int enable)
     return prior;
 }
 
-assay_config_t * assay_parser_output(assay_config_t * cfp)
+void assay_parser_next(void * lxp)
 {
-    assay_config_t * prior;
-
-    prior = config;
-    config = cfp;
-
-    return prior;
+    if (lxp != (void *)0) {
+        assay_config_t * cfp;
+        cfp = (assay_config_t *)assay_scanner_yyget_extra((yyscan_t)lxp);
+        if (cfp != (assay_config_t *)0) {
+            ++cfp->line;
+        }
+    }
 }
 
-const char * assay_parser_file(const char * path)
-{
-    const char * prior;
-
-    prior = file;
-    file = path;
-
-    return prior;
-}
-
-int assay_parser_line(int origin)
-{
-    int prior;
-
-    prior = line;
-    line = origin;
-
-    return prior;
-}
-
-void assay_parser_next(void)
-{
-    ++line;
-}
-
-void assay_parser_error(const char * msg)
+void assay_parser_error(void * lxp, const char * msg)
 {
     int errors = -1;
-    extern char * assay_yytext;
-
-    if (config != (assay_config_t *)0) {
-        assay_config_error(config);
-        errors = assay_config_errors(config);
+    if (lxp != (void *)0) {
+        assay_config_t * cfp;
+        cfp = (assay_config_t *)assay_scanner_yyget_extra((yyscan_t)lxp);
+        if (cfp != (assay_config_t *)0) {
+            assay_config_error(cfp);
+            errors = assay_config_errors(cfp);
+            DIMINUTO_LOG_WARNING("assay_parser_error: *%s* config=%p file=\"%s\" line=%d errors=%d\n", msg, cfp, cfp->file, cfp->line + 1, errors);
+            action_end(&(cfp->vaction));
+            action_end(&(cfp->kaction));
+            action_end(&(cfp->saction));
+            action_end(&(cfp->aaction));
+            action_end(&(cfp->oaction));
+        }
     }
-
-    DIMINUTO_LOG_WARNING("assay_parser_error: *%s* config=%p file=\"%s\" line=%d text=\"%s\" errors=%d\n", msg, config, file, line + 1, assay_yytext, errors);
-
-    assay_parser_value_end();
-    assay_parser_key_end();
-    assay_parser_section_end();
-    assay_parser_argument_end();
-    assay_parser_operator_end();
+    if (errors < 0) {
+        DIMINUTO_LOG_WARNING("assay_parser_error: *%s*\n", msg);
+    }
 }

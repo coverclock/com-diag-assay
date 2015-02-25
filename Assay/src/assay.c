@@ -6,59 +6,41 @@
  * Licensed under the terms in README.h<BR>
  * Chip Overclock (coverclock@diag.com)<BR>
  * http://www.diag.com/navigation/downloads/Assay.html<BR>
+ *
+ * This is the implementation of the Assay public API.
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include "com/diag/assay/assay.h"
+#include "assay_parser.h"
+#define YYSTYPE ASSAY_PARSER_YYSTYPE
+#include "assay_scanner.h"
+#include "assay.h"
 #include "com/diag/assay/assay_scanner.h"
 #include "com/diag/assay/assay_parser.h"
-#include "com/diag/diminuto/diminuto_tree.h"
 #include "com/diag/diminuto/diminuto_containerof.h"
 #include "com/diag/diminuto/diminuto_log.h"
 #include "com/diag/diminuto/diminuto_dump.h"
 #include "com/diag/diminuto/diminuto_escape.h"
 
 /*******************************************************************************
- * CONSTANTS
- ******************************************************************************/
-
-const char ASSAY_SECTION_DEFAULT[] = "general";
-
-/*******************************************************************************
  * TYPES
  ******************************************************************************/
 
-struct AssayProperty {
-    diminuto_tree_t     tree;
-    assay_section_t *   section;
-    const char *        key;
-    const void *        value;
-    size_t              length;
-};
-
-struct AssaySection {
-    diminuto_tree_t     tree;
-    assay_config_t *    config;
-    const char *        name;
-    diminuto_tree_t *   properties;
-};
-
-struct AssayConfig {
-    diminuto_tree_t *   sections;
-    assay_section_t *   section;
-    assay_property_t *  property;
-    int                 errors;
-};
-
-typedef enum AssayAction {
+typedef enum AssayInsertion {
     NONE,
     ROOT,
     LEFT,
     RIGHT,
-} assay_action_t;
+} assay_insertion_t;
+
+/*******************************************************************************
+ * CONSTANTS
+ ******************************************************************************/
+
+const char ASSAY_SECTION_DEFAULT[] = ASSAY_SECTION_DEFAULT_NAME;
 
 /*******************************************************************************
  * CONFIGURATION PRIMITIVES
@@ -69,10 +51,9 @@ assay_config_t * assay_config_create(void)
     assay_config_t * cfp;
 
     cfp = (assay_config_t *)malloc(sizeof(assay_config_t));
-    cfp->sections = DIMINUTO_TREE_EMPTY;
-    cfp->section = (assay_section_t *)0;
-    cfp->property = (assay_property_t *)0;
-    cfp->errors = 0;
+    memset(cfp, 0, sizeof(*cfp));
+    cfp->stream = stdin;
+    cfp->file = "-";
 
     return cfp;
 }
@@ -97,6 +78,11 @@ void assay_config_destroy(assay_config_t * cfp)
         free((void *)(scp->name));
         free(scp);
     }
+    free(cfp->oaction.buffer);
+    free(cfp->aaction.buffer);
+    free(cfp->saction.buffer);
+    free(cfp->kaction.buffer);
+    free(cfp->vaction.buffer);
     free(cfp);
 }
 
@@ -149,21 +135,21 @@ assay_section_t * assay_section_create(assay_config_t * cfp, const char * name)
     assay_section_t * scp;
     assay_section_t * tmp;
     int rc = 0;
-    assay_action_t action;
+    assay_insertion_t insertion;
 
     tmp = section_find_close(cfp, name, &rc);
     if (tmp == (assay_section_t *)0) {
-        action = ROOT;
+        insertion = ROOT;
     } else if (rc < 0) {
-        action = RIGHT;
+        insertion = RIGHT;
     } else if (rc > 0) {
-        action = LEFT;
+        insertion = LEFT;
     } else {
-        action = NONE;
+        insertion = NONE;
         scp = tmp;
     }
 
-    if (action != NONE) {
+    if (insertion != NONE) {
 
         scp = (assay_section_t *)malloc(sizeof(assay_section_t));
         diminuto_tree_init(&(scp->tree));
@@ -171,7 +157,7 @@ assay_section_t * assay_section_create(assay_config_t * cfp, const char * name)
         scp->name = strdup(name);
         scp->properties = DIMINUTO_TREE_EMPTY;
 
-        switch (action) {
+        switch (insertion) {
         case ROOT:
             diminuto_tree_insert_root(&(scp->tree), &(cfp->sections));
             break;
@@ -291,21 +277,21 @@ assay_property_t * assay_property_create(assay_section_t * scp, const char * key
     assay_property_t * prp;
     assay_property_t * tmp;
     int rc = 0;
-    assay_action_t action;
+    assay_insertion_t insertion;
 
     tmp = property_find_close(scp, key, &rc);
     if (tmp == (assay_property_t *)0) {
-        action = ROOT;
+        insertion = ROOT;
     } else if (rc < 0) {
-        action = RIGHT;
+        insertion = RIGHT;
     } else if (rc > 0) {
-        action = LEFT;
+        insertion = LEFT;
     } else {
-        action = NONE;
+        insertion = NONE;
         prp = tmp;
     }
 
-    if (action != NONE) {
+    if (insertion != NONE) {
 
         prp = (assay_property_t *)malloc(sizeof(assay_property_t));
         diminuto_tree_init(&(prp->tree));
@@ -314,7 +300,7 @@ assay_property_t * assay_property_create(assay_section_t * scp, const char * key
         prp->value = 0;
         prp->length = 0;
 
-        switch (action) {
+        switch (insertion) {
         case ROOT:
             diminuto_tree_insert_root(&(prp->tree), &(scp->properties));
             break;
@@ -559,49 +545,90 @@ void assay_config_write_binary(assay_config_t * cfp, const char * name, const ch
  * IMPORTERS
  ******************************************************************************/
 
-assay_config_t * assay_config_load_stream(assay_config_t * cfp, FILE * fp)
+assay_config_t * assay_config_import_stream(assay_config_t * cfp, FILE * stream)
 {
-    FILE * priorfp;
-    assay_config_t * priorcfp;
+    FILE * priorstream;
+    yyscan_t scanner;
 
-    priorfp = assay_scanner_input(fp);
-    priorcfp = assay_parser_output(cfp);
+    priorstream = cfp->stream;
+    cfp->stream = stream;
+
+    scanner = 0;
+    assay_scanner_yylex_init_extra(cfp, &scanner);
+    assay_scanner_yyset_in(stream , &scanner);
 
     do {
 fprintf(stderr, "YYPARSE\n");
-        assay_yyparse();
-    } while (!feof(fp));
+        assay_parser_yyparse(&scanner);
+    } while (!feof(stream));
 
-    assay_parser_output(priorcfp);
-    assay_scanner_input(priorfp);
+    assay_scanner_yylex_destroy(scanner);
+
+    cfp->stream = priorstream;
 
     return cfp;
 }
 
-assay_config_t * assay_config_load_file(assay_config_t * cfp, const char * path)
+assay_config_t * assay_config_import_file(assay_config_t * cfp, const char * file)
 {
+    assay_config_t * result;
     const char * priorfile;
     int priorline;
     FILE * fp;
 
-    priorfile = assay_parser_file(path);
-    priorline = assay_parser_line(0);
+    priorfile = cfp->file;
+    priorline = cfp->line;
 
-    DIMINUTO_LOG_INFORMATION("assay_config_load_file: loading config=%p file=\"%s\" line=%d path=\"%s\"\n", cfp, priorfile, priorline, path);
+    cfp->file = file;
+    cfp->line = 0;
 
-    if (strcmp(path, "-") == 0) {
-        cfp = assay_config_load_stream(cfp, stdin);
-    } else if ((fp = fopen(path, "r")) != (FILE *)0) {
-        cfp = assay_config_load_stream(cfp, fp);
+    DIMINUTO_LOG_INFORMATION("assay_config_import_file: loading config=%p file=\"%s\" line=%d include=\"%s\"\n", cfp, priorfile, priorline, file);
+
+    if ((file[0] == '-') && (file[1] == '\0')) {
+        result = assay_config_import_stream(cfp, stdin);
+    } else if ((fp = fopen(file, "r")) != (FILE *)0) {
+        result = assay_config_import_stream(cfp, fp);
         fclose(fp);
     } else {
         assay_config_error(cfp);
-        DIMINUTO_LOG_WARNING("assay_config_load_file: *%s* config=%p file=\"%s\" line=%d path=\"%s\" errors=%d\n", strerror(errno), cfp, priorfile, priorline, path, assay_config_errors(cfp));
-        cfp = (assay_config_t *)0;
+        DIMINUTO_LOG_WARNING("assay_config_import_file: *%s* config=%p file=\"%s\" line=%d include=\"%s\" errors=%d\n", strerror(errno), cfp, priorfile, priorline, file, assay_config_errors(cfp));
+        result = (assay_config_t *)0;
     }
 
-    assay_parser_line(priorline);
-    assay_parser_file(priorfile);
+    cfp->line = priorline;
+    cfp->file = priorfile;
+
+    return result;
+}
+
+assay_config_t * assay_config_export_stream(assay_config_t * cfp, FILE * stream)
+{
+    if (cfp != (assay_config_t *)0) {
+        char * buffer = (char *)0;
+        size_t tsize = 0;
+        assay_section_t * scp;
+        assay_property_t * prp;
+        const char * name;
+        const char * key;
+        const char * value;
+        size_t fsize;
+        for (scp = assay_section_first(cfp); scp != (assay_section_t *)0; scp = assay_section_next(scp)) {
+            name = assay_section_name_get(scp);
+            fprintf("[%s]\n", name);
+            for (prp = assay_property_first(scp); prp != (assay_property_t *)0; prp = assay_property_next(prp)) {
+                key = assay_property_key_get(prp);
+                value = (const char *)assay_property_value_get(prp, &fsize);
+                fsize -= 1 /* '\0' */;
+                tsize = (fsize * 4 /* '\xFF' */) + 1 /* '\0' */;
+                buffer = (char *)realloc(buffer, tsize);
+                diminuto_escape_expand(buffer, value, tsize, fsize, "#=:;[]" /* assay_scanner.l */);
+                fprintf(stream, "%s=%s\n", key, buffer);
+            }
+        }
+        if (buffer != (char *)0) {
+            free(buffer);
+        }
+    }
 
     return cfp;
 }
@@ -662,10 +689,13 @@ void assay_config_log(assay_config_t * cfp)
         DIMINUTO_LOG_DEBUG("assay_config_t@%p[%zu]:\n", cfp, sizeof(*cfp));
         DIMINUTO_LOG_DEBUG("assay_config_t@%p: section=%p:\n", cfp, cfp->section);
         DIMINUTO_LOG_DEBUG("assay_config_t@%p: property=%p:\n", cfp, cfp->property);
+        DIMINUTO_LOG_DEBUG("assay_config_t@%p: stream=%p:\n", cfp, cfp->stream);
+        DIMINUTO_LOG_DEBUG("assay_config_t@%p: file=\"%s\":\n", cfp, cfp->file);
+        DIMINUTO_LOG_DEBUG("assay_config_t@%p: line=%d:\n", cfp, cfp->line);
         DIMINUTO_LOG_DEBUG("assay_config_t@%p: errors=%d:\n", cfp, cfp->errors);
         DIMINUTO_LOG_DEBUG("assay_config_t@%p: sections:\n", cfp);
         for (scp = assay_section_first(cfp); scp != (assay_section_t *)0; scp = assay_section_next(scp)) {
-        	assay_section_log(scp);
+            assay_section_log(scp);
         }
     }
 }
