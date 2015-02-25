@@ -17,7 +17,10 @@
  * grammar. Portions of the C code, specifically its lexical scanner and
  * shift-reduce parser, are generated using the Flex (Lex) and Bison (Yacc)
  * tools. Assay is built on top of the Diminuto library of GNU/Linux-based
- * software tools.
+ * software tools. This packages uses the features of Flex and Bison that claim
+ * to generate reentrant scanners and parsers. While I haven't tested this
+ * extensively, the implementation of nested include files does depend on it,
+ * and that seems to work just fine.
  *
  * REFERENCES
  *
