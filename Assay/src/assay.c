@@ -621,7 +621,7 @@ assay_config_t * assay_config_export_stream(assay_config_t * cfp, FILE * stream)
             fsize -= 1 /* '\0' */;
             tsize = (fsize * 4 /* '\xFF' */) + 1 /* '\0' */;
             buffer = (char *)realloc(buffer, tsize);
-            diminuto_escape_expand(buffer, value, tsize, fsize, "#=:;[]" /* assay_scanner.l */);
+            diminuto_escape_expand(buffer, value, tsize, fsize, " #=:;[]" /* assay_scanner.l */);
             fprintf(stream, "%s=%s\n", key, buffer);
         }
     }

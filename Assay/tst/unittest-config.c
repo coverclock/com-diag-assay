@@ -21,32 +21,7 @@ static const char PATH1[] = "etc/test1.ini";
 
 static assay_config_t * import(const char * path)
 {
-    assay_config_t * cfp;
-    cfp = assay_config_import_file(assay_config_create(), path);
-    printf("%s\n", path);
-    if (cfp != (assay_config_t *)0) {
-        assay_section_t * scp;
-        for (scp = assay_section_first(cfp); scp != (assay_section_t *)0; scp = assay_section_next(scp)) {
-            const char * name;
-            assay_property_t * prp;
-            name = assay_section_name_get(scp);
-            printf(" [%s]\n", name);
-            for (prp = assay_property_first(scp); prp != (assay_property_t *)0; prp = assay_property_next(prp)) {
-                const char * key;
-                const char * value;
-                size_t length;
-                key = assay_property_key_get(prp);
-                value = (const char *)assay_property_value_get(prp, &length);
-                if (diminuto_escape_printable(value)) {
-                    printf("  %s=\"%s\"\n", key, value);
-                } else {
-                    printf("  %s=\n", key);
-                    diminuto_dump_generic(stdout, value, length, 0, '.', 0, 0, 3, 1, 16, ": ", " ", "|", ' ', ' ', "|\n");
-                }
-            }
-        }
-    }
-    return cfp;
+    return assay_config_export_stream(assay_config_import_file(assay_config_create(), path), stderr);
 }
 
 static void census(assay_config_t * cfp, int * sectionsp, int * propertiesp) {
@@ -125,11 +100,11 @@ int main(int argc, char ** argv)
         EXPECT(((value = assay_config_read_string(cfp, "section@four.com", "Charles E. Weller")) != (const char *)0) && (strcmp(value, "Now is the time for all good men to come to the aid of their party.") == 0));
         EXPECT(((value = assay_config_read_string(cfp, "section@four.com", "1926")) != (const char *)0) && (strcmp(value, " How now brown cow ") == 0));
         EXPECT(((value = assay_config_read_string(cfp, "section@four.com", "Lord Admiral Nelson")) != (const char *)0) && (strcmp(value, "\b England expects each man to do his duty. \b ") == 0));
-        EXPECT(((value = assay_config_read_string(cfp, "Section 4.5", "Keyword12")) != (const char *)0) && (strcmp(value, "Twelve!") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "Section 4.5", "keyword12")) != (const char *)0) && (strcmp(value, "Twelve!") == 0));
         EXPECT(((value = assay_config_read_string(cfp, "Section5", "keyword9")) != (const char *)0) && (strcmp(value, "value9") == 0));
-        EXPECT(sections == 7);
-        EXPECT(properties == 15);
-        EXPECT(assay_config_errors(cfp) == 2);
+        EXPECT(sections == 9);
+        EXPECT(properties == 18);
+        EXPECT(assay_config_errors(cfp) == 5);
         assay_config_destroy(cfp);
         STATUS();
     }
