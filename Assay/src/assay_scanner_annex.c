@@ -14,9 +14,9 @@
 #include <string.h>
 #include "assay.h"
 #include "assay_parser.h"
-#define YYSTYPE ASSAY_PARSER_YYSTYPE
+#include "assay_fixup.h"
 #include "assay_scanner.h"
-#include "com/diag/assay/assay_scanner.h"
+#include "com/diag/assay/assay_scanner_annex.h"
 #include "com/diag/diminuto/diminuto_log.h"
 #include "com/diag/diminuto/diminuto_dump.h"
 #include "com/diag/diminuto/diminuto_escape.h"
@@ -97,19 +97,5 @@ int assay_scanner_text2value(const char * text)
 
 int assay_scanner_wrap(void * lxp)
 {
-    int eof = 1; /* Normally I'd use !0 here but the Lex docs specify 1. */
-
-#if 0
-    if (lxp != (void *)0) {
-        assay_config_t * cfp;
-        cfp = (assay_config_t *)assay_scanner_yyget_extra((yyscan_t)lxp);
-        if (cfp != (assay_config_t *)0) {
-            if (cfp->stream != (FILE *)0) {
-                eof = feof(cfp->stream) ? 1 : 0;
-            }
-        }
-    }
-#endif
-
-    return eof;
+    return 1; /* Normally I'd use !0 here but the Flex docs explicitly specify 1. */
 }

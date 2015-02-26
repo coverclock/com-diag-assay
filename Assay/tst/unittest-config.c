@@ -6,16 +6,18 @@
  * Licensed under the terms in README.h<BR>
  * Chip Overclock <coverclock@diag.com><BR>
  * http://www.diag.com/navigation/downloads/Diminuto.html<BR>
+ *
+ * This tests Assay with the Flex and Bison components.
  */
 
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 #include "com/diag/assay/assay.h"
 #include "com/diag/diminuto/diminuto_unittest.h"
 #include "com/diag/diminuto/diminuto_log.h"
 #include "com/diag/diminuto/diminuto_dump.h"
 #include "com/diag/diminuto/diminuto_escape.h"
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 
 static const char PATH0[] = "etc/test0.ini";
 static const char PATH1[] = "etc/test1.ini";

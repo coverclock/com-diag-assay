@@ -16,10 +16,10 @@
 #include <ctype.h>
 #include "assay.h"
 #include "assay_parser.h"
-#define YYSTYPE ASSAY_PARSER_YYSTYPE
+#include "assay_fixup.h"
 #include "assay_scanner.h"
-#include "com/diag/assay/assay_parser.h"
-#include "com/diag/assay/assay_scanner.h"
+#include "com/diag/assay/assay_parser_annex.h"
+#include "com/diag/assay/assay_scanner_annex.h"
 #include "com/diag/diminuto/diminuto_dump.h"
 #include "com/diag/diminuto/diminuto_log.h"
 #include "com/diag/diminuto/diminuto_escape.h"
@@ -38,7 +38,7 @@ static int debug = 0;
     do { \
         if (lxp != (void *)0) { \
             assay_config_t * cfp; \
-            cfp = (assay_config_t *)assay_scanner_yyget_extra((yyscan_t)lxp); \
+            cfp = (assay_config_t *)assay_scanner_yyget_extra((void *)lxp); \
             if (cfp != (assay_config_t *)0) { \
                 assay_action_t * acp; \
                 acp = &(cfp->_ACTION_); \
@@ -302,7 +302,7 @@ void assay_parser_next(void * lxp)
 {
     if (lxp != (void *)0) {
         assay_config_t * cfp;
-        cfp = (assay_config_t *)assay_scanner_yyget_extra((yyscan_t)lxp);
+        cfp = (assay_config_t *)assay_scanner_yyget_extra((void *)lxp);
         if (cfp != (assay_config_t *)0) {
             ++cfp->line;
         }
@@ -314,12 +314,12 @@ void assay_parser_error(void * lxp, const char * msg)
     int errors = -1;
     if (lxp != (void *)0) {
         assay_config_t * cfp;
-        cfp = (assay_config_t *)assay_scanner_yyget_extra((yyscan_t)lxp);
+        cfp = (assay_config_t *)assay_scanner_yyget_extra((void *)lxp);
         if (cfp != (assay_config_t *)0) {
             const char * text;
             assay_config_error(cfp);
             errors = assay_config_errors(cfp);
-            text = assay_scanner_yyget_text((yyscan_t)lxp);
+            text = assay_scanner_yyget_text((void *)lxp);
             if (text == (const char *)0) { text = ""; }
             DIMINUTO_LOG_WARNING("assay_parser_error: *%s* scanner=%p config=%p file=\"%s\" line=%d text=\"%s\" errors=%d\n", msg, lxp, cfp, cfp->file, cfp->line + 1, text, errors);
             action_end(&(cfp->vaction));
@@ -338,7 +338,7 @@ void assay_parser_fini(void * lxp)
 {
     if (lxp != (void *)0) {
         assay_config_t * cfp;
-        cfp = (assay_config_t *)assay_scanner_yyget_extra((yyscan_t)lxp);
+        cfp = (assay_config_t *)assay_scanner_yyget_extra((void *)lxp);
         if (cfp != (assay_config_t *)0) {
             action_fini(&(cfp->vaction));
             action_fini(&(cfp->kaction));

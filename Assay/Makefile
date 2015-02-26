@@ -17,7 +17,7 @@ TARGET				:=	host# Build for the x86_64 running Ubuntu 14.04 LTS.
 
 MAJOR				:=	1# API changes that may require that applications be modified.
 MINOR				:=	2# Only functionality or features added with no legacy API changes.
-BUILD				:=	1# Only bugs fixed with no API changes or new functionality.
+BUILD				:=	3# Only bugs fixed with no API changes or new functionality.
 
 VINTAGE				:=	$(shell date -u +%Y-%m-%dT%H:%M:%S.%N%z)
 
@@ -195,7 +195,7 @@ clean:
 pristine clobber:	clean
 	rm -rf $(OUT_DIR)
 
-########## Lovingly Hand Crafted Targets
+########## Lovingly Hand Crafted Targets With Dependencies Generated At Build
 
 $(OUT)/$(SRC_DIR)/$(PROJECT)_parser.o:	$(OUT)/$(GEN_DIR)/$(PROJECT)_parser.c
 
@@ -205,9 +205,9 @@ $(OUT)/$(SRC_DIR)/$(PROJECT)_scanner.o:	$(OUT)/$(GEN_DIR)/$(PROJECT)_scanner.c $
 
 $(OUT)/$(GEN_DIR)/$(PROJECT)_scanner.h:	$(OUT)/$(GEN_DIR)/$(PROJECT)_scanner.c
 
-$(OUT)/$(SRC_DIR)/$(PROJECT)_parser_annex.o:	$(OUT)/$(GEN_DIR)/$(PROJECT)_parser.h
+$(OUT)/$(SRC_DIR)/$(PROJECT)_parser_annex.o:	$(OUT)/$(GEN_DIR)/$(PROJECT)_parser.h $(OUT)/$(GEN_DIR)/$(PROJECT)_scanner.h
 
-$(OUT)/$(SRC_DIR)/$(PROJECT)_scanner_annex.o:	$(OUT)/$(GEN_DIR)/$(PROJECT)_parser.h
+$(OUT)/$(SRC_DIR)/$(PROJECT)_scanner_annex.o:	$(OUT)/$(GEN_DIR)/$(PROJECT)_parser.h $(OUT)/$(GEN_DIR)/$(PROJECT)_scanner.h
 
 $(OUT)/$(SRC_DIR)/$(PROJECT).o:	$(OUT)/$(GEN_DIR)/$(PROJECT)_parser.h $(OUT)/$(GEN_DIR)/$(PROJECT)_scanner.h
 

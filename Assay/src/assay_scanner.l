@@ -10,8 +10,8 @@
  */
 
 #include "assay_parser.h"
-#define YYSTYPE ASSAY_PARSER_YYSTYPE
-#include "com/diag/assay/assay_scanner.h"
+#include "assay_fixup.h"
+#include "com/diag/assay/assay_scanner_annex.h"
 
 int assay_scanner_yywrap(yyscan_t scanner)
 {

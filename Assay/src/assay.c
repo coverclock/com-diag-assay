@@ -14,12 +14,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include "assay_parser.h"
-#define YYSTYPE ASSAY_PARSER_YYSTYPE
-#include "assay_scanner.h"
 #include "assay.h"
-#include "com/diag/assay/assay_scanner.h"
-#include "com/diag/assay/assay_parser.h"
+#include "assay_parser.h"
+#include "assay_fixup.h"
+#include "assay_scanner.h"
+#include "com/diag/assay/assay_scanner_annex.h"
+#include "com/diag/assay/assay_parser_annex.h"
 #include "com/diag/diminuto/diminuto_containerof.h"
 #include "com/diag/diminuto/diminuto_log.h"
 #include "com/diag/diminuto/diminuto_dump.h"

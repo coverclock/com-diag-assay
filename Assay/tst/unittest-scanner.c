@@ -6,14 +6,16 @@
  * Licensed under the terms in README.h<BR>
  * Chip Overclock (coverclock@diag.com)<BR>
  * http://www.diag.com/navigation/downloads/Assay.html<BR>
+ *
+ * This tests the interface between Assay and the Flex lexical scanner.
  */
 
 #include <stdio.h>
 #include "assay_parser.h"
-#define YYSTYPE ASSAY_PARSER_YYSTYPE
+#include "assay_fixup.h"
 #include "assay_scanner.h"
 #include "com/diag/assay/assay.h"
-#include "com/diag/assay/assay_scanner.h"
+#include "com/diag/assay/assay_scanner_annex.h"
 #include "com/diag/diminuto/diminuto_unittest.h"
 #include "com/diag/diminuto/diminuto_log.h"
 

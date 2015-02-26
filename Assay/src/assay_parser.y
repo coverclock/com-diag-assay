@@ -9,7 +9,7 @@
  * http://www.diag.com/navigation/downloads/Assay.html<BR>
  */
 
-#include "com/diag/assay/assay_parser.h"
+#include "com/diag/assay/assay_parser_annex.h"
 
 %}
 

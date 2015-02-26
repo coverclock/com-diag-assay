@@ -7,16 +7,16 @@
  * Chip Overclock <coverclock@diag.com><BR>
  * http://www.diag.com/navigation/downloads/Diminuto.html<BR>
  *
- * Best if run under valgrind(1)!
+ * This tests the Assay public API independent of the Flex and Bison components.
  */
 
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
 #include "com/diag/assay/assay.h"
 #include "com/diag/diminuto/diminuto_unittest.h"
 #include "com/diag/diminuto/diminuto_log.h"
 #include "com/diag/diminuto/diminuto_dump.h"
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
 
 static const char ALFA[] = "Alfa";
 static const char BRAVO[] = "Bravo";
