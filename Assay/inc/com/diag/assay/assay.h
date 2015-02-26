@@ -241,14 +241,14 @@ extern assay_property_t * assay_property_first(assay_section_t * scp);
 
 /**
  * Return a pointer to the prior property.
- * @param scp points to the next property.
+ * @param prp points to the next property.
  * @return a pointer to the prior property of null if none.
  */
 extern assay_property_t * assay_property_next(assay_property_t * prp);
 
 /**
  * Return a pointer to the prior property.
- * @param scp points to the next property.
+ * @param prp points to the next property.
  * @return a pointer to the prior property of null if none.
  */
 extern assay_property_t * assay_property_prev(assay_property_t * prp);
