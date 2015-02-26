@@ -86,3 +86,45 @@ Here is an example of what an INI file might look like.
 
     #exec generated.sh
 
+The syntax rules for the INI file format supported by Assay are pretty
+simple (but the grammar is the definitive source).
+
+1.  The characters octothorpe, equal sign, colon, semicolon, left square
+    bracket, and right square bracket, are special.
+
+2.  White space at the beginning of any line is ignored.
+
+3.  A comment begins with a semicolon and can occur on a line by itself or
+    on the same line after any other statement.
+
+4.  The beginning of a section is declared within square brackets. The
+    section name must escape special characters or white space, which then
+    becomes part of the section name.
+
+5.  Properties consist of a keyword, an equal sign or a colon, and a value.
+    White space may occur on either side of the equal sign or colon.
+
+6.  If a keyword contains special characters or white space, those characters
+    must be escaped.
+
+7.  The value starts at the first non-white space character following the
+    equal sign or colon. A white space character that is the first character
+    of a value must be escaped. The value continues until end of line or a
+    comment. A semicolon in the value must be escaped.
+
+8.  As a short cut, a section can be declared followed by a property on the
+    same line.
+
+9.  An octothorpe as the first character of a statement signals an operation
+    that interrupts the parsing of the current input stream. Every operation
+    consists of an operator and an argument separated by white space.
+    The two operators currently supported are include and exec.
+
+10. The include operator temporarily redirects parsing to the file identified
+    by the path name in the argument. When end of file is reached, parsing of
+    the stream containing the include statement resumes.
+
+11. The exec operator temporarily redirects parsing to the standard output
+    of the shell command specified by the argument, which may include white
+    space. When the shell command exits, parsing of the stream containing the
+    exec statement resumes.

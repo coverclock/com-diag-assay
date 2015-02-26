@@ -42,6 +42,8 @@ typedef enum AssayInsertion {
 
 const char ASSAY_CHARACTERS_SPECIAL[] = ASSAY_CHARACTERS_SPECIAL_STRING;
 
+const char ASSAY_CHARACTERS_EXTRASPECIAL[] = ASSAY_CHARACTERS_EXTRASPECIAL_STRING;
+
 const char ASSAY_SECTION_DEFAULT[] = ASSAY_SECTION_DEFAULT_STRING;
 
 /*******************************************************************************
@@ -633,7 +635,7 @@ assay_config_t * assay_config_import_command(assay_config_t * cfp, const char * 
 assay_config_t * assay_config_export_stream(assay_config_t * cfp, FILE * stream)
 {
     char * buffer;
-    char * old;
+    char * here;
     assay_section_t * scp;
     assay_property_t * prp;
     const char * name;
@@ -643,17 +645,14 @@ assay_config_t * assay_config_export_stream(assay_config_t * cfp, FILE * stream)
     size_t fsize;
     size_t tsize;
 
-    size = ASSAY_BUFFER_DEFAULT_SIZE;
-    buffer = (char *)malloc(size);
+    buffer = (char *)malloc(size = ASSAY_BUFFER_DEFAULT_SIZE);
     for (scp = assay_section_first(cfp); scp != (assay_section_t *)0; scp = assay_section_next(scp)) {
         name = assay_section_name_get(scp);
         fsize = strlen(name);
         tsize = (fsize * 4 /* '\xFF' */) + 1 /* '\0' */;
         if (tsize > size) {
-            old = buffer;
-            buffer = (char *)malloc(tsize);
-            size = tsize;
-            free(old);
+            free(buffer);
+            buffer = (char *)malloc(size = tsize);
         }
         diminuto_escape_expand(buffer, name, tsize, fsize, ASSAY_CHARACTERS_SPECIAL);
         fprintf(stream, "[%s]\n", buffer);
@@ -662,24 +661,30 @@ assay_config_t * assay_config_export_stream(assay_config_t * cfp, FILE * stream)
             fsize = strlen(key);
             tsize = (fsize * 4 /* '\xFF' */) + 1 /* '\0' */;
             if (tsize > size) {
-                old = buffer;
-                buffer = (char *)malloc(tsize);
-                size = tsize;
-                free(old);
+                free(buffer);
+                buffer = (char *)malloc(size = tsize);
             }
             diminuto_escape_expand(buffer, key, tsize, fsize, ASSAY_CHARACTERS_SPECIAL);
-            fprintf(stream, "%s=%s\n", key, buffer);
+            fprintf(stream, "%s=", buffer);
             value = (const char *)assay_property_value_get(prp, &fsize);
             fsize -= 1 /* '\0' */;
             tsize = (fsize * 4 /* '\xFF' */) + 1 /* '\0' */;
             if (tsize > size) {
-                old = buffer;
-                buffer = (char *)malloc(tsize);
-                size = tsize;
-                free(old);
+                free(buffer);
+                buffer = (char *)malloc(size = tsize);
             }
-            diminuto_escape_expand(buffer, value, tsize, fsize, ASSAY_CHARACTERS_SPECIAL);
-            fprintf(stream, "%s=%s\n", key, buffer);
+            /*
+             * If the first character of the value is a space, it is a special
+             * case and must be escaped. We could escape all the spaces, but we
+             * prefer not to just for readability of the resulting stream.
+             */
+            here = buffer;
+            if (value[0] == ' ') {
+                *(here++) = '\\';
+                --tsize;
+            }
+            diminuto_escape_expand(here, value, tsize, fsize, ASSAY_CHARACTERS_EXTRASPECIAL);
+            fprintf(stream, "%s\n", buffer);
         }
     }
 

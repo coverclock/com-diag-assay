@@ -15,6 +15,7 @@
 #include "com/diag/diminuto/diminuto_escape.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 static const char PATH0[] = "etc/test0.ini";
 static const char PATH1[] = "etc/test1.ini";
@@ -68,7 +69,7 @@ int main(int argc, char ** argv)
         EXPECT(((value = assay_config_read_string(cfp, "section@four.com", "Charles E. Weller")) != (const char *)0) && (strcmp(value, "Now is the time for all good men to come to the aid of their party.") == 0));
         EXPECT(((value = assay_config_read_string(cfp, "section@four.com", "1926")) != (const char *)0) && (strcmp(value, " How now brown cow ") == 0));
         EXPECT(((value = assay_config_read_string(cfp, "section@four.com", "Lord Admiral Nelson")) != (const char *)0) && (strcmp(value, "\b England expects each man to do his duty. \b ") == 0));
-        EXPECT(((value = assay_config_read_string(cfp, "Section5", "keyword9")) != (const char *)0) && (strcmp(value, "value9") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "Section5", "keyword9")) != (const char *)0) && (strcmp(value, "#=:[];") == 0));
         EXPECT(sections == 7);
         EXPECT(properties == 15);
         EXPECT(assay_config_errors(cfp) == 2);
@@ -101,7 +102,7 @@ int main(int argc, char ** argv)
         EXPECT(((value = assay_config_read_string(cfp, "section@four.com", "1926")) != (const char *)0) && (strcmp(value, " How now brown cow ") == 0));
         EXPECT(((value = assay_config_read_string(cfp, "section@four.com", "Lord Admiral Nelson")) != (const char *)0) && (strcmp(value, "\b England expects each man to do his duty. \b ") == 0));
         EXPECT(((value = assay_config_read_string(cfp, "Section 4.5", "keyword12")) != (const char *)0) && (strcmp(value, "Twelve!") == 0));
-        EXPECT(((value = assay_config_read_string(cfp, "Section5", "keyword9")) != (const char *)0) && (strcmp(value, "value9") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "Section5", "keyword9")) != (const char *)0) && (strcmp(value, "#=:[];") == 0));
         EXPECT(((value = assay_config_read_string(cfp, "SectionSix", "KEYWORD61")) != (const char *)0) && (strcmp(value, "VALUE61") == 0));
         EXPECT(((value = assay_config_read_string(cfp, "SectionSix", "KEYWORD62")) != (const char *)0) && (strcmp(value, "VALUE62") == 0));
         EXPECT(((value = assay_config_read_string(cfp, "SectionSix", "KEYWORD63")) != (const char *)0) && (strcmp(value, "VALUE63") == 0));
@@ -111,6 +112,72 @@ int main(int argc, char ** argv)
         EXPECT(properties == 23);
         EXPECT(assay_config_errors(cfp) == 6);
         assay_config_destroy(cfp);
+        STATUS();
+    }
+
+    {
+        FILE * stream;
+        ASSERT((stream = tmpfile()) != (FILE *)0);
+        {
+            assay_config_t * cfp;
+            const char * value;
+            int sections;
+            int properties;
+            ASSERT((cfp = import(PATH0)) != (assay_config_t *)0);
+            ASSERT(assay_config_audit(cfp) == (void *)0);
+            census(cfp, &sections, &properties);
+            EXPECT(((value = assay_config_read_string(cfp, ASSAY_SECTION_DEFAULT, "general1")) != (const char *)0) && (strcmp(value, "This is a general parameter.") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, ASSAY_SECTION_DEFAULT, "general2")) != (const char *)0) && (strcmp(value, "This is another general parameter.") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, ASSAY_SECTION_DEFAULT, "general3")) != (const char *)0) && (strcmp(value, "This is yet another general parameter.") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "section1", "keyword1")) != (const char *)0) && (strcmp(value, "value1") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "section1", "keyword2")) != (const char *)0) && (strcmp(value, "value2") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "section two", "keyword3")) != (const char *)0) && (strcmp(value, "value three") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "section two", "keyword4")) != (const char *)0) && (strcmp(value, "value four") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "Section Three", "keyword5")) != (const char *)0) && (strcmp(value, "value V") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "Section Three", "keyword6")) != (const char *)0) && (strcmp(value, "value IV") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "Section Three", "keyword7")) != (const char *)0) && (strcmp(value, "\a\b\t\n\v\f\r#=:[]\\!\xa\xbc\7\77\377") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "Bad", "keyword8")) != (const char *)0) && (strcmp(value, "\"value 8\"") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "section@four.com", "Charles E. Weller")) != (const char *)0) && (strcmp(value, "Now is the time for all good men to come to the aid of their party.") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "section@four.com", "1926")) != (const char *)0) && (strcmp(value, " How now brown cow ") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "section@four.com", "Lord Admiral Nelson")) != (const char *)0) && (strcmp(value, "\b England expects each man to do his duty. \b ") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "Section5", "keyword9")) != (const char *)0) && (strcmp(value, "#=:[];") == 0));
+            EXPECT(sections == 7);
+            EXPECT(properties == 15);
+            EXPECT(assay_config_errors(cfp) == 2);
+            ASSERT(assay_config_export_stream(cfp, stream) == cfp);
+            assay_config_destroy(cfp);
+        }
+        rewind(stream);
+        {
+            assay_config_t * cfp;
+            const char * value;
+            int sections;
+            int properties;
+            ASSERT((cfp = assay_config_create()) != (assay_config_t *)0);
+            ASSERT(assay_config_import_stream(cfp, stream) == cfp);
+            ASSERT(assay_config_audit(cfp) == (void *)0);
+            census(cfp, &sections, &properties);
+            EXPECT(((value = assay_config_read_string(cfp, ASSAY_SECTION_DEFAULT, "general1")) != (const char *)0) && (strcmp(value, "This is a general parameter.") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, ASSAY_SECTION_DEFAULT, "general2")) != (const char *)0) && (strcmp(value, "This is another general parameter.") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, ASSAY_SECTION_DEFAULT, "general3")) != (const char *)0) && (strcmp(value, "This is yet another general parameter.") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "section1", "keyword1")) != (const char *)0) && (strcmp(value, "value1") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "section1", "keyword2")) != (const char *)0) && (strcmp(value, "value2") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "section two", "keyword3")) != (const char *)0) && (strcmp(value, "value three") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "section two", "keyword4")) != (const char *)0) && (strcmp(value, "value four") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "Section Three", "keyword5")) != (const char *)0) && (strcmp(value, "value V") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "Section Three", "keyword6")) != (const char *)0) && (strcmp(value, "value IV") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "Section Three", "keyword7")) != (const char *)0) && (strcmp(value, "\a\b\t\n\v\f\r#=:[]\\!\xa\xbc\7\77\377") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "Bad", "keyword8")) != (const char *)0) && (strcmp(value, "\"value 8\"") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "section@four.com", "Charles E. Weller")) != (const char *)0) && (strcmp(value, "Now is the time for all good men to come to the aid of their party.") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "section@four.com", "1926")) != (const char *)0) && (strcmp(value, " How now brown cow ") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "section@four.com", "Lord Admiral Nelson")) != (const char *)0) && (strcmp(value, "\b England expects each man to do his duty. \b ") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "Section5", "keyword9")) != (const char *)0) && (strcmp(value, "#=:[];") == 0));
+            EXPECT(sections == 7);
+            EXPECT(properties == 15);
+            EXPECT(assay_config_errors(cfp) == 0);
+            assay_config_destroy(cfp);
+        }
+        ASSERT(fclose(stream) == 0);
         STATUS();
     }
 

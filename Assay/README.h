@@ -97,24 +97,6 @@
         http://www.diag.com
         mailto:coverclock@diag.com
 
-    Here is an example of what an INI file might look like.
-
-        ; This property goes into the default section named "general".
-        keyword01 = value01
-
-        [Section1]
-        keyword11=value11
-        keyword12: value12
-        keyword\ 13 : value 13
-
-        #include common.ini
-
-        [Section\ 2]
-
-        keyword3 = \ value\t3
-
-        #exec generated.sh
-
 *******************************************************************************/
 
 /**

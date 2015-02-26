@@ -119,6 +119,10 @@ key:                key_string                                                  
 
 value_char:         CH                                                          { assay_parser_value_next(scanner, $1); }
                     | ESC                                                       { assay_parser_value_next(scanner, $1); }
+                    | EQ                                                        { assay_parser_value_next(scanner, $1); }
+                    | LB                                                        { assay_parser_value_next(scanner, $1); }
+                    | OT                                                        { assay_parser_value_next(scanner, $1); }
+                    | RB                                                        { assay_parser_value_next(scanner, $1); }
                     | SP                                                        { assay_parser_value_next(scanner, $1); }
                     ;
 
@@ -128,6 +132,10 @@ value_tail:         value_char
 
 value_init:         CH                                                          { assay_parser_value_begin(scanner); assay_parser_value_next(scanner, $1); }
                     | ESC                                                       { assay_parser_value_begin(scanner); assay_parser_value_next(scanner, $1); }
+                    | EQ                                                        { assay_parser_value_begin(scanner); assay_parser_value_next(scanner, $1); }
+                    | LB                                                        { assay_parser_value_begin(scanner); assay_parser_value_next(scanner, $1); }
+                    | OT                                                        { assay_parser_value_begin(scanner); assay_parser_value_next(scanner, $1); }
+                    | RB                                                        { assay_parser_value_begin(scanner); assay_parser_value_next(scanner, $1); }
                     ;
 
 value_string:       value_init
@@ -190,7 +198,6 @@ statement:          EOL                                                         
                     | whitespace assignment comment EOL                         { assay_parser_next(scanner); assay_parser_property_assign(scanner); }
                     | operation EOL                                             { assay_parser_next(scanner); assay_parser_operation_execute(scanner); }
                     | operation comment EOL                                     { assay_parser_next(scanner); assay_parser_operation_execute(scanner); }
-                    | operation whitespace comment EOL                          { assay_parser_next(scanner); assay_parser_operation_execute(scanner); }
                     | error EOL                                                 { assay_parser_next(scanner); }
                     ;
 
