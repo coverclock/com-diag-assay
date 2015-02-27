@@ -83,8 +83,14 @@ Here is an example of what an INI file might look like.
     [Section\ 2]
 
     keyword3 = \ value\t3
+    keyword4=\
+    123\
+    456;
 
     #exec generated.sh
+
+    [Section3] keyword5: value5
+    [Section3] keyword6: value6
 
 The syntax rules for the INI file format supported by Assay are pretty
 simple (but the grammar is the definitive source).
@@ -115,16 +121,19 @@ simple (but the grammar is the definitive source).
 8.  As a short cut, a section can be declared followed by a property on the
     same line.
 
-9.  An octothorpe as the first character of a statement signals an operation
+9.  Statements can be extended across multiple lines by escaping the newline
+    at the end, which is discarded.
+
+10. An octothorpe as the first character of a statement signals an operation
     that interrupts the parsing of the current input stream. Every operation
     consists of an operator and an argument separated by white space.
     The two operators currently supported are include and exec.
 
-10. The include operator temporarily redirects parsing to the file identified
+11. The include operator temporarily redirects parsing to the file identified
     by the path name in the argument. When end of file is reached, parsing of
     the stream containing the include statement resumes.
 
-11. The exec operator temporarily redirects parsing to the standard output
+12. The exec operator temporarily redirects parsing to the standard output
     of the shell command specified by the argument, which may include white
     space. When the shell command exits, parsing of the stream containing the
     exec statement resumes.

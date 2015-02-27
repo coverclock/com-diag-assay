@@ -99,3 +99,14 @@ int assay_scanner_wrap(void * lxp)
 {
     return 1; /* Normally I'd use !0 here but the Flex docs explicitly specify 1. */
 }
+
+void assay_scanner_next(void * lxp)
+{
+    if (lxp != (void *)0) {
+        assay_config_t * cfp;
+        cfp = (assay_config_t *)assay_scanner_yyget_extra((void *)lxp);
+        if (cfp != (assay_config_t *)0) {
+            ++cfp->line;
+        }
+    }
+}

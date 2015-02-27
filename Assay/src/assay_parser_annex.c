@@ -300,13 +300,7 @@ int assay_parser_debug(int enable)
 
 void assay_parser_next(void * lxp)
 {
-    if (lxp != (void *)0) {
-        assay_config_t * cfp;
-        cfp = (assay_config_t *)assay_scanner_yyget_extra((void *)lxp);
-        if (cfp != (assay_config_t *)0) {
-            ++cfp->line;
-        }
-    }
+    assay_scanner_next(lxp);
 }
 
 void assay_parser_error(void * lxp, const char * msg)

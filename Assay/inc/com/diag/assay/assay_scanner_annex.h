@@ -40,4 +40,11 @@ extern int assay_scanner_text2value(const char * text);
  */
 extern int assay_scanner_wrap(void * lxp);
 
+/**
+ * Increment the line number of the input file being processed. This is called
+ * by the scanner as it parses the input file.
+ * @param lxp points to the lexical scanner.
+ */
+extern void assay_scanner_next(void * lxp);
+
 #endif
