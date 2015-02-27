@@ -546,26 +546,30 @@ void assay_config_write_binary(assay_config_t * cfp, const char * name, const ch
 assay_config_t * assay_config_import_stream(assay_config_t * cfp, FILE * stream)
 {
     FILE * priorstream;
-    yyscan_t scanner;
+    assay_scanner_lexical_t lxp;
+    int rc;
 
     priorstream = cfp->stream;
     cfp->stream = stream;
 
-    scanner = 0;
-    assay_scanner_yylex_init_extra(cfp, &scanner);
-    assay_scanner_yyset_in(stream , scanner);
+    lxp = assay_scanner_create(cfp, stream);
 
     do {
-        assay_parser_yyparse(scanner);
-    } while (!feof(stream));
+        rc = assay_parser_parse(lxp);
+    } while ((!feof(stream)) && (rc == 0));
 
     if (priorstream == (FILE *)0) {
-        assay_parser_fini(scanner);
+        assay_parser_fini(lxp);
     }
 
-    assay_scanner_yylex_destroy(scanner);
+    assay_scanner_destroy(lxp);
 
     cfp->stream = priorstream;
+
+    if (rc != 0) {
+        DIMINUTO_LOG_ERROR("assay_config_import_stream: *ERROR* config=%p file=\"%s\" line=%d rc=%d\n", cfp, cfp->file, cfp->line, rc);
+        cfp = (assay_config_t *)0;
+    }
 
     return cfp;
 }

@@ -10,7 +10,6 @@
  * This is the glue between the Flex/Lexx scanner and Assay.
  */
 
-#include <stdio.h>
 #include <string.h>
 #include "assay.h"
 #include "assay_parser.h"
@@ -31,6 +30,42 @@ int assay_scanner_debug(int enable)
     debug = enable;
 
     return prior;
+}
+
+assay_scanner_lexical_t assay_scanner_create(void * cfp, FILE * stream)
+{
+    yyscan_t scanner;
+
+    assay_scanner_yylex_init_extra(cfp, &scanner);
+    assay_scanner_yyset_in(stream , scanner);
+
+    return scanner;
+}
+
+void assay_scanner_destroy(assay_scanner_lexical_t lxp)
+{
+    assay_scanner_yylex_destroy((yyscan_t)lxp);
+}
+
+int assay_scanner_scan(assay_scanner_lvalue_t * lvaluep, assay_scanner_lexical_t lxp)
+{
+    return assay_scanner_yylex((YYSTYPE *)lvaluep, (yyscan_t)lxp);
+}
+
+int assay_scanner_wrap(assay_scanner_lexical_t lxp)
+{
+    return 1; /* Normally I'd use !0 here but the Flex docs explicitly specify 1. */
+}
+
+void assay_scanner_next(assay_scanner_lexical_t lxp)
+{
+    if (lxp != (assay_scanner_lexical_t)0) {
+        assay_config_t * cfp;
+        cfp = (assay_config_t *)assay_scanner_yyget_extra((yyscan_t)lxp);
+        if (cfp != (assay_config_t *)0) {
+            ++cfp->line;
+        }
+    }
 }
 
 const char * assay_scanner_token2name(int token)
@@ -93,20 +128,4 @@ int assay_scanner_text2value(const char * text)
     }
 
     return value;
-}
-
-int assay_scanner_wrap(void * lxp)
-{
-    return 1; /* Normally I'd use !0 here but the Flex docs explicitly specify 1. */
-}
-
-void assay_scanner_next(void * lxp)
-{
-    if (lxp != (void *)0) {
-        assay_config_t * cfp;
-        cfp = (assay_config_t *)assay_scanner_yyget_extra((void *)lxp);
-        if (cfp != (assay_config_t *)0) {
-            ++cfp->line;
-        }
-    }
 }

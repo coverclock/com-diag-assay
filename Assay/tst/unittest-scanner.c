@@ -11,9 +11,6 @@
  */
 
 #include <stdio.h>
-#include "assay_parser.h"
-#include "assay_fixup.h"
-#include "assay_scanner.h"
 #include "com/diag/assay/assay.h"
 #include "com/diag/assay/assay_scanner_annex.h"
 #include "com/diag/diminuto/diminuto_unittest.h"
@@ -21,33 +18,28 @@
 
 int main(int argc, int ** argv)
 {
-    assay_config_t * cfp = 0;
-    yyscan_t scanner = 0;
+    assay_config_t * cfp;
     FILE * stream;
-    YYSTYPE lval;
-    int token = 0;
-    const char * name = 0;
+    assay_scanner_lexical_t lxp;
+    assay_scanner_lvalue_t lval;
+    int token;
+    const char * name;
 
     SETLOGMASK();
 
     assay_scanner_debug(!0);
 
     ASSERT((cfp = assay_config_create()) != (assay_config_t *)0);
-
-    assay_scanner_yylex_init_extra(cfp, &scanner);
-    ASSERT(scanner != (yyscan_t)0);
-
     ASSERT((stream = fopen("etc/test1.ini", "r")) != (FILE *)0);
-    assay_scanner_yyset_in(stream , scanner);
+    ASSERT((lxp = assay_scanner_create(cfp, stream)) != (void *)0);
 
     do {
-        token = assay_scanner_yylex(&lval, scanner);
+        token = assay_scanner_scan(&lval, lxp);
         name = assay_scanner_token2name(token);
     } while (token != 0);
 
+    assay_scanner_destroy(lxp);
     ASSERT(fclose(stream) == 0);
-
-    assay_scanner_yylex_destroy(scanner);
     assay_config_destroy(cfp);
 
     EXIT();

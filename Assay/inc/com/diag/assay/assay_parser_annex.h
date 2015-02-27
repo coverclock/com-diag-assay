@@ -9,10 +9,15 @@
  * Licensed under the terms in README.h<BR>
  * Chip Overclock <coverclock@diag.com><BR>
  * http://www.diag.com/navigation/downloads/Assay.html<BR>
+ *
+ * This isn't intended to be part of the public interface, but is exposed
+ * to facilitate unit testing.
  */
 
+#include "com/diag/assay/assay_scanner_annex.h"
+
 /*******************************************************************************
- * CONFIGURATION
+ * PARSER
  ******************************************************************************/
 
 /**
@@ -23,11 +28,18 @@
 extern int assay_parser_debug(int enable);
 
 /**
+ * Call the shift-reduce parser to parse the input stream associated with the
+ * specified lexical scanner.
+ * @return 0 for accept, 1 for reject, 2 for out of memory.
+ */
+extern int assay_parser_parse(assay_scanner_lexical_t lxp);
+
+/**
  * Increment the line number of the input file being processed. This is called
  * by the parser as it parses the input file.
  * @param lxp points to the lexical scanner.
  */
-extern void assay_parser_next(void * lxp);
+extern void assay_parser_next(assay_scanner_lexical_t lxp);
 
 /**
  * Indicate that a parse error has occurred. This is called by the parser
@@ -35,14 +47,14 @@ extern void assay_parser_next(void * lxp);
  * @param lxp points to the lexical scanner.
  * @param msg is a message passed from the parser.
  */
-extern void assay_parser_error(void * lxp, const char * msg);
+extern void assay_parser_error(assay_scanner_lexical_t lxp, const char * msg);
 
 /**
  * Free memory allocated temporarily for buffers used while parsing. This is
  * called by the public API after importing.
  * @param lxp points to the lexical scanner.
  */
-extern void assay_parser_fini(void * lxp);
+extern void assay_parser_fini(assay_scanner_lexical_t lxp);
 
 /*******************************************************************************
  * OPERATOR
@@ -53,7 +65,7 @@ extern void assay_parser_fini(void * lxp);
  * tokens.
  * @param lxp points to the lexical scanner.
  */
-extern void assay_parser_operator_begin(void * lxp);
+extern void assay_parser_operator_begin(assay_scanner_lexical_t lxp);
 
 /**
  * Append a character to the operator being assembled from the parsed
@@ -61,13 +73,13 @@ extern void assay_parser_operator_begin(void * lxp);
  * @param lxp points to the lexical scanner.
  * @param ch is the character to be appended.
  */
-extern void assay_parser_operator_next(void * lxp, int ch);
+extern void assay_parser_operator_next(assay_scanner_lexical_t lxp, int ch);
 
 /**
  * Indicate the end of a operator in the parsed stream of input tokens.
  * @param lxp points to the lexical scanner.
  */
-extern void assay_parser_operator_end(void * lxp);
+extern void assay_parser_operator_end(assay_scanner_lexical_t lxp);
 
 /*******************************************************************************
  * ARGUMENT
@@ -78,7 +90,7 @@ extern void assay_parser_operator_end(void * lxp);
  * tokens.
  * @param lxp points to the lexical scanner.
  */
-extern void assay_parser_argument_begin(void * lxp);
+extern void assay_parser_argument_begin(assay_scanner_lexical_t lxp);
 
 /**
  * Append a character to the operator argument being assembled from the parsed
@@ -86,14 +98,14 @@ extern void assay_parser_argument_begin(void * lxp);
  * @param lxp points to the lexical scanner.
  * @param ch is the character to be appended.
  */
-extern void assay_parser_argument_next(void * lxp, int ch);
+extern void assay_parser_argument_next(assay_scanner_lexical_t lxp, int ch);
 
 /**
  * Indicate the end of a operator argument in the parsed stream of input
  * tokens.
  * @param lxp points to the lexical scanner.
  */
-extern void assay_parser_argument_end(void * lxp);
+extern void assay_parser_argument_end(assay_scanner_lexical_t lxp);
 
 /*******************************************************************************
  * OPERATION
@@ -104,7 +116,7 @@ extern void assay_parser_argument_end(void * lxp);
  * parsed stream of input tokens.
  * @param lxp points to the lexical scanner.
  */
-extern void assay_parser_operation_execute(void * lxp);
+extern void assay_parser_operation_execute(assay_scanner_lexical_t lxp);
 
 /*******************************************************************************
  * SECTION
@@ -115,7 +127,7 @@ extern void assay_parser_operation_execute(void * lxp);
  * tokens.
  * @param lxp points to the lexical scanner.
  */
-extern void assay_parser_section_begin(void * lxp);
+extern void assay_parser_section_begin(assay_scanner_lexical_t lxp);
 
 /**
  * Append a character to the section name being assembled from the parsed
@@ -123,13 +135,13 @@ extern void assay_parser_section_begin(void * lxp);
  * @param lxp points to the lexical scanner.
  * @param ch is the character to be appended.
  */
-extern void assay_parser_section_next(void * lxp, int ch);
+extern void assay_parser_section_next(assay_scanner_lexical_t lxp, int ch);
 
 /**
  * Indicate the end of a section name in the parsed stream of input tokens.
  * @param lxp points to the lexical scanner.
  */
-extern void assay_parser_section_end(void * lxp);
+extern void assay_parser_section_end(assay_scanner_lexical_t lxp);
 
 /*******************************************************************************
  * KEY
@@ -139,7 +151,7 @@ extern void assay_parser_section_end(void * lxp);
  * Indicate the beginning of a key in the parsed stream of input tokens.
  * @param lxp points to the lexical scanner.
  */
-extern void assay_parser_key_begin(void * lxp);
+extern void assay_parser_key_begin(assay_scanner_lexical_t lxp);
 
 /**
  * Append a character to the key being assembled from the parsed stream of input
@@ -147,13 +159,13 @@ extern void assay_parser_key_begin(void * lxp);
  * @param lxp points to the lexical scanner.
  * @param ch is the character to be appended.
  */
-extern void assay_parser_key_next(void * lxp, int ch);
+extern void assay_parser_key_next(assay_scanner_lexical_t lxp, int ch);
 
 /**
  * Indicate the end of a key in the parsed stream of input tokens.
  * @param lxp points to the lexical scanner.
  */
-extern void assay_parser_key_end(void * lxp);
+extern void assay_parser_key_end(assay_scanner_lexical_t lxp);
 
 /*******************************************************************************
  * VALUE
@@ -163,7 +175,7 @@ extern void assay_parser_key_end(void * lxp);
  * Indicate the beginning of a value in the parsed stream of input tokens.
  * @param lxp points to the lexical scanner.
  */
-extern void assay_parser_value_begin(void * lxp);
+extern void assay_parser_value_begin(assay_scanner_lexical_t lxp);
 
 /**
  * Append a character to the value being assembled from the parsed stream of
@@ -171,13 +183,13 @@ extern void assay_parser_value_begin(void * lxp);
  * @param lxp points to the lexical scanner.
  * @param ch is the character to be appended.
  */
-extern void assay_parser_value_next(void * lxp, int ch);
+extern void assay_parser_value_next(assay_scanner_lexical_t lxp, int ch);
 
 /**
  * Indicate the end of a value in the parsed stream of input tokens.
  * @param lxp points to the lexical scanner.
  */
-extern void assay_parser_value_end(void * lxp);
+extern void assay_parser_value_end(assay_scanner_lexical_t lxp);
 
 /*******************************************************************************
  * PROPERTY
@@ -188,6 +200,6 @@ extern void assay_parser_value_end(void * lxp);
  * value, key, and section assembled from the parsed stream of input tokens.
  * @param lxp points to the lexical scanner.
  */
-extern void assay_parser_property_assign(void * lxp);
+extern void assay_parser_property_assign(assay_scanner_lexical_t lxp);
 
 #endif

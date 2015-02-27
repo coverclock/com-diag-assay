@@ -19,7 +19,6 @@
 #include "assay_fixup.h"
 #include "assay_scanner.h"
 #include "com/diag/assay/assay_parser_annex.h"
-#include "com/diag/assay/assay_scanner_annex.h"
 #include "com/diag/diminuto/diminuto_dump.h"
 #include "com/diag/diminuto/diminuto_log.h"
 #include "com/diag/diminuto/diminuto_escape.h"
@@ -36,9 +35,9 @@ static int debug = 0;
 
 #define ASSAY_PARSER_ACTION_BEGIN(_ACTION_) \
     do { \
-        if (lxp != (void *)0) { \
+        if (lxp != (assay_scanner_lexical_t)0) { \
             assay_config_t * cfp; \
-            cfp = (assay_config_t *)assay_scanner_yyget_extra((void *)lxp); \
+            cfp = (assay_config_t *)assay_scanner_yyget_extra((yyscan_t)lxp); \
             if (cfp != (assay_config_t *)0) { \
                 assay_action_t * acp; \
                 acp = &(cfp->_ACTION_); \
@@ -98,21 +97,21 @@ static void action_fini(assay_action_t * ap)
  * OPERATOR
  ******************************************************************************/
 
-void assay_parser_operator_begin(void * lxp)
+void assay_parser_operator_begin(assay_scanner_lexical_t lxp)
 {
     ASSAY_PARSER_ACTION_BEGIN(oaction);
         action_begin(acp);
     ASSAY_PARSER_ACTION_END;
 }
 
-void assay_parser_operator_next(void * lxp, int ch)
+void assay_parser_operator_next(assay_scanner_lexical_t lxp, int ch)
 {
     ASSAY_PARSER_ACTION_BEGIN(oaction);
         action_next(acp, ch);
     ASSAY_PARSER_ACTION_END;
 }
 
-void assay_parser_operator_end(void * lxp)
+void assay_parser_operator_end(assay_scanner_lexical_t lxp)
 {
     ASSAY_PARSER_ACTION_BEGIN(oaction);
         action_end(acp);
@@ -126,21 +125,21 @@ void assay_parser_operator_end(void * lxp)
  * ARGUMENT
  ******************************************************************************/
 
-void assay_parser_argument_begin(void * lxp)
+void assay_parser_argument_begin(assay_scanner_lexical_t lxp)
 {
     ASSAY_PARSER_ACTION_BEGIN(aaction);
         action_begin(acp);
     ASSAY_PARSER_ACTION_END;
 }
 
-void assay_parser_argument_next(void * lxp, int ch)
+void assay_parser_argument_next(assay_scanner_lexical_t lxp, int ch)
 {
     ASSAY_PARSER_ACTION_BEGIN(aaction);
         action_next(acp, ch);
     ASSAY_PARSER_ACTION_END;
 }
 
-void assay_parser_argument_end(void * lxp)
+void assay_parser_argument_end(assay_scanner_lexical_t lxp)
 {
     ASSAY_PARSER_ACTION_BEGIN(aaction);
         action_end(acp);
@@ -154,7 +153,7 @@ void assay_parser_argument_end(void * lxp)
  * OPERATION
  ******************************************************************************/
 
-void assay_parser_operation_execute(void * lxp)
+void assay_parser_operation_execute(assay_scanner_lexical_t lxp)
 {
     ASSAY_PARSER_ACTION_BEGIN(oaction);
         if (strcmp(acp->buffer, "include") == 0) {
@@ -172,7 +171,7 @@ void assay_parser_operation_execute(void * lxp)
  * SECTION
  ******************************************************************************/
 
-void assay_parser_section_begin(void * lxp)
+void assay_parser_section_begin(assay_scanner_lexical_t lxp)
 {
     ASSAY_PARSER_ACTION_BEGIN(saction);
         action_begin(acp);
@@ -181,14 +180,14 @@ void assay_parser_section_begin(void * lxp)
     ASSAY_PARSER_ACTION_END;
 }
 
-void assay_parser_section_next(void * lxp, int ch)
+void assay_parser_section_next(assay_scanner_lexical_t lxp, int ch)
 {
     ASSAY_PARSER_ACTION_BEGIN(saction);
         action_next(acp, ch);
     ASSAY_PARSER_ACTION_END;
 }
 
-void assay_parser_section_end(void * lxp)
+void assay_parser_section_end(assay_scanner_lexical_t lxp)
 {
     ASSAY_PARSER_ACTION_BEGIN(saction);
         action_end(acp);
@@ -202,7 +201,7 @@ void assay_parser_section_end(void * lxp)
  * KEY
  ******************************************************************************/
 
-void assay_parser_key_begin(void * lxp)
+void assay_parser_key_begin(assay_scanner_lexical_t lxp)
 {
     ASSAY_PARSER_ACTION_BEGIN(kaction);
         action_begin(acp);
@@ -211,14 +210,14 @@ void assay_parser_key_begin(void * lxp)
     ASSAY_PARSER_ACTION_END;
 }
 
-void assay_parser_key_next(void * lxp, int ch)
+void assay_parser_key_next(assay_scanner_lexical_t lxp, int ch)
 {
     ASSAY_PARSER_ACTION_BEGIN(kaction);
         action_next(acp, ch);
     ASSAY_PARSER_ACTION_END;
 }
 
-void assay_parser_key_end(void * lxp)
+void assay_parser_key_end(assay_scanner_lexical_t lxp)
 {
     ASSAY_PARSER_ACTION_BEGIN(kaction);
         action_end(acp);
@@ -232,21 +231,21 @@ void assay_parser_key_end(void * lxp)
  * VALUE
  ******************************************************************************/
 
-void assay_parser_value_begin(void * lxp)
+void assay_parser_value_begin(assay_scanner_lexical_t lxp)
 {
     ASSAY_PARSER_ACTION_BEGIN(vaction);
        action_begin(acp);
    ASSAY_PARSER_ACTION_END;
 }
 
-void assay_parser_value_next(void * lxp, int ch)
+void assay_parser_value_next(assay_scanner_lexical_t lxp, int ch)
 {
     ASSAY_PARSER_ACTION_BEGIN(vaction);
         action_next(acp, ch);
     ASSAY_PARSER_ACTION_END;
 }
 
-void assay_parser_value_end(void * lxp)
+void assay_parser_value_end(assay_scanner_lexical_t lxp)
 {
     ASSAY_PARSER_ACTION_BEGIN(vaction);
         action_end(acp);
@@ -267,7 +266,7 @@ void assay_parser_value_end(void * lxp)
  * PROPERTY
  ******************************************************************************/
 
-void assay_parser_property_assign(void * lxp)
+void assay_parser_property_assign(assay_scanner_lexical_t lxp)
 {
     ASSAY_PARSER_ACTION_BEGIN(saction);
         const char * name = ASSAY_SECTION_DEFAULT;
@@ -298,22 +297,27 @@ int assay_parser_debug(int enable)
     return prior;
 }
 
-void assay_parser_next(void * lxp)
+int assay_parser_parse(assay_scanner_lexical_t lxp)
+{
+    return assay_parser_yyparse(lxp);
+}
+
+void assay_parser_next(assay_scanner_lexical_t lxp)
 {
     assay_scanner_next(lxp);
 }
 
-void assay_parser_error(void * lxp, const char * msg)
+void assay_parser_error(assay_scanner_lexical_t lxp, const char * msg)
 {
     int errors = -1;
-    if (lxp != (void *)0) {
+    if (lxp != (assay_scanner_lexical_t)0) {
         assay_config_t * cfp;
-        cfp = (assay_config_t *)assay_scanner_yyget_extra((void *)lxp);
+        cfp = (assay_config_t *)assay_scanner_yyget_extra((yyscan_t)lxp);
         if (cfp != (assay_config_t *)0) {
             const char * text;
             assay_config_error(cfp);
             errors = assay_config_errors(cfp);
-            text = assay_scanner_yyget_text((void *)lxp);
+            text = assay_scanner_yyget_text((yyscan_t)lxp);
             if (text == (const char *)0) { text = ""; }
             DIMINUTO_LOG_WARNING("assay_parser_error: *%s* scanner=%p config=%p file=\"%s\" line=%d text=\"%s\" errors=%d\n", msg, lxp, cfp, cfp->file, cfp->line + 1, text, errors);
             action_end(&(cfp->vaction));
@@ -328,11 +332,11 @@ void assay_parser_error(void * lxp, const char * msg)
     }
 }
 
-void assay_parser_fini(void * lxp)
+void assay_parser_fini(assay_scanner_lexical_t lxp)
 {
-    if (lxp != (void *)0) {
+    if (lxp != (assay_scanner_lexical_t)0) {
         assay_config_t * cfp;
-        cfp = (assay_config_t *)assay_scanner_yyget_extra((void *)lxp);
+        cfp = (assay_config_t *)assay_scanner_yyget_extra((yyscan_t)lxp);
         if (cfp != (assay_config_t *)0) {
             action_fini(&(cfp->vaction));
             action_fini(&(cfp->kaction));

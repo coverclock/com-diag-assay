@@ -11,10 +11,8 @@
  */
 
 #include <stdio.h>
-#include "assay_parser.h"
-#include "assay_fixup.h"
-#include "assay_scanner.h"
 #include "com/diag/assay/assay.h"
+#include "com/diag/assay/assay_scanner_annex.h"
 #include "com/diag/assay/assay_parser_annex.h"
 #include "com/diag/diminuto/diminuto_unittest.h"
 #include "com/diag/diminuto/diminuto_log.h"
@@ -22,30 +20,25 @@
 int main(int argc, int ** argv)
 {
     assay_config_t * cfp = 0;
-    yyscan_t scanner = 0;
+    assay_scanner_lexical_t lxp = 0;
     FILE * stream;
-    YYSTYPE lval;
 
     SETLOGMASK();
 
     assay_parser_debug(!0);
 
     ASSERT((cfp = assay_config_create()) != (assay_config_t *)0);
-
-    assay_scanner_yylex_init_extra(cfp, &scanner);
-    ASSERT(scanner != (yyscan_t)0);
-
     ASSERT((stream = fopen("etc/test0.ini", "r")) != (FILE *)0);
-    assay_scanner_yyset_in(stream , scanner);
+    ASSERT((lxp = assay_scanner_create(cfp, stream)) != (void *)0);
 
     do {
-        assay_parser_yyparse(scanner);
+        DIMINUTO_LOG_DEBUG("unittest-parser: assay_parser_parse\n");
+        ASSERT(assay_parser_parse(lxp) == 0);
     } while (!feof(stream));
+    assay_parser_fini(lxp);
 
+    assay_scanner_destroy(lxp);
     ASSERT(fclose(stream) == 0);
-
-    assay_parser_fini(scanner);
-    assay_scanner_yylex_destroy(scanner);
     assay_config_destroy(cfp);
 
     EXIT();
