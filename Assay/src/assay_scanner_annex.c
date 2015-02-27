@@ -95,7 +95,7 @@ const char * assay_scanner_token2name(int token)
 
 int assay_scanner_text2value(const char * text)
 {
-    unsigned int value = 0;
+    unsigned int value;
 
     if (text[0] != '\\') {
         value = text[0];
@@ -112,7 +112,7 @@ int assay_scanner_text2value(const char * text)
         case 'v': value = '\v';      break;
         case 'f': value = '\f';      break;
         case 'r': value = '\r';      break;
-        default:  value = text[1]; break;
+        default:  value = text[1];   break;
         }
     }
 

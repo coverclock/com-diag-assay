@@ -8,6 +8,8 @@
  * http://www.diag.com/navigation/downloads/Diminuto.html<BR>
  *
  * This tests the Assay public API independent of the Flex and Bison components.
+ *
+ * Best if run under valgrind(1).
  */
 
 #include <stdio.h>

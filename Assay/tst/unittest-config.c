@@ -8,6 +8,8 @@
  * http://www.diag.com/navigation/downloads/Diminuto.html<BR>
  *
  * This tests Assay with the Flex and Bison components.
+ *
+ * Best if run under valgrind(1).
  */
 
 #include <stdio.h>
