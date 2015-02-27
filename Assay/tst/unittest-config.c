@@ -75,6 +75,7 @@ int main(int argc, char ** argv)
         EXPECT(((value = assay_config_read_string(cfp, "section@four.com", "Lord Admiral Nelson")) != (const char *)0) && (strcmp(value, "\b England expects each man to do his duty. \b ") == 0));
         EXPECT(((value = assay_config_read_string(cfp, "Section5", "keyword9")) != (const char *)0) && (strcmp(value, "#=:[];") == 0));
         EXPECT(((value = assay_config_read_string(cfp, "Section5", "keyword10")) != (const char *)0) && (strcmp(value, "12345678") == 0));
+        assay_config_log(cfp);
         EXPECT(sections == 7);
         EXPECT(properties == 16);
         EXPECT(assay_config_errors(cfp) == 2);
@@ -325,6 +326,7 @@ int main(int argc, char ** argv)
         EXPECT((out = *(value++)) == '\0');
 
         EXPECT(assay_config_errors(cfp) == 0);
+        assay_config_log(cfp);
         assay_config_destroy(cfp);
         ASSERT(fclose(stream) == 0);
 

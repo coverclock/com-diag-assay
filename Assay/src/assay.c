@@ -758,13 +758,12 @@ void assay_config_log(assay_config_t * cfp)
     } else {
         assay_section_t * scp;
         DIMINUTO_LOG_DEBUG("assay_config_t@%p[%zu]:\n", cfp, sizeof(*cfp));
-        DIMINUTO_LOG_DEBUG("assay_config_t@%p: section=%p:\n", cfp, cfp->section);
-        DIMINUTO_LOG_DEBUG("assay_config_t@%p: property=%p:\n", cfp, cfp->property);
-        DIMINUTO_LOG_DEBUG("assay_config_t@%p: stream=%p:\n", cfp, cfp->stream);
-        DIMINUTO_LOG_DEBUG("assay_config_t@%p: file=\"%s\":\n", cfp, cfp->file);
-        DIMINUTO_LOG_DEBUG("assay_config_t@%p: line=%d:\n", cfp, cfp->line);
-        DIMINUTO_LOG_DEBUG("assay_config_t@%p: errors=%d:\n", cfp, cfp->errors);
-        DIMINUTO_LOG_DEBUG("assay_config_t@%p: sections:\n", cfp);
+        DIMINUTO_LOG_DEBUG("assay_config_t@%p: section=%p\n", cfp, cfp->section);
+        DIMINUTO_LOG_DEBUG("assay_config_t@%p: property=%p\n", cfp, cfp->property);
+        DIMINUTO_LOG_DEBUG("assay_config_t@%p: stream=%p\n", cfp, cfp->stream);
+        DIMINUTO_LOG_DEBUG("assay_config_t@%p: file=\"%s\"\n", cfp, cfp->file);
+        DIMINUTO_LOG_DEBUG("assay_config_t@%p: line=%d\n", cfp, cfp->line);
+        DIMINUTO_LOG_DEBUG("assay_config_t@%p: errors=%d\n", cfp, cfp->errors);
         for (scp = assay_section_first(cfp); scp != (assay_section_t *)0; scp = assay_section_next(scp)) {
             assay_section_log(scp);
         }
