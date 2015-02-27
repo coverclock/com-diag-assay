@@ -26,7 +26,7 @@ static const char PATH1[] = "etc/test1.ini";
 
 static assay_config_t * import(const char * path)
 {
-    return assay_config_export_stream(assay_config_import_file(assay_config_create(), path), stderr);
+    return assay_config_export_stream(assay_config_import_file(assay_config_create(), path), stdout);
 }
 
 static void census(assay_config_t * cfp, int * sectionsp, int * propertiesp) {
@@ -186,6 +186,148 @@ int main(int argc, char ** argv)
             assay_config_destroy(cfp);
         }
         ASSERT(fclose(stream) == 0);
+        STATUS();
+    }
+
+    {
+        FILE * stream;
+        static const char KEY[] = "KEY";
+        unsigned int in;
+        size_t count;
+        assay_config_t * cfp;
+        const unsigned char * value;
+        size_t length;
+        unsigned int out;
+
+        ASSERT((stream = tmpfile()) != (FILE *)0);
+
+        fprintf(stream, "%s=\\\n", KEY);
+        count = 0;
+
+        fprintf(stream, "\\a\\\n"); ++count;
+        fprintf(stream, "\\b\\\n"); ++count;
+        fprintf(stream, "\\t\\\n"); ++count;
+        fprintf(stream, "\\n\\\n"); ++count;
+        fprintf(stream, "\\v\\\n"); ++count;
+        fprintf(stream, "\\f\\\n"); ++count;
+        fprintf(stream, "\\r\\\n"); ++count;
+        for (in = ' '; in <= '~'; ++in) {
+            if (in == ';') { continue; }
+            if (in == '\\') { continue; }
+            fprintf(stream, "%c\\\n", in);
+            ++count;
+        }
+        for (in = 0; in <= 07; ++in) {
+            fprintf(stream, "\\%o\\\n", in);
+            ++count;
+        }
+        for (in = 0; in <= 077; ++in) {
+            fprintf(stream, "\\%o\\\n", in);
+            ++count;
+        }
+        for (in = 0; in <= 0377; ++in) {
+            fprintf(stream, "\\%o\\\n", in);
+            ++count;
+        }
+        for (in = 0; in <= 0xF; ++in) {
+            fprintf(stream, "\\x%X\\\n", in);
+            ++count;
+        }
+        for (in = 0; in <= 0xFF; ++in) {
+            fprintf(stream, "\\x%X\\\n", in);
+            ++count;
+        }
+        for (in = 0; in <= 0xf; ++in) {
+            fprintf(stream, "\\x%x\\\n", in);
+            ++count;
+        }
+        for (in = 0; in <= 0xff; ++in) {
+            fprintf(stream, "\\x%x\\\n", in);
+            ++count;
+        }
+        for (in = ' '; in <= '~'; ++in) {
+            if (('0' <= in) && (in <= '7')) { continue; }
+            if (in == 'a') { continue; }
+            if (in == 'b') { continue; }
+            if (in == 'f') { continue; }
+            if (in == 'n') { continue; }
+            if (in == 't') { continue; }
+            if (in == 'r') { continue; }
+            if (in == 'v') { continue; }
+            if (in == 'x') { continue; }
+            fprintf(stream, "\\%c\\\n", in); /* Includes semicolon and backslash. */
+            ++count;
+        }
+        fprintf(stream, ";\n"); ++count; /* For trailing NUL. */
+
+        rewind(stream);
+
+        while (!0) {
+            in = fgetc(stream);
+            if (in == EOF) { break; }
+            fputc(in, stdout);
+        }
+
+        rewind(stream);
+
+        ASSERT((cfp = assay_config_create()) != (assay_config_t *)0);
+        ASSERT(assay_config_import_stream(cfp, stream) == cfp);
+        ASSERT(assay_config_export_stream(cfp, stdout) == cfp);
+        ASSERT(assay_config_audit(cfp) == (void *)0);
+        ASSERT((value = assay_config_read_binary(cfp, ASSAY_SECTION_DEFAULT, KEY, &length)) != (const unsigned char * )0);
+        ASSERT(length == count);
+
+        EXPECT((out = *(value++)) == '\a');
+        EXPECT((out = *(value++)) == '\b');
+        EXPECT((out = *(value++)) == '\t');
+        EXPECT((out = *(value++)) == '\n');
+        EXPECT((out = *(value++)) == '\v');
+        EXPECT((out = *(value++)) == '\f');
+        EXPECT((out = *(value++)) == '\r');
+        for (in = ' '; in <= '~'; ++in) {
+            if (in == ';') { continue; }
+            if (in == '\\') { continue; }
+            EXPECT((out = *(value++)) == in);
+        }
+        for (in = 0; in <= 07; ++in) {
+            EXPECT((out = *(value++)) == in);
+        }
+        for (in = 0; in <= 077; ++in) {
+            EXPECT((out = *(value++)) == in);
+        }
+        for (in = 0; in <= 0377; ++in) {
+            EXPECT((out = *(value++)) == in);
+        }
+        for (in = 0; in <= 0xF; ++in) {
+            EXPECT((out = *(value++)) == in);
+        }
+        for (in = 0; in <= 0xFF; ++in) {
+            EXPECT((out = *(value++)) == in);
+        }
+        for (in = 0; in <= 0xf; ++in) {
+            EXPECT((out = *(value++)) == in);
+        }
+        for (in = 0; in <= 0xff; ++in) {
+            EXPECT((out = *(value++)) == in);
+        }
+        for (in = ' '; in <= '~'; ++in) {
+            if (('0' <= in) && (in <= '7')) { continue; }
+            if (in == 'a') { continue; }
+            if (in == 'b') { continue; }
+            if (in == 'f') { continue; }
+            if (in == 'n') { continue; }
+            if (in == 't') { continue; }
+            if (in == 'r') { continue; }
+            if (in == 'v') { continue; }
+            if (in == 'x') { continue; }
+            EXPECT((out = *(value++)) == in);
+        }
+        EXPECT((out = *(value++)) == '\0');
+
+        EXPECT(assay_config_errors(cfp) == 0);
+        assay_config_destroy(cfp);
+        ASSERT(fclose(stream) == 0);
+
         STATUS();
     }
 

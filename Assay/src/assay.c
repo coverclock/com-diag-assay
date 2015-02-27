@@ -81,6 +81,11 @@ void assay_config_destroy(assay_config_t * cfp)
         free((void *)(scp->name));
         free(scp);
     }
+    free(cfp->vaction.buffer);
+    free(cfp->kaction.buffer);
+    free(cfp->saction.buffer);
+    free(cfp->aaction.buffer);
+    free(cfp->oaction.buffer);
     free(cfp);
 }
 
