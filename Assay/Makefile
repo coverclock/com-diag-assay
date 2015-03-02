@@ -17,7 +17,7 @@ TARGET				:=	host# Build for the x86_64 running Ubuntu 14.04 LTS.
 
 MAJOR				:=	1# API changes that may require that applications be modified.
 MINOR				:=	3# Only functionality or features added with no legacy API changes.
-BUILD				:=	5# Only bugs fixed with no API changes or new functionality.
+BUILD				:=	6# Only bugs fixed with no API changes or new functionality.
 
 VINTAGE				:=	$(shell date -u +%Y-%m-%dT%H:%M:%S.%N%z)
 
@@ -87,7 +87,6 @@ TARBALL				:=	$(OUT)/$(TGZ_DIR)/$(PROJECT)
 SO					:=	so
 
 A2SOARCH			:=	-shared -Wl,-soname,lib$(PROJECT).$(SO).$(MAJOR).$(MINOR).$(BUILD)
-A2SOXXARCH			:=	-shared -Wl,-soname,lib$(PROJECT)xx.$(SO).$(MAJOR).$(MINOR).$(BUILD)
 
 include $(CFG_DIR)/$(TARGET).mk
 
@@ -108,14 +107,11 @@ DIMINUTO_LDFLAGS	:=	-L$(DIMINUTO_LIBRARIES) -l$(DIMINUTO_PROJECT) -lpthread -lrt
 ########## Commands and Option Flags
 
 PROJECT_A			:=	lib$(PROJECT).a
-PROJECTXX_A			:=	lib$(PROJECT)xx.a
 PROJECT_SO			:=	lib$(PROJECT).$(SO)
-PROJECTXX_SO		:=	lib$(PROJECT)xx.$(SO)
 
 CROSS_COMPILE		:=	$(TOOLCHAIN)
 
 CC					:=	$(CROSS_COMPILE)gcc
-CXX					:=	$(CROSS_COMPILE)g++
 AR					:=	$(CROSS_COMPILE)ar
 RANLIB				:=	$(CROSS_COMPILE)ranlib
 STRIP				:=	$(CROSS_COMPILE)strip
@@ -128,17 +124,11 @@ CPPFLAGS			:=	$(CDEFINES) -iquote $(OUT)/$(GEN_DIR) -iquote $(SRC_DIR) -iquote $
 CFLAGS				:=	$(CARCH) -g
 #CFLAGS				:=	$(CARCH) -g -fprofile-arcs -ftest-coverage
 #CFLAGS				:=	$(CARCH) -O3
-CXXFLAGS			:=	$(CXXARCH) -g
-#CXXFLAGS			:=	$(CXXARCH) -g -fprofile-arcs -ftest-coverage
-#CXXFLAGS			:=	$(CXXARCH) -O3
 CPFLAGS				:=	-i
 MVFLAGS				:=	-i
 LDFLAGS				:=	$(LDARCH) -l$(PROJECT) $(LDLIBRARIES) $(DIMINUTO_LDFLAGS)
-LDXXFLAGS			:=	$(LDARCH) -l$(PROJECT)xx -l$(PROJECT) $(LDXXLIBRARIES)
 MOFLAGS				:=	$(MOARCH) -l$(PROJECT) $(LDLIBRARIES)
-MOXXFLAGS			:=	$(MOARCH) -l$(PROJECT)xx -l$(PROJECT) $(LDXXLIBRARIES)
 SOFLAGS				:=	$(SOARCH) $(LDLIBRARIES)
-SOXXFLAGS			:=	$(SOXXARCH) $(LDXXLIBRARIES)
 
 BROWSER				:=	firefox
 
@@ -147,7 +137,6 @@ BROWSER				:=	firefox
 TARGETOBJECTS		:=	$(addprefix $(OUT)/,$(addsuffix .o,$(basename $(wildcard $(SRC_DIR)/*.c))))
 TARGETOBJECTS		+=	$(addprefix $(OUT)/,$(addsuffix .o,$(basename $(wildcard $(SRC_DIR)/*.l))))
 TARGETOBJECTS		+=	$(addprefix $(OUT)/,$(addsuffix .o,$(basename $(wildcard $(SRC_DIR)/*.y))))
-TARGETOBJECTSXX		:=	$(addprefix $(OUT)/,$(addsuffix .o,$(basename $(wildcard $(SRC_DIR)/*.cpp))))
 TARGETSCRIPTS		:=	$(addprefix $(OUT)/,$(basename $(wildcard $(BIN_DIR)/*.sh)))
 TARGETBINARIES		:=	$(addprefix $(OUT)/,$(basename $(wildcard $(BIN_DIR)/*.c)))
 TARGETGENERATED		:=	$(addprefix $(OUT)/$(BIN_DIR)/,$(GENERATED))
@@ -155,24 +144,17 @@ TARGETSYNTHESIZED	:=	$(addprefix $(OUT)/$(INC_DIR)/com/diag/$(PROJECT)/,$(SYNTHE
 
 TARGETALIASES		:=	$(addprefix $(OUT)/$(BIN_DIR)/,$(ALIASES))
 TARGETUNITTESTS		:=	$(addprefix $(OUT)/,$(basename $(wildcard $(TST_DIR)/*.c)))
-TARGETUNITTESTS		+=	$(addprefix $(OUT)/,$(basename $(wildcard $(TST_DIR)/*.cpp)))
 TARGETUNITTESTS		+=	$(addprefix $(OUT)/,$(basename $(wildcard $(TST_DIR)/*.sh)))
 
 TARGETARCHIVE		:=	$(OUT)/$(ARC_DIR)/$(PROJECT_A)
-TARGETARCHIVEXX		:=	$(OUT)/$(ARC_DIR)/$(PROJECTXX_A)
 TARGETSHARED		:=	$(OUT)/$(LIB_DIR)/$(PROJECT_SO).$(MAJOR).$(MINOR).$(BUILD)
 TARGETSHARED		+=	$(OUT)/$(LIB_DIR)/$(PROJECT_SO).$(MAJOR).$(MINOR)
 TARGETSHARED		+=	$(OUT)/$(LIB_DIR)/$(PROJECT_SO).$(MAJOR)
 TARGETSHARED		+=	$(OUT)/$(LIB_DIR)/$(PROJECT_SO)
-TARGETSHAREDXX		:=	$(OUT)/$(LIB_DIR)/$(PROJECTXX_SO).$(MAJOR).$(MINOR).$(BUILD)
-TARGETSHAREDXX		+=	$(OUT)/$(LIB_DIR)/$(PROJECTXX_SO).$(MAJOR).$(MINOR)
-TARGETSHAREDXX		+=	$(OUT)/$(LIB_DIR)/$(PROJECTXX_SO).$(MAJOR)
-TARGETSHAREDXX		+=	$(OUT)/$(LIB_DIR)/$(PROJECTXX_SO)
 
 TARGETLIBRARIES		:=	$(TARGETARCHIVE) $(TARGETSHARED)
-TARGETLIBRARIESXX	:=	$(TARGETARCHIVEXX) $(TARGETSHAREDXX)
 TARGETPROGRAMS		:=	$(TARGETBINARIES) $(TARGETALIASES) $(TARGETUNITTESTS) $(TARGETGENERATED) $(TARGETSCRIPTS)
-TARGETDEFAULT		:=	$(TARGETLIBRARIES) $(TARGETLIBRARIESXX) $(TARGETPROGRAMS)
+TARGETDEFAULT		:=	$(TARGETLIBRARIES) $(TARGETPROGRAMS)
 TARGETMOST			:=	$(TARGETDEFAULT)
 TARGETALL			:=	$(TARGETMOST)
 
@@ -306,26 +288,6 @@ $(OUT)/$(LIB_DIR)/lib$(PROJECT).$(SO).$(MAJOR):	$(OUT)/$(LIB_DIR)/lib$(PROJECT).
 $(OUT)/$(LIB_DIR)/lib$(PROJECT).$(SO).$(MAJOR).$(MINOR):	$(OUT)/$(LIB_DIR)/lib$(PROJECT).$(SO).$(MAJOR).$(MINOR).$(BUILD)
 	D=`dirname $<`; F=`basename $<`; T=`basename $@`; ( cd $$D; ln -s -f $$F $$T ) 
 
-########## Target C++ Libraries
-
-$(OUT)/$(ARC_DIR)/$(PROJECTXX_A):	$(TARGETOBJECTSXX)
-	D=`dirname $@`; mkdir -p $$D
-	$(AR) $(ARFLAGS) $@ $^
-	$(RANLIB) $@
-
-$(OUT)/$(LIB_DIR)/lib$(PROJECT)xx.$(SO).$(MAJOR).$(MINOR).$(BUILD):	$(TARGETOBJECTSXX) $(OUT)/$(LIB_DIR)/lib$(PROJECT).$(SO).$(MAJOR).$(MINOR).$(BUILD)
-	D=`dirname $@`; mkdir -p $$D
-	$(CXX) $(CXXFLAGS) $(A2SOXXARCH) -o $@ $(SOXXFLAGS) $(TARGETOBJECTSXX)
-
-$(OUT)/$(LIB_DIR)/lib$(PROJECT)xx.$(SO):	$(OUT)/$(LIB_DIR)/lib$(PROJECT)xx.$(SO).$(MAJOR).$(MINOR).$(BUILD)
-	D=`dirname $<`; F=`basename $<`; T=`basename $@`; ( cd $$D; ln -s -f $$F $$T ) 
-
-$(OUT)/$(LIB_DIR)/lib$(PROJECT)xx.$(SO).$(MAJOR):	$(OUT)/$(LIB_DIR)/lib$(PROJECT)xx.$(SO).$(MAJOR).$(MINOR).$(BUILD)
-	D=`dirname $<`; F=`basename $<`; T=`basename $@`; ( cd $$D; ln -s -f $$F $$T ) 
-
-$(OUT)/$(LIB_DIR)/lib$(PROJECT)xx.$(SO).$(MAJOR).$(MINOR):	$(OUT)/$(LIB_DIR)/lib$(PROJECT)xx.$(SO).$(MAJOR).$(MINOR).$(BUILD)
-	D=`dirname $<`; F=`basename $<`; T=`basename $@`; ( cd $$D; ln -s -f $$F $$T ) 
-
 ########## Target Unstripped Binaries
 
 $(OUT)/$(SYM_DIR)/%:	$(BIN_DIR)/%.c $(TARGETLIBRARIES)
@@ -342,10 +304,6 @@ $(OUT)/$(BIN_DIR)/hex $(OUT)/$(BIN_DIR)/oct $(OUT)/$(BIN_DIR)/ntohs $(OUT)/$(BIN
 $(OUT)/$(TST_DIR)/%:	$(TST_DIR)/%.c $(TARGETLIBRARIES)
 	D=`dirname $@`; mkdir -p $$D
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $< $(LDFLAGS)
-	
-$(OUT)/$(TST_DIR)/%:	$(TST_DIR)/%.cpp $(TARGETLIBRARIESXX) $(TARGETLIBRARIES)
-	D=`dirname $@`; mkdir -p $$D
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $< $(LDXXFLAGS)
 
 ########## Generated Source Files
 
@@ -586,14 +544,6 @@ patch:	$(OLD) $(NEW)
 	diff -purN $(OLD) $(NEW)
 
 ########## Rules
-
-$(OUT)/%.txt:	%.cpp
-	D=`dirname $@`; mkdir -p $$D
-	$(CXX) -E $(CPPFLAGS) -c $< > $@
-
-$(OUT)/%.o:	%.cpp
-	D=`dirname $@`; mkdir -p $$D
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ -c $<
 
 $(OUT)/%.txt:	%.c
 	D=`dirname $@`; mkdir -p $$D
