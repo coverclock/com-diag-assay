@@ -94,6 +94,11 @@ int assay_config_error(assay_config_t * cfp)
     return ++(cfp->errors);
 }
 
+int assay_config_line(assay_config_t * cfp)
+{
+    return ++(cfp->lines);
+}
+
 /*******************************************************************************
  * CONFIGURATION GETTORS
  ******************************************************************************/
@@ -572,7 +577,7 @@ assay_config_t * assay_config_import_stream(assay_config_t * cfp, FILE * stream)
     cfp->stream = priorstream;
 
     if (rc != 0) {
-        DIMINUTO_LOG_ERROR("assay_config_import_stream: *ERROR* config=%p file=\"%s\" line=%d rc=%d\n", cfp, cfp->file, cfp->line, rc);
+        DIMINUTO_LOG_ERROR("assay_config_import_stream: *ERROR* config=%p file=\"%s\" line=%d rc=%d\n", cfp, cfp->file, cfp->lines, rc);
         cfp = (assay_config_t *)0;
     }
 
@@ -583,16 +588,16 @@ assay_config_t * assay_config_import_file(assay_config_t * cfp, const char * fil
 {
     assay_config_t * result;
     const char * priorfile;
-    int priorline;
+    int priorlines;
     FILE * fp;
 
     priorfile = cfp->file;
-    priorline = cfp->line;
+    priorlines = cfp->lines;
 
     cfp->file = file;
-    cfp->line = 0;
+    cfp->lines = 0;
 
-    DIMINUTO_LOG_INFORMATION("assay_config_import_file: include config=%p file=\"%s\" line=%d include=\"%s\"\n", cfp, priorfile, priorline, file);
+    DIMINUTO_LOG_INFORMATION("assay_config_import_file: include config=%p file=\"%s\" line=%d include=\"%s\"\n", cfp, priorfile, priorlines, file);
 
     if ((file[0] == '-') && (file[1] == '\0')) {
         result = assay_config_import_stream(cfp, stdin);
@@ -601,11 +606,11 @@ assay_config_t * assay_config_import_file(assay_config_t * cfp, const char * fil
         fclose(fp);
     } else {
         assay_config_error(cfp);
-        DIMINUTO_LOG_WARNING("assay_config_import_file: *%s* config=%p file=\"%s\" line=%d include=\"%s\" errors=%d\n", strerror(errno), cfp, priorfile, priorline, file, assay_config_errors(cfp));
+        DIMINUTO_LOG_WARNING("assay_config_import_file: *%s* config=%p file=\"%s\" line=%d include=\"%s\" errors=%d\n", strerror(errno), cfp, priorfile, priorlines, file, assay_config_errors(cfp));
         result = (assay_config_t *)0;
     }
 
-    cfp->line = priorline;
+    cfp->lines = priorlines;
     cfp->file = priorfile;
 
     return result;
@@ -615,27 +620,27 @@ assay_config_t * assay_config_import_command(assay_config_t * cfp, const char * 
 {
     assay_config_t * result;
     const char * priorfile;
-    int priorline;
+    int priorlines;
     FILE * fp;
 
     priorfile = cfp->file;
-    priorline = cfp->line;
+    priorlines = cfp->lines;
 
     cfp->file = command;
-    cfp->line = 0;
+    cfp->lines = 0;
 
-    DIMINUTO_LOG_INFORMATION("assay_config_import_command: exec config=%p file=\"%s\" line=%d command=\"%s\"\n", cfp, priorfile, priorline, command);
+    DIMINUTO_LOG_INFORMATION("assay_config_import_command: exec config=%p file=\"%s\" line=%d command=\"%s\"\n", cfp, priorfile, priorlines, command);
 
     if ((fp = popen(command, "re")) != (FILE *)0) {
         result = assay_config_import_stream(cfp, fp);
         pclose(fp);
     } else {
         assay_config_error(cfp);
-        DIMINUTO_LOG_WARNING("assay_config_import_command: *%s* config=%p file=\"%s\" line=%d command=\"%s\" errors=%d\n", strerror(errno), cfp, priorfile, priorline, command, assay_config_errors(cfp));
+        DIMINUTO_LOG_WARNING("assay_config_import_command: *%s* config=%p file=\"%s\" line=%d command=\"%s\" errors=%d\n", strerror(errno), cfp, priorfile, priorlines, command, assay_config_errors(cfp));
         result = (assay_config_t *)0;
     }
 
-    cfp->line = priorline;
+    cfp->lines = priorlines;
     cfp->file = priorfile;
 
     return result;
@@ -762,7 +767,7 @@ void assay_config_log(assay_config_t * cfp)
         DIMINUTO_LOG_DEBUG("assay_config_t@%p: property=%p\n", cfp, cfp->property);
         DIMINUTO_LOG_DEBUG("assay_config_t@%p: stream=%p\n", cfp, cfp->stream);
         DIMINUTO_LOG_DEBUG("assay_config_t@%p: file=\"%s\"\n", cfp, cfp->file);
-        DIMINUTO_LOG_DEBUG("assay_config_t@%p: line=%d\n", cfp, cfp->line);
+        DIMINUTO_LOG_DEBUG("assay_config_t@%p: lines=%d\n", cfp, cfp->lines);
         DIMINUTO_LOG_DEBUG("assay_config_t@%p: errors=%d\n", cfp, cfp->errors);
         for (scp = assay_section_first(cfp); scp != (assay_section_t *)0; scp = assay_section_next(scp)) {
             assay_section_log(scp);

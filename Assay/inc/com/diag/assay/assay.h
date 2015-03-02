@@ -95,13 +95,6 @@ extern assay_config_t * assay_config_create(void);
  */
 extern void assay_config_destroy(assay_config_t * cfp);
 
-/**
- * Increment the error counter in the configuration.
- * @param cfp points to the configuration.
- * @return the current error counter.
- */
-extern int assay_config_error(assay_config_t * cfp);
-
 /*******************************************************************************
  * CONFIGURATION GETTORS
  ******************************************************************************/

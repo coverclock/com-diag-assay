@@ -63,7 +63,7 @@ void assay_scanner_next(assay_scanner_lexical_t lxp)
         assay_config_t * cfp;
         cfp = (assay_config_t *)assay_scanner_yyget_extra((yyscan_t)lxp);
         if (cfp != (assay_config_t *)0) {
-            ++cfp->line;
+            assay_config_line(cfp);
         }
     }
 }

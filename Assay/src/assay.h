@@ -62,8 +62,23 @@ struct AssayConfig {
     assay_action_t      vaction;
     FILE *              stream;
     const char *        file;
-    int                 line;
+    int                 lines;
     int                 errors;
 };
+
+/**
+ * Increment the error counter in the configuration.
+ * @param cfp points to the configuration.
+ * @return the current error counter.
+ */
+extern int assay_config_error(assay_config_t * cfp);
+
+
+/**
+ * Increment the line counter in the configuration.
+ * @param cfp points to the configuration.
+ * @return the current line counter.
+ */
+extern int assay_config_line(assay_config_t * cfp);
 
 #endif

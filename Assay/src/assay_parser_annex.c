@@ -162,7 +162,7 @@ void assay_parser_operation_execute(assay_scanner_lexical_t lxp)
             assay_config_import_command(cfp, cfp->aaction.buffer);
         } else {
             assay_config_error(cfp);
-            DIMINUTO_LOG_WARNING("assay_parser_operation_execute: *invalid* config=%p operator=\"%s\" argument=\"%s\" file=\"%s\" line=%d errors=%d\n", cfp, acp->buffer, cfp->aaction.buffer, cfp->file, cfp->line, assay_config_error(cfp));
+            DIMINUTO_LOG_WARNING("assay_parser_operation_execute: *invalid* config=%p operator=\"%s\" argument=\"%s\" file=\"%s\" line=%d errors=%d\n", cfp, acp->buffer, cfp->aaction.buffer, cfp->file, cfp->lines, assay_config_error(cfp));
         }
     ASSAY_PARSER_ACTION_END;
 }
@@ -319,7 +319,7 @@ void assay_parser_error(assay_scanner_lexical_t lxp, const char * msg)
             errors = assay_config_errors(cfp);
             text = assay_scanner_yyget_text((yyscan_t)lxp);
             if (text == (const char *)0) { text = ""; }
-            DIMINUTO_LOG_WARNING("assay_parser_error: *%s* scanner=%p config=%p file=\"%s\" line=%d text=\"%s\" errors=%d\n", msg, lxp, cfp, cfp->file, cfp->line + 1, text, errors);
+            DIMINUTO_LOG_WARNING("assay_parser_error: *%s* scanner=%p config=%p file=\"%s\" line=%d text=\"%s\" errors=%d\n", msg, lxp, cfp, cfp->file, cfp->lines + 1, text, errors);
             action_end(&(cfp->vaction));
             action_end(&(cfp->kaction));
             action_end(&(cfp->saction));
