@@ -18,7 +18,7 @@ TARGET				:=	host# Build for the x86_64 running Ubuntu 14.04 LTS.
 
 MAJOR				:=	1# API changes that may require that applications be modified.
 MINOR				:=	3# Only functionality or features added with no legacy API changes.
-BUILD				:=	7# Only bugs fixed with no API changes or new functionality.
+BUILD				:=	8# Only bugs fixed with no API changes or new functionality.
 
 VINTAGE				:=	$(shell date -u +%Y-%m-%dT%H:%M:%S.%N%z)
 
@@ -79,7 +79,7 @@ OLD					:=	dummy
 
 PACKAGE				:=	$(OUT)/$(TGZ_DIR)/$(PROJECT)-$(TARGET)
 
-MANIFEST			:=	$(ARC_DIR) $(BIN_DIR) $(DRV_DIR) $(INC_DIR) $(LIB_DIR) $(MOD_DIR) $(TST_DIR)
+MANIFEST			:=	$(ARC_DIR) $(BIN_DIR) $(DRV_DIR) $(ETC_DIR) $(INC_DIR) $(LIB_DIR) $(MOD_DIR) $(TST_DIR)
 
 DISTRIBUTION		:=	$(OUT)/$(TGZ_DIR)/$(PROJECT)-$(MAJOR).$(MINOR).$(BUILD)
 
@@ -207,7 +207,7 @@ package $(PACKAGE).tgz:
 	T=`mktemp -d "$(TEMP_DIR)/$(PROJECT).XXXXXXXXXX"`; \
 	B=`basename $(PACKAGE)`; mkdir -p $$T/$$B; \
 	tar -C $(OUT) --exclude-vcs -cvf - $(MANIFEST) | tar -C $$T/$$B -xvf -; \
-	tar --exclude-vcs -cvf - $(INC_DIR) | tar -C $$T/$$B -xvf -; \
+	tar --exclude-vcs -cvf - $(INC_DIR) $(ETC_DIR) | tar -C $$T/$$B -xvf -; \
 	tar -C $$T --exclude-vcs -cvzf - $$B > $(PACKAGE).tgz; \
 	rm -rf $$T
 

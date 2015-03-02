@@ -20,15 +20,17 @@ LDARCH				:=	-Bdynamic -L$(OUT)/$(LIB_DIR)
 MOARCH				:=	-L$(OUT)/$(LIB_DIR)
 SOARCH				:=
 KERNELARCH			:=
-LDLIBRARIES			:=	-lfl -ly
+LDLIBRARIES			:=	-lfl# -ly
 
-# The Assay unit tests all pass under Stampede, both Assay and Diminuto having
-# been compiled natively on the Jetson board itself. That's because I haven't
-# yet tracked down the cross compiled liby and libfl Bison and Flex libraries
-# I would need on my build server, and I'm too lazy at the moment to cross build
-# them from scratch. But valgrind complains bitterly about a jump based on an
-# undefined variable somewhere inside the dynamic loader. Not sure what to think
-# about that. However, I'm confident that Assay (and Diminuto) works in at least
-# this particular ARM environment. Be aware though, that, like my Pentium build
-# server, this ARM target is 64-bit. So it's not as diverse a test as it might
-# appear at first glance.
+# The Assay unit tests all pass when run on Stampede. I was too lazy to cross-
+# build the libfl Flex library (the liby Bison library isn't needed) for the
+# Stampede target, so instead I use used the regular apt-get tool on the Jetson
+# board itself to download and install the libfl.so and libfl_pic.a libraries on
+# the board, then I copied those files to the appropriate directory for the
+# cross-compile tool chain on my build server (for me, that was
+# /usr/lib/gcc-cross/arm-linux-gnueabihf/4.8), and finally edited libfl.so (it's
+# a text file containing linker commands) to point to the libfl_pic.a file in
+# that directory. It was a lot easier than it may sound. Then I was able to
+# cross-build Assay (and of course Diminuto) for the Jetson board. It is also
+# easy to natively build Assay and Diminuto on the Jetson board itself.
+
