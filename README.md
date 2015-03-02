@@ -51,6 +51,12 @@ Bison (Yacc) tools. Assay is built on top of the Diminuto library of
 GNU/Linux-based software tools and makes heavy use of its balanced
 Red-Black tree implementation.
 
+Assay (and Diminuto) has been built and tested on a Pentium PC running
+Ubuntu 14.04 (my build server), and an Nvidia Jetson TK1 board also running
+Ubuntu 14.04 (my reference target). This latter target has the internal
+Digital Aggregates code name of "Stampede", which you will see referenced
+here and there.
+
 This software is an original work of its author(s).
 
 Information regarding Assay and Diminuto can be found here:
