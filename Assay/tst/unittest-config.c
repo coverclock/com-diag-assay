@@ -344,7 +344,6 @@ int main(int argc, char ** argv)
         if ((pid = fork()) < 0) {
             ASSERT(pid >= 0);
         } else if (pid == 0) {
-            close(pipeline[0]); /* Remarkably, necessary to keep the parent from blocking, otherwise EOF not returned on input side. */
             assay_config_destroy(assay_config_export_stream_close(assay_config_import_file(assay_config_create(), PATH1), fdopen(pipeline[1], "w")));
             DIMINUTO_LOG_DEBUG("unittest-config: producer: exiting\n");
             exit(0);
@@ -363,7 +362,7 @@ int main(int argc, char ** argv)
             int sections;
             int properties;
             int rc;
-            ASSERT(close(pipeline[1]) == 0);
+            ASSERT(close(pipeline[1]) == 0); /* This is necessary for this process to get EOF on the input side of the pipeline! */
             ASSERT((cfp = assay_config_import_stream_close(assay_config_create(), fdopen(pipeline[0], "r"))) != (assay_config_t *)0);
             ASSERT(assay_config_audit(cfp) == (void *)0);
             census(cfp, &sections, &properties);
@@ -396,7 +395,7 @@ int main(int argc, char ** argv)
             EXPECT(assay_config_errors(cfp) == 0);
             assay_config_destroy(cfp);
             ASSERT((rc = waitpid(pid, &status, 1)) >= 0); /* valgrind(1) affects the PID that is returned. */
-            DIMINUTO_LOG_DEBUG("unittest-config: consumer: pid=%d rc=%d status=%d\n", pid, rc, status);
+            DIMINUTO_LOG_DEBUG("unittest-config: consumer: reaped pid=%d rc=%d status=%d\n", pid, rc, status);
             STATUS();
         }
     }
