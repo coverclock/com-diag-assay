@@ -577,10 +577,19 @@ assay_config_t * assay_config_import_stream(assay_config_t * cfp, FILE * stream)
     cfp->stream = priorstream;
 
     if (rc != 0) {
-        DIMINUTO_LOG_ERROR("assay_config_import_stream: *ERROR* config=%p file=\"%s\" line=%d rc=%d\n", cfp, cfp->file, cfp->lines, rc);
+        DIMINUTO_LOG_ERROR("assay_config_import_stream: *ERROR* config=%p stream=%p rc=%d\n", cfp, stream, rc);
         cfp = (assay_config_t *)0;
+    } else {
+        DIMINUTO_LOG_DEBUG("assay_config_import_stream: end config=%p stream=%p", cfp, stream);
     }
 
+    return cfp;
+}
+
+assay_config_t * assay_config_import_stream_close(assay_config_t * cfp, FILE * stream)
+{
+    cfp = assay_config_import_stream(cfp, stream);
+    (void)fclose(stream);
     return cfp;
 }
 
@@ -602,8 +611,7 @@ assay_config_t * assay_config_import_file(assay_config_t * cfp, const char * fil
     if ((file[0] == '-') && (file[1] == '\0')) {
         result = assay_config_import_stream(cfp, stdin);
     } else if ((fp = fopen(file, "re")) != (FILE *)0) {
-        result = assay_config_import_stream(cfp, fp);
-        fclose(fp);
+        result = assay_config_import_stream_close(cfp, fp);
     } else {
         assay_config_error(cfp);
         DIMINUTO_LOG_WARNING("assay_config_import_file: *%s* config=%p file=\"%s\" line=%d include=\"%s\" errors=%d\n", strerror(errno), cfp, priorfile, priorlines, file, assay_config_errors(cfp));
@@ -706,6 +714,15 @@ assay_config_t * assay_config_export_stream(assay_config_t * cfp, FILE * stream)
         free(buffer);
     }
 
+    DIMINUTO_LOG_DEBUG("assay_config_export_stream: end config=%p stream=%p\n", cfp, stream);
+
+    return cfp;
+}
+
+assay_config_t * assay_config_export_stream_close(assay_config_t * cfp, FILE * stream)
+{
+    cfp = assay_config_export_stream(cfp, stream);
+    (void)fclose(stream);
     return cfp;
 }
 

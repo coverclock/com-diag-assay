@@ -361,12 +361,28 @@ static inline void assay_config_write_string(assay_config_t * cfp, const char * 
 extern assay_config_t * assay_config_import_stream(assay_config_t * cfp, FILE * stream);
 
 /**
+ * Import a configuration from a FILE stream and close the stream once done.
+ * @param cfp points to the configuration.
+ * @param stream points to the FILE stream.
+ * @return a pointer to the configuration or null if an error occurred.
+ */
+extern assay_config_t * assay_config_import_stream_close(assay_config_t * cfp, FILE * stream);
+
+/**
  * Export a configuration to a FILE stream.
  * @param cfp points to the configuration.
  * @param stream points to the FILE stream.
  * @return a pointer to the configuration or null if an error occurred.
  */
 extern assay_config_t * assay_config_export_stream(assay_config_t * cfp, FILE * stream);
+
+/**
+ * Export a configuration to a FILE stream and close the stream once done.
+ * @param cfp points to the configuration.
+ * @param stream points to the FILE stream.
+ * @return a pointer to the configuration or null if an error occurred.
+ */
+extern assay_config_t * assay_config_export_stream_close(assay_config_t * cfp, FILE * stream);
 
 /**
  * Import a configuration from a file. The file is opened for reading and closed
