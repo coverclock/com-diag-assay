@@ -13,11 +13,6 @@
 #include "assay_fixup.h"
 #include "com/diag/assay/assay_scanner_annex.h"
 
-int assay_scanner_yywrap(yyscan_t yyscanner)
-{
-    return assay_scanner_wrap(yyscanner);
-}
-
 %}
 
 %option prefix="assay_scanner_yy"
@@ -51,3 +46,8 @@ int assay_scanner_yywrap(yyscan_t yyscanner)
 .                                                                               { *yylval = assay_scanner_text2value(yytext); return CH;  }
 
 %%
+
+int assay_scanner_yywrap(yyscan_t yyscanner)
+{
+    return assay_scanner_wrap(yyscanner);
+}

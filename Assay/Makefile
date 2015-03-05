@@ -565,7 +565,7 @@ $(OUT)/$(GEN_DIR)/%.c:	$(SRC_DIR)/%.y
 
 $(OUT)/$(GEN_DIR)/%.c:	$(SRC_DIR)/%.l
 	D=`dirname $@`; mkdir -p $$D
-	flex -o $@ --header-file=$(addsuffix .h,$(basename $@)) $<
+	flex --always-interactive -o $@ --header-file=$(addsuffix .h,$(basename $@)) $<
 
 $(OUT)/$(SRC_DIR)/%.o:	$(OUT)/$(GEN_DIR)/%.c
 	D=`dirname $@`; mkdir -p $$D

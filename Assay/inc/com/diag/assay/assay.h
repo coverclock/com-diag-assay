@@ -77,7 +77,7 @@ extern const char ASSAY_CHARACTERS_EXTRASPECIAL[];
 
 extern const char ASSAY_SECTION_DEFAULT[];
 
-#define ASSAY_END_OF_TRANSMISSION_STRING "\x4"
+#define ASSAY_END_OF_TRANSMISSION_STRING "\x4\n"
 
 extern const char ASSAY_END_OF_TRANSMISSION[];
 
