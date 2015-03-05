@@ -26,10 +26,10 @@ int assay_scanner_yywrap(yyscan_t yyscanner)
 
 %%
 
-\\\n\r                                                                          { assay_scanner_next(yyscanner); }
-\\\n                                                                            { assay_scanner_next(yyscanner); }
-\\\r\n                                                                          { assay_scanner_next(yyscanner); }
-\\\r                                                                            { assay_scanner_next(yyscanner); }
+"\\\n\r"                                                                        { assay_scanner_next(yyscanner); }
+"\\\n"                                                                          { assay_scanner_next(yyscanner); }
+"\\\r\n"                                                                        { assay_scanner_next(yyscanner); }
+"\\\r"                                                                          { assay_scanner_next(yyscanner); }
 \\[0-3][0-7][0-7]                                                               { *yylval = assay_scanner_text2value(yytext); return ESC; }
 \\[0-7][0-7]                                                                    { *yylval = assay_scanner_text2value(yytext); return ESC; }
 \\[0-7]                                                                         { *yylval = assay_scanner_text2value(yytext); return ESC; }
@@ -47,6 +47,7 @@ int assay_scanner_yywrap(yyscan_t yyscanner)
 ";"                                                                             { *yylval = assay_scanner_text2value(yytext); return SC;  }
 "["                                                                             { *yylval = assay_scanner_text2value(yytext); return LB;  }
 "]"                                                                             { *yylval = assay_scanner_text2value(yytext); return RB;  }
+"\x4"                                                                           { *yylval = assay_scanner_text2value(yytext); return END; }
 .                                                                               { *yylval = assay_scanner_text2value(yytext); return CH;  }
 
 %%

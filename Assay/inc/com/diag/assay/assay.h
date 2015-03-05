@@ -77,6 +77,10 @@ extern const char ASSAY_CHARACTERS_EXTRASPECIAL[];
 
 extern const char ASSAY_SECTION_DEFAULT[];
 
+#define ASSAY_END_OF_TRANSMISSION_CHARACTER ('\x4')
+
+extern const char ASSAY_END_OF_TRANSMISSION[];
+
 /*******************************************************************************
  * CONFIGURATION PRIMITIVES
  ******************************************************************************/
@@ -273,7 +277,7 @@ extern const char * assay_property_key_get(assay_property_t * prp);
  * @param lengthp points to a variable into which the object length is returned.
  * @return a pointer to the object that is the property value.
  */
-extern const void * assay_property_value_get(assay_property_t * prp, size_t * lengthp);
+extern void * assay_property_value_get(assay_property_t * prp, size_t * lengthp);
 
 /*******************************************************************************
  * PROPERTY SETTORS
@@ -301,7 +305,7 @@ extern assay_property_t * assay_property_value_set(assay_property_t * prp, const
  * @param lengthp points to a variable into which the object size is placed.
  * @return a pointer to an object or null if not found.
  */
-extern const void * assay_config_read_binary(assay_config_t * cfp, const char * name, const char * key, size_t * lengthp);
+extern void * assay_config_read_binary(assay_config_t * cfp, const char * name, const char * key, size_t * lengthp);
 
 /**
  * Set the value of a property and its length in bytes to a configuration
@@ -328,9 +332,9 @@ extern void assay_config_write_binary(assay_config_t * cfp, const char * name, c
  * @param key is the key of the property.
  * @return a pointer to a C string or null if not found.
  */
-static inline const char * assay_config_read_string(assay_config_t * cfp, const char * name, const char * key)
+static inline char * assay_config_read_string(assay_config_t * cfp, const char * name, const char * key)
 {
-    return (const char *)assay_config_read_binary(cfp, name, key, (size_t *)0);
+    return (char *)assay_config_read_binary(cfp, name, key, (size_t *)0);
 }
 
 /**
@@ -343,13 +347,13 @@ static inline const char * assay_config_read_string(assay_config_t * cfp, const 
  * @param key is the key of the property.
  * @param value points to the value C string.
  */
-static inline void assay_config_write_string(assay_config_t * cfp, const char * name, const char * key, const char * value)
+static inline void assay_config_write_string(assay_config_t * cfp, const char * name, const char * key, char * value)
 {
     return assay_config_write_binary(cfp, name, key, value, strlen(value) + 1);
 }
 
 /*******************************************************************************
- * IMPORTERS
+ * IMPORTERS/EXPORTERS
  ******************************************************************************/
 
 /**
@@ -369,22 +373,6 @@ extern assay_config_t * assay_config_import_stream(assay_config_t * cfp, FILE * 
 extern assay_config_t * assay_config_import_stream_close(assay_config_t * cfp, FILE * stream);
 
 /**
- * Export a configuration to a FILE stream.
- * @param cfp points to the configuration.
- * @param stream points to the FILE stream.
- * @return a pointer to the configuration or null if an error occurred.
- */
-extern assay_config_t * assay_config_export_stream(assay_config_t * cfp, FILE * stream);
-
-/**
- * Export a configuration to a FILE stream and close the stream once done.
- * @param cfp points to the configuration.
- * @param stream points to the FILE stream.
- * @return a pointer to the configuration or null if an error occurred.
- */
-extern assay_config_t * assay_config_export_stream_close(assay_config_t * cfp, FILE * stream);
-
-/**
  * Import a configuration from a file. The file is opened for reading and closed
  * once parsed.
  * @param cfp points to the configuration.
@@ -401,6 +389,34 @@ extern assay_config_t * assay_config_import_file(assay_config_t * cfp, const cha
  * @return a pointer to the configuration or null if an error occurred.
  */
 extern assay_config_t * assay_config_import_command(assay_config_t * cfp, const char * command);
+
+/**
+ * Export a configuration to a FILE stream and flush the stream after the
+ * last property has been written to it.
+ * @param cfp points to the configuration.
+ * @param stream points to the FILE stream.
+ * @return a pointer to the configuration or null if an error occurred.
+ */
+extern assay_config_t * assay_config_export_stream(assay_config_t * cfp, FILE * stream);
+
+/**
+ * Export a configuration to a FILE stream and close the stream after the last
+ * property has been written to it.
+ * @param cfp points to the configuration.
+ * @param stream points to the FILE stream.
+ * @return a pointer to the configuration or null if an error occurred.
+ */
+extern assay_config_t * assay_config_export_stream_close(assay_config_t * cfp, FILE * stream);
+
+/**
+ * Export a configuration to a FILE stream and append an end of configuration
+ * indication and flush the stream after the last property has been written to
+ * it.
+ * @param cfp points to the configuration.
+ * @param stream points to the FILE stream.
+ * @return a pointer to the configuration or null if an error occurred.
+ */
+extern  assay_config_t * assay_config_export_stream_send(assay_config_t * cfp, FILE * stream);
 
 /*******************************************************************************
  * AUDITORS

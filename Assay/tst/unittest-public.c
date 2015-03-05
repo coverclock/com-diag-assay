@@ -37,6 +37,7 @@ int main(void)
         ASSERT((cfp = assay_config_create()) != (assay_config_t *)0);
         ASSERT(assay_config_audit(cfp) == (void *)0);
         assay_config_destroy(cfp);
+        STATUS();
     }
 
     {
@@ -58,6 +59,7 @@ int main(void)
         ASSERT(assay_property_first(scp) == (assay_property_t *)0);
         ASSERT(assay_property_last(scp) == (assay_property_t *)0);
         assay_config_destroy(cfp);
+        STATUS();
     }
 
     {
@@ -107,6 +109,7 @@ int main(void)
         ASSERT(assay_section_prev(scp[2]) == scp[1]);
         ASSERT(assay_section_last(cfp) == scp[2]);
         assay_config_destroy(cfp);
+        STATUS();
     }
 
     {
@@ -163,6 +166,7 @@ int main(void)
         ASSERT(assay_property_last(scp) == (assay_property_t *)0);
         /**/
         assay_config_destroy(cfp);
+        STATUS();
     }
 
     {
@@ -360,6 +364,7 @@ int main(void)
         }
         ASSERT(assay_config_audit(cfp) == (void *)0);
         assay_config_destroy(cfp);
+        STATUS();
     }
 
     {
@@ -576,6 +581,7 @@ int main(void)
         }
         ASSERT(assay_config_audit(cfp) == (void *)0);
         assay_config_destroy(cfp);
+        STATUS();
    }
 
     {
@@ -641,6 +647,17 @@ int main(void)
         }
         ASSERT(assay_config_audit(cfp) == (void *)0);
         assay_config_destroy(cfp);
+        STATUS();
+    }
+
+    {
+        ASSERT(strcmp(ASSAY_CHARACTERS_SPECIAL, ASSAY_CHARACTERS_SPECIAL_STRING) == 0);
+        ASSERT(strcmp(ASSAY_CHARACTERS_EXTRASPECIAL, ASSAY_CHARACTERS_EXTRASPECIAL_STRING) == 0);
+        ASSERT(strcmp(ASSAY_SECTION_DEFAULT, ASSAY_SECTION_DEFAULT_STRING) == 0);
+        ASSERT(ASSAY_END_OF_TRANSMISSION_CHARACTER == '\x4' /* a.k.a. ^D */);
+        ASSERT(ASSAY_END_OF_TRANSMISSION[0] == ASSAY_END_OF_TRANSMISSION_CHARACTER);
+        ASSERT(ASSAY_END_OF_TRANSMISSION[1] == '\0');
+        STATUS();
     }
 
     EXIT();

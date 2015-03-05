@@ -34,7 +34,7 @@ struct AssayProperty {
     diminuto_tree_t     tree;
     assay_section_t *   section;
     const char *        key;
-    const void *        value;
+    void *              value;
     size_t              length;
 };
 

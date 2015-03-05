@@ -202,12 +202,9 @@ int main(int argc, char ** argv)
         const unsigned char * value;
         size_t length;
         unsigned int out;
-
         ASSERT((stream = tmpfile()) != (FILE *)0);
-
         fprintf(stream, "%s=\\\n", KEY);
         count = 0;
-
         fprintf(stream, "\\a\\\n"); ++count;
         fprintf(stream, "\\b\\\n"); ++count;
         fprintf(stream, "\\t\\\n"); ++count;
@@ -263,24 +260,19 @@ int main(int argc, char ** argv)
             ++count;
         }
         fprintf(stream, ";\n"); ++count; /* For trailing NUL. */
-
         rewind(stream);
-
         while (!0) {
             in = fgetc(stream);
             if (in == EOF) { break; }
             fputc(in, stdout);
         }
-
         rewind(stream);
-
         ASSERT((cfp = assay_config_create()) != (assay_config_t *)0);
         ASSERT(assay_config_import_stream(cfp, stream) == cfp);
         ASSERT(assay_config_export_stream(cfp, stdout) == cfp);
         ASSERT(assay_config_audit(cfp) == (void *)0);
         ASSERT((value = assay_config_read_binary(cfp, ASSAY_SECTION_DEFAULT, KEY, &length)) != (const unsigned char * )0);
         ASSERT(length == count);
-
         EXPECT((out = *(value++)) == '\a');
         EXPECT((out = *(value++)) == '\b');
         EXPECT((out = *(value++)) == '\t');
@@ -327,43 +319,26 @@ int main(int argc, char ** argv)
             EXPECT((out = *(value++)) == in);
         }
         EXPECT((out = *(value++)) == '\0');
-
         EXPECT(assay_config_errors(cfp) == 0);
         assay_config_log(cfp);
         assay_config_destroy(cfp);
         ASSERT(fclose(stream) == 0);
-
         STATUS();
     }
 
     {
-        int pipeline[2];
-        pid_t pid;
-        int status;
-        ASSERT(pipe(pipeline) == 0);
-        if ((pid = fork()) < 0) {
-            ASSERT(pid >= 0);
-        } else if (pid == 0) {
-            assay_config_destroy(assay_config_export_stream_close(assay_config_import_file(assay_config_create(), PATH1), fdopen(pipeline[1], "w")));
-            DIMINUTO_LOG_DEBUG("unittest-config: producer: exiting\n");
-            exit(0);
-#if 0
-        } else if (pid > 0) {
-            FILE * stream;
-            int ch;
-            close(pipeline[1]);
-            ASSERT((stream = fdopen(pipeline[0], "r")) != (FILE *)0);
-            while ((ch = fgetc(stream)) != EOF) { fputc(ch, stdout); }
-            ASSERT(fclose(stream) == 0);
-#endif
-        } else {
+        FILE * stream;
+        ASSERT((stream = tmpfile()) != (FILE *)0);
+        {
+            assay_config_destroy(assay_config_export_stream_send(assay_config_import_file(assay_config_create(), PATH1), stream));
+        }
+        rewind(stream);
+        {
             assay_config_t * cfp;
             const char * value;
             int sections;
             int properties;
-            int rc;
-            ASSERT(close(pipeline[1]) == 0); /* This is necessary for this process to get EOF on the input side of the pipeline! */
-            ASSERT((cfp = assay_config_import_stream_close(assay_config_create(), fdopen(pipeline[0], "r"))) != (assay_config_t *)0);
+            ASSERT((cfp = assay_config_import_stream(assay_config_create(), stream)) != (assay_config_t *)0);
             ASSERT(assay_config_audit(cfp) == (void *)0);
             census(cfp, &sections, &properties);
             EXPECT(((value = assay_config_read_string(cfp, ASSAY_SECTION_DEFAULT, "general1")) != (const char *)0) && (strcmp(value, "This is a general parameter.") == 0));
@@ -394,7 +369,87 @@ int main(int argc, char ** argv)
             EXPECT(properties == 24);
             EXPECT(assay_config_errors(cfp) == 0);
             assay_config_destroy(cfp);
+        }
+        ASSERT(fclose(stream) == 0);
+        STATUS();
+    }
+
+    {
+        int pipeline[2][2];
+        pid_t pid;
+        ASSERT(pipe(pipeline[0]) == 0);
+        ASSERT(pipe(pipeline[1]) == 0);
+        if ((pid = fork()) < 0) {
+            ASSERT(pid >= 0);
+        } else if (pid == 0) {
+            FILE * stream;
+            char acknowledgement;
+            assay_config_destroy(assay_config_export_stream_send(assay_config_import_file(assay_config_create(), PATH1), stream = fdopen(pipeline[0][1], "w")));
+            ASSERT(read(pipeline[1][0], &acknowledgement, sizeof(acknowledgement)) == sizeof(acknowledgement));
+            ASSERT(fclose(stream) == 0);
+            ASSERT(close(pipeline[1][0]) == 0);
+            DIMINUTO_LOG_DEBUG("unittest-config: producer: exiting\n");
+            EXIT();
+#if 1
+        } else if (pid > 0) {
+            FILE * stream;
+            int ch;
+            ASSERT((stream = fdopen(pipeline[0][0], "r")) != (FILE *)0);
+            while ((ch = fgetc(stream)) != EOF) {
+                if (ch == ASSAY_END_OF_TRANSMISSION_CHARACTER) {
+                    fputs("^D", stdout);
+                } else {
+                    fputc(ch, stdout);
+                }
+            }
+            ASSERT(write(pipeline[1][1], &ch, sizeof(ch)) == sizeof(ch));
+            ASSERT(fclose(stream) == 0);
+            STATUS();
+#endif
+        } else {
+            FILE * stream;
+            assay_config_t * cfp;
+            const char * value;
+            int sections;
+            int properties;
+            char ackowledge = 0;
+            int rc;
+            int status;
+            ASSERT((cfp = assay_config_import_stream(assay_config_create(), stream = fdopen(pipeline[0][0], "r"))) != (assay_config_t *)0);
+            ASSERT(assay_config_audit(cfp) == (void *)0);
+            census(cfp, &sections, &properties);
+            EXPECT(((value = assay_config_read_string(cfp, ASSAY_SECTION_DEFAULT, "general1")) != (const char *)0) && (strcmp(value, "This is a general parameter.") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, ASSAY_SECTION_DEFAULT, "general2")) != (const char *)0) && (strcmp(value, "This is another general parameter.") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, ASSAY_SECTION_DEFAULT, "general3")) != (const char *)0) && (strcmp(value, "This is yet another general parameter.") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "section1", "keyword1")) != (const char *)0) && (strcmp(value, "value1") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "section1", "keyword2")) != (const char *)0) && (strcmp(value, "value2") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "section two", "keyword3")) != (const char *)0) && (strcmp(value, "value three") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "section two", "keyword4")) != (const char *)0) && (strcmp(value, "value four") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "Section Three", "keyword5")) != (const char *)0) && (strcmp(value, "value V") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "Section Three", "keyword6")) != (const char *)0) && (strcmp(value, "value IV") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "Section Three", "keyword7")) != (const char *)0) && (strcmp(value, "\a\b\t\n\v\f\r#=:[]\\!\xa\xbc\7\77\377") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "Bad", "keyword8")) != (const char *)0) && (strcmp(value, "\"value 8\"") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "Bad", "KeywordTen")) != (const char *)0) && (strcmp(value, "10@ten.org") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "Test2Section1", "KeywordEleven")) != (const char *)0) && (strcmp(value, "11.11.11.11") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "section@four.com", "Charles E. Weller")) != (const char *)0) && (strcmp(value, "Now is the time for all good men to come to the aid of their party.") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "section@four.com", "1926")) != (const char *)0) && (strcmp(value, " How now brown cow ") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "section@four.com", "Lord Admiral Nelson")) != (const char *)0) && (strcmp(value, "\b England expects each man to do his duty. \b ") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "Section 4.5", "keyword12")) != (const char *)0) && (strcmp(value, "Twelve!") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "Section5", "keyword9")) != (const char *)0) && (strcmp(value, "#=:[];") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "Section5", "keyword10")) != (const char *)0) && (strcmp(value, "12345678") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "SectionSix", "KEYWORD61")) != (const char *)0) && (strcmp(value, "VALUE61") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "SectionSix", "KEYWORD62")) != (const char *)0) && (strcmp(value, "VALUE62") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "SectionSix", "KEYWORD63")) != (const char *)0) && (strcmp(value, "VALUE63") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "SectionSix", "KEYWORD64")) != (const char *)0) && (strcmp(value, "VALUE64") == 0));
+            EXPECT(((value = assay_config_read_string(cfp, "SectionSix", "KEYWORD65")) != (const char *)0) && (strcmp(value, "VALUE65") == 0));
+            EXPECT(sections == 10);
+            EXPECT(properties == 24);
+            EXPECT(assay_config_errors(cfp) == 0);
+            assay_config_destroy(cfp);
+            ASSERT(write(pipeline[1][1], &ackowledge, sizeof(ackowledge)) == sizeof(ackowledge));
             ASSERT((rc = waitpid(pid, &status, 1)) >= 0); /* valgrind(1) affects the PID that is returned. */
+            ASSERT(fclose(stream) == 0);
+            ASSERT(close(pipeline[1][1]) == 0);
             DIMINUTO_LOG_DEBUG("unittest-config: consumer: reaped pid=%d rc=%d status=%d\n", pid, rc, status);
             STATUS();
         }

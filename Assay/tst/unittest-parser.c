@@ -26,25 +26,75 @@ int main(int argc, int ** argv)
     SETLOGMASK();
 
     {
-        assay_config_t * cfp = 0;
-        assay_scanner_lexical_t lxp = 0;
+        int debug;
+        assay_config_t * cfp;
+        assay_scanner_lexical_t lxp;
         FILE * stream;
+        const char * value;
+        debug = assay_parser_debug(!0);
+        ASSERT((stream = tmpfile()) != (FILE *)0);
+        ASSERT(fputs("BEFORE=before\n", stream) >= 0);
+        ASSERT(fputc(ASSAY_END_OF_TRANSMISSION_CHARACTER, stream) == ASSAY_END_OF_TRANSMISSION_CHARACTER);
+        ASSERT(fputs("AFTER=after\n", stream) >= 0);
+        rewind(stream);
+        ASSERT((cfp = assay_config_create()) != (assay_config_t *)0);
+        ASSERT((lxp = assay_scanner_create(cfp, stream)) != (void *)0);
+        DIMINUTO_LOG_DEBUG("unittest-parser: assay_parser_parse\n");
+        ASSERT(assay_parser_parse(lxp) == 0);
+        assay_parser_fini(lxp);
+        assay_scanner_destroy(lxp);
+        ASSERT(fclose(stream) == 0);
+        EXPECT(((value = assay_config_read_string(cfp, ASSAY_SECTION_DEFAULT, "BEFORE")) != (const char *)0) && (strcmp(value, "before") == 0));
+        EXPECT((value = assay_config_read_string(cfp, ASSAY_SECTION_DEFAULT, "AFTER")) == (const char *)0);
+        assay_config_destroy(cfp);
+        assay_parser_debug(debug);
+        STATUS();
+    }
 
-        assay_parser_debug(!0);
-
+    {
+        int debug;
+        assay_config_t * cfp;
+        FILE * stream;
+        assay_scanner_lexical_t lxp;
+        int count = 0;
+        debug = assay_parser_debug(!0);
         ASSERT((cfp = assay_config_create()) != (assay_config_t *)0);
         ASSERT((stream = fopen("etc/test0.ini", "r")) != (FILE *)0);
         ASSERT((lxp = assay_scanner_create(cfp, stream)) != (void *)0);
-
         do {
-            DIMINUTO_LOG_DEBUG("unittest-parser: assay_parser_parse\n");
             ASSERT(assay_parser_parse(lxp) == 0);
+            ++count;
         } while (!feof(stream));
+        ASSERT(count == 1);
         assay_parser_fini(lxp);
-
         assay_scanner_destroy(lxp);
         ASSERT(fclose(stream) == 0);
         assay_config_destroy(cfp);
+        assay_parser_debug(debug);
+        STATUS();
+    }
+
+    {
+        int debug;
+        assay_config_t * cfp;
+        FILE * stream;
+        assay_scanner_lexical_t lxp;
+        int count = 0;
+        debug = assay_parser_debug(!0);
+        ASSERT((cfp = assay_config_create()) != (assay_config_t *)0);
+        ASSERT((stream = fopen("etc/test1.ini", "r")) != (FILE *)0);
+        ASSERT((lxp = assay_scanner_create(cfp, stream)) != (void *)0);
+        do {
+            ASSERT(assay_parser_parse(lxp) == 0);
+            ++count;
+        } while (!feof(stream));
+        ASSERT(count == 1);
+        assay_parser_fini(lxp);
+        assay_scanner_destroy(lxp);
+        ASSERT(fclose(stream) == 0);
+        assay_config_destroy(cfp);
+        assay_parser_debug(debug);
+        STATUS();
     }
 
     EXIT();

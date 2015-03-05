@@ -46,6 +46,8 @@ const char ASSAY_CHARACTERS_EXTRASPECIAL[] = ASSAY_CHARACTERS_EXTRASPECIAL_STRIN
 
 const char ASSAY_SECTION_DEFAULT[] = ASSAY_SECTION_DEFAULT_STRING;
 
+const char ASSAY_END_OF_TRANSMISSION[] = { ASSAY_END_OF_TRANSMISSION_CHARACTER, '\0' };
+
 /*******************************************************************************
  * CONFIGURATION PRIMITIVES
  ******************************************************************************/
@@ -414,9 +416,9 @@ const char * assay_property_key_get(assay_property_t * prp)
     return prp->key;
 }
 
-const void * assay_property_value_get(assay_property_t * prp, size_t * lengthp)
+void * assay_property_value_get(assay_property_t * prp, size_t * lengthp)
 {
-    const void * value;
+    void * value;
 
     if ((value = prp->value) == (void *)0) {
         /* Do nothing. */
@@ -527,9 +529,9 @@ static assay_property_t * property_resolve(assay_section_t * scp, const char * k
     return prp;
 }
 
-const void * assay_config_read_binary(assay_config_t * cfp, const char * name, const char * key, size_t * lengthp)
+void * assay_config_read_binary(assay_config_t * cfp, const char * name, const char * key, size_t * lengthp)
 {
-    const char * value = (const char *)0;
+    char * value = (char *)0;
     assay_section_t * scp;
     assay_property_t * prp;
 
@@ -564,9 +566,16 @@ assay_config_t * assay_config_import_stream(assay_config_t * cfp, FILE * stream)
 
     lxp = assay_scanner_create(cfp, stream);
 
-    do {
-        rc = assay_parser_parse(lxp);
-    } while ((!feof(stream)) && (rc == 0));
+    /*
+     * We only have to call parse() once. The Assay grammar is written to
+     * consume the entire input stream, and the Assay scanner is written to
+     * terminate the input stream either at EOF or at the ^D character. This
+     * allows us to either scan entire files (in the former case) or the next
+     * message on a socket (in the latter case). Other grammars may require
+     * that the application iterate calling its parse() function.
+     */
+
+    rc = assay_parser_parse(lxp);
 
     if (priorstream == (FILE *)0) {
         assay_parser_fini(lxp);
@@ -579,8 +588,6 @@ assay_config_t * assay_config_import_stream(assay_config_t * cfp, FILE * stream)
     if (rc != 0) {
         DIMINUTO_LOG_ERROR("assay_config_import_stream: *ERROR* config=%p stream=%p rc=%d\n", cfp, stream, rc);
         cfp = (assay_config_t *)0;
-    } else {
-        DIMINUTO_LOG_DEBUG("assay_config_import_stream: end config=%p stream=%p", cfp, stream);
     }
 
     return cfp;
@@ -654,7 +661,7 @@ assay_config_t * assay_config_import_command(assay_config_t * cfp, const char * 
     return result;
 }
 
-assay_config_t * assay_config_export_stream(assay_config_t * cfp, FILE * stream)
+static assay_config_t * config_export_stream(assay_config_t * cfp, FILE * stream)
 {
     char * buffer;
     char * here;
@@ -714,14 +721,27 @@ assay_config_t * assay_config_export_stream(assay_config_t * cfp, FILE * stream)
         free(buffer);
     }
 
-    DIMINUTO_LOG_DEBUG("assay_config_export_stream: end config=%p stream=%p\n", cfp, stream);
+    return cfp;
+}
 
+assay_config_t * assay_config_export_stream(assay_config_t * cfp, FILE * stream)
+{
+    cfp = config_export_stream(cfp, stream);
+    (void)fflush(stream);
+    return cfp;
+}
+
+assay_config_t * assay_config_export_stream_send(assay_config_t * cfp, FILE * stream)
+{
+    cfp = config_export_stream(cfp, stream);
+    (void)fputc(ASSAY_END_OF_TRANSMISSION_CHARACTER, stream);
+    (void)fflush(stream);
     return cfp;
 }
 
 assay_config_t * assay_config_export_stream_close(assay_config_t * cfp, FILE * stream)
 {
-    cfp = assay_config_export_stream(cfp, stream);
+    cfp = config_export_stream(cfp, stream);
     (void)fclose(stream);
     return cfp;
 }

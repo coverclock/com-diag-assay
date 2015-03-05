@@ -18,6 +18,7 @@
 %parse-param {void * scanner}
 %lex-param {scanner}
 
+%token END 0
 %token CH
 %token EOL
 %token EQ
@@ -75,8 +76,8 @@ argument_string:    argument_init
 argument:           argument_string                                             { assay_parser_argument_end(scanner); }
                     ;
 
-operation:          OT operator whitespace argument                             
-                    | OT whitespace operator whitespace argument                { assay_parser_operation_execute(scanner); }
+operation:          OT operator whitespace argument
+                    | OT whitespace operator whitespace argument
                     ;
 
 section_char:       CH                                                          { assay_parser_section_next(scanner, $1); }
@@ -174,10 +175,10 @@ comment:            SC
 
 statement:          EOL                                                         { assay_parser_next(scanner); }
                     | comment EOL                                               { assay_parser_next(scanner); }
-                    | section EOL                                               { assay_parser_next(scanner); }
-                    | section comment EOL                                       { assay_parser_next(scanner); }
-                    | section whitespace EOL                                    { assay_parser_next(scanner); }
-                    | section whitespace comment EOL                            { assay_parser_next(scanner); assay_parser_property_assign(scanner); }
+                    | section EOL                                               { assay_parser_next(scanner); /* Section only created if property is assigned within it. */ }
+                    | section comment EOL                                       { assay_parser_next(scanner); /* Section only created if property is assigned within it. */ }
+                    | section whitespace EOL                                    { assay_parser_next(scanner); /* Section only created if property is assigned within it. */ }
+                    | section whitespace comment EOL                            { assay_parser_next(scanner); /* Section only created if property is assigned within it. */ }
                     | section assignment EOL                                    { assay_parser_next(scanner); assay_parser_property_assign(scanner); }
                     | section assignment comment EOL                            { assay_parser_next(scanner); assay_parser_property_assign(scanner); }
                     | section whitespace assignment EOL                         { assay_parser_next(scanner); assay_parser_property_assign(scanner); }
@@ -186,10 +187,10 @@ statement:          EOL                                                         
                     | assignment comment EOL                                    { assay_parser_next(scanner); assay_parser_property_assign(scanner); }
                     | whitespace EOL                                            { assay_parser_next(scanner); }
                     | whitespace comment EOL                                    { assay_parser_next(scanner); }
-                    | whitespace section EOL                                    { assay_parser_next(scanner); }
-                    | whitespace section comment EOL                            { assay_parser_next(scanner); }
-                    | whitespace section whitespace EOL                         { assay_parser_next(scanner); }
-                    | whitespace section whitespace comment EOL                 { assay_parser_next(scanner); }
+                    | whitespace section EOL                                    { assay_parser_next(scanner); /* Section only created if property is assigned within it. */ }
+                    | whitespace section comment EOL                            { assay_parser_next(scanner); /* Section only created if property is assigned within it. */ }
+                    | whitespace section whitespace EOL                         { assay_parser_next(scanner); /* Section only created if property is assigned within it. */ }
+                    | whitespace section whitespace comment EOL                 { assay_parser_next(scanner); /* Section only created if property is assigned within it. */ }
                     | whitespace section assignment EOL                         { assay_parser_next(scanner); assay_parser_property_assign(scanner); }
                     | whitespace section assignment comment EOL                 { assay_parser_next(scanner); assay_parser_property_assign(scanner); }
                     | whitespace section whitespace assignment EOL              { assay_parser_next(scanner); assay_parser_property_assign(scanner); }
