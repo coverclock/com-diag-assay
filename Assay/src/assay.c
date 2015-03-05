@@ -46,7 +46,7 @@ const char ASSAY_CHARACTERS_EXTRASPECIAL[] = ASSAY_CHARACTERS_EXTRASPECIAL_STRIN
 
 const char ASSAY_SECTION_DEFAULT[] = ASSAY_SECTION_DEFAULT_STRING;
 
-const char ASSAY_END_OF_TRANSMISSION[] = { ASSAY_END_OF_TRANSMISSION_CHARACTER, '\0' };
+const char ASSAY_END_OF_TRANSMISSION[] = ASSAY_END_OF_TRANSMISSION_STRING;
 
 /*******************************************************************************
  * CONFIGURATION PRIMITIVES
@@ -734,7 +734,7 @@ assay_config_t * assay_config_export_stream(assay_config_t * cfp, FILE * stream)
 assay_config_t * assay_config_export_stream_send(assay_config_t * cfp, FILE * stream)
 {
     cfp = config_export_stream(cfp, stream);
-    (void)fputc(ASSAY_END_OF_TRANSMISSION_CHARACTER, stream);
+    (void)fputs(ASSAY_END_OF_TRANSMISSION, stream);
     (void)fflush(stream);
     return cfp;
 }

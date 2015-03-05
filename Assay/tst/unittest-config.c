@@ -19,6 +19,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "com/diag/assay/assay.h"
+#include "com/diag/assay/assay_scanner_annex.h"
+#include "com/diag/assay/assay_parser_annex.h"
 #include "com/diag/diminuto/diminuto_unittest.h"
 #include "com/diag/diminuto/diminuto_log.h"
 #include "com/diag/diminuto/diminuto_dump.h"
@@ -47,11 +49,13 @@ static void census(assay_config_t * cfp, int * sectionsp, int * propertiesp) {
 
 int main(int argc, char ** argv)
 {
+    int debug = 0;
+
     SETLOGMASK();
 
-    if ((argc > 1) && (strcmp(argv[1], "-d") == 0)) {
-        assay_scanner_debug(!0);
-        assay_parser_debug(!0);
+    if (argc > 1) {
+        debug = atoi(argv[1]);
+        DIMINUTO_LOG_DEBUG("%s: debug=\"%s\"=%d\n", argv[0], argv[1], debug);
     }
 
     {
@@ -377,45 +381,86 @@ int main(int argc, char ** argv)
     {
         int pipeline[2][2];
         pid_t pid;
-        ASSERT(pipe(pipeline[0]) == 0);
-        ASSERT(pipe(pipeline[1]) == 0);
-        if ((pid = fork()) < 0) {
+        static const char ACK = 0xa5;
+        ASSERT(pipe(pipeline[0]) == 0); /* [0][0]=ConsumerRead, [0][1]=ProducerWrite */
+        ASSERT(pipe(pipeline[1]) == 0); /* [1][0]=ProducerRead, [1][1]=ConsumerWrite */
+#define CONSUMER_READ pipeline[0][0]
+#define PRODUCER_WRITE pipeline[0][1]
+#define PRODUCER_READ pipeline[1][0]
+#define CONSUMER_WRITE pipeline[1][1]
+        DIMINUTO_LOG_DEBUG("unittest-config: CONSUMER_READ=%d PRODUCER_WRITE=%d\n", CONSUMER_READ, PRODUCER_WRITE);
+        DIMINUTO_LOG_DEBUG("unittest-config: PRODUCER_READ=%d CONSUMER_WRITE=%d\n", PRODUCER_READ, CONSUMER_WRITE);
+        pid = fork();
+        if (pid == 0) {
+            ASSERT(close(CONSUMER_READ) == 0);
+            ASSERT(close(CONSUMER_WRITE) == 0);
+        } else if (pid > 0) {
+            ASSERT(close(PRODUCER_READ) == 0);
+            ASSERT(close(PRODUCER_WRITE) == 0);
+        } else if (pid < 0) {
+            /* Do nothing. */
+        }
+        if (pid < 0) {
             ASSERT(pid >= 0);
         } else if (pid == 0) {
             FILE * stream;
-            char acknowledgement;
-            assay_config_destroy(assay_config_export_stream_send(assay_config_import_file(assay_config_create(), PATH1), stream = fdopen(pipeline[0][1], "w")));
-            ASSERT(read(pipeline[1][0], &acknowledgement, sizeof(acknowledgement)) == sizeof(acknowledgement));
+            char acknowledgement = ~ACK;
+            assay_config_destroy(assay_config_export_stream_send(assay_config_import_file(assay_config_create(), PATH1), stream = fdopen(PRODUCER_WRITE, "w")));
+            ASSERT(read(PRODUCER_READ, &acknowledgement, sizeof(acknowledgement)) == sizeof(acknowledgement));
+            ASSERT(acknowledgement == ACK);
             ASSERT(fclose(stream) == 0);
-            ASSERT(close(pipeline[1][0]) == 0);
+            ASSERT(close(PRODUCER_READ) == 0);
             DIMINUTO_LOG_DEBUG("unittest-config: producer: exiting\n");
             EXIT();
-#if 1
-        } else if (pid > 0) {
+        } else if (debug == 1) {
             FILE * stream;
             int ch;
-            ASSERT((stream = fdopen(pipeline[0][0], "r")) != (FILE *)0);
+            char ackowledge = ACK;
+            ASSERT((stream = fdopen(CONSUMER_READ, "r")) != (FILE *)0);
             while ((ch = fgetc(stream)) != EOF) {
-                if (ch == ASSAY_END_OF_TRANSMISSION_CHARACTER) {
-                    fputs("^D", stdout);
-                } else {
-                    fputc(ch, stdout);
+                if (ch == ASSAY_END_OF_TRANSMISSION[0]) {
+                    fputs("^D\n", stdout);
+                    break;
                 }
+                fputc(ch, stdout);
             }
-            ASSERT(write(pipeline[1][1], &ch, sizeof(ch)) == sizeof(ch));
+            ASSERT(write(CONSUMER_WRITE, &ackowledge, sizeof(ackowledge)) == sizeof(ackowledge));
+            ASSERT(close(CONSUMER_WRITE) == 0);
             ASSERT(fclose(stream) == 0);
             STATUS();
-#endif
+        } else if (debug == 2) {
+            int debugs;
+            int debugp;
+            assay_config_t * cfp;
+            FILE * stream;
+            assay_scanner_lexical_t lxp;
+            char ackowledge = ACK;
+            debugs = assay_scanner_debug(!0);
+            debugp = assay_parser_debug(!0);
+            ASSERT((cfp = assay_config_create()) != (assay_config_t *)0);
+            ASSERT((stream = fdopen(CONSUMER_READ, "r")) != (FILE *)0);
+            ASSERT((lxp = assay_scanner_create(cfp, stream)) != (void *)0);
+            ASSERT(assay_parser_parse(lxp) == 0);
+            assay_parser_fini(lxp);
+            assay_scanner_destroy(lxp);
+            ASSERT(write(CONSUMER_WRITE, &ackowledge, sizeof(ackowledge)) == sizeof(ackowledge));
+            ASSERT(close(CONSUMER_WRITE) == 0);
+            ASSERT(fclose(stream) == 0);
+            ASSERT(assay_config_export_stream(cfp, stdout) == cfp);
+            assay_config_destroy(cfp);
+            assay_parser_debug(debugp);
+            assay_scanner_debug(debugs);
+            STATUS();
         } else {
             FILE * stream;
             assay_config_t * cfp;
             const char * value;
             int sections;
             int properties;
-            char ackowledge = 0;
+            char ackowledge = ACK;
             int rc;
             int status;
-            ASSERT((cfp = assay_config_import_stream(assay_config_create(), stream = fdopen(pipeline[0][0], "r"))) != (assay_config_t *)0);
+            ASSERT((cfp = assay_config_import_stream(assay_config_create(), stream = fdopen(CONSUMER_READ, "r"))) != (assay_config_t *)0);
             ASSERT(assay_config_audit(cfp) == (void *)0);
             census(cfp, &sections, &properties);
             EXPECT(((value = assay_config_read_string(cfp, ASSAY_SECTION_DEFAULT, "general1")) != (const char *)0) && (strcmp(value, "This is a general parameter.") == 0));
@@ -446,10 +491,10 @@ int main(int argc, char ** argv)
             EXPECT(properties == 24);
             EXPECT(assay_config_errors(cfp) == 0);
             assay_config_destroy(cfp);
-            ASSERT(write(pipeline[1][1], &ackowledge, sizeof(ackowledge)) == sizeof(ackowledge));
+            ASSERT(write(CONSUMER_WRITE, &ackowledge, sizeof(ackowledge)) == sizeof(ackowledge));
             ASSERT((rc = waitpid(pid, &status, 1)) >= 0); /* valgrind(1) affects the PID that is returned. */
             ASSERT(fclose(stream) == 0);
-            ASSERT(close(pipeline[1][1]) == 0);
+            ASSERT(close(CONSUMER_WRITE) == 0);
             DIMINUTO_LOG_DEBUG("unittest-config: consumer: reaped pid=%d rc=%d status=%d\n", pid, rc, status);
             STATUS();
         }

@@ -166,7 +166,7 @@ int main(int argc, int ** argv)
         const char * name;
         debug = assay_scanner_debug(!0);
         ASSERT((stream = tmpfile()) != (FILE *)0);
-        ASSERT(fputc(ASSAY_END_OF_TRANSMISSION_CHARACTER, stream) == ASSAY_END_OF_TRANSMISSION_CHARACTER);
+        ASSERT(fputs(ASSAY_END_OF_TRANSMISSION, stream) >= 0);
         rewind(stream);
         ASSERT((cfp = assay_config_create()) != (assay_config_t *)0);
         ASSERT((lxp = assay_scanner_create(cfp, stream)) != (void *)0);
