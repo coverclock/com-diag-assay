@@ -11,6 +11,7 @@
  */
 
 #include <string.h>
+#include <stdio.h>
 #include "assay.h"
 #include "assay_parser.h"
 #include "assay_fixup.h"
@@ -19,6 +20,7 @@
 #include "com/diag/diminuto/diminuto_log.h"
 #include "com/diag/diminuto/diminuto_dump.h"
 #include "com/diag/diminuto/diminuto_escape.h"
+#include "com/diag/diminuto/diminuto_fd.h"
 
 static int debug = 0;
 
@@ -34,10 +36,35 @@ int assay_scanner_debug(int enable)
 
 assay_scanner_lexical_t assay_scanner_create(void * cfp, FILE * stream)
 {
+    extern void assay_scanner_yy_set_interactive(void *, int);
     yyscan_t scanner;
+    diminuto_fd_type_t type;
+    int interactive;
 
     assay_scanner_yylex_init_extra(cfp, &scanner);
     assay_scanner_yyset_in(stream , scanner);
+
+    /*
+     * Here we try to determine what kind of file stream we have, batch
+     * (like a regular file) or interactive (like a socket, pipe, or
+     * character device). The generated scanner handles the I/O differently.
+     * The batch option is more efficient for files, but will cause the
+     * application to hang on interactive devices.
+     */
+
+    type = diminuto_fd_type(fileno(stream));
+    switch (type) {
+    case DIMINUTO_FD_TYPE_TTY:
+    case DIMINUTO_FD_TYPE_SOCKET:
+    case DIMINUTO_FD_TYPE_CHARACTERDEV:
+    case DIMINUTO_FD_TYPE_FIFO:
+        interactive = !0;
+        break;
+    default:
+        interactive = 0;
+        break;
+    }
+    assay_scanner_yy_set_interactive(scanner, interactive);
 
     return scanner;
 }

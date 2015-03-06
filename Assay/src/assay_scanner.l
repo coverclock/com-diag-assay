@@ -47,6 +47,13 @@
 
 %%
 
+void assay_scanner_yy_set_interactive(yyscan_t yyscanner, int is_interactive)
+{
+    struct yyguts_t * yyg;
+    yyg = (struct yyguts_t *)yyscanner;
+    yy_set_interactive(is_interactive); /* This macro requires the yyg variable. */
+}
+
 int assay_scanner_yywrap(yyscan_t yyscanner)
 {
     return assay_scanner_wrap(yyscanner);

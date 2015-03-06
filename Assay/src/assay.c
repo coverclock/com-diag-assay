@@ -58,7 +58,7 @@ assay_config_t * assay_config_create(void)
 
     cfp = (assay_config_t *)malloc(sizeof(assay_config_t));
     memset(cfp, 0, sizeof(*cfp));
-    cfp->file = "";
+    cfp->file = "-";
 
     return cfp;
 }

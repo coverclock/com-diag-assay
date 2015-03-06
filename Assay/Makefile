@@ -17,8 +17,8 @@ TARGET				:=	host# Build for the x86_64 running Ubuntu 14.04 LTS.
 #TARGET				:=	stampede# Build for the Nvidia Jetson TK1 running Ubuntu 14.04.
 
 MAJOR				:=	1# API changes that may require that applications be modified.
-MINOR				:=	5# Only functionality or features added with no legacy API changes.
-BUILD				:=	1# Only bugs fixed with no API changes or new functionality.
+MINOR				:=	6# Only functionality or features added with no legacy API changes.
+BUILD				:=	0# Only bugs fixed with no API changes or new functionality.
 
 VINTAGE				:=	$(shell date -u +%Y-%m-%dT%H:%M:%S.%N%z)
 
@@ -565,7 +565,8 @@ $(OUT)/$(GEN_DIR)/%.c:	$(SRC_DIR)/%.y
 
 $(OUT)/$(GEN_DIR)/%.c:	$(SRC_DIR)/%.l
 	D=`dirname $@`; mkdir -p $$D
-	flex --always-interactive -o $@ --header-file=$(addsuffix .h,$(basename $@)) $<
+	#flex --always-interactive -o $@ --header-file=$(addsuffix .h,$(basename $@)) $<
+	flex -o $@ --header-file=$(addsuffix .h,$(basename $@)) $<
 
 $(OUT)/$(SRC_DIR)/%.o:	$(OUT)/$(GEN_DIR)/%.c
 	D=`dirname $@`; mkdir -p $$D
