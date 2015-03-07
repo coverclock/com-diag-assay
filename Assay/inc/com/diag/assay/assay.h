@@ -353,7 +353,7 @@ static inline void assay_config_write_string(assay_config_t * cfp, const char * 
 }
 
 /*******************************************************************************
- * IMPORTERS/EXPORTERS
+ * IMPORTERS
  ******************************************************************************/
 
 /**
@@ -389,6 +389,10 @@ extern assay_config_t * assay_config_import_file(assay_config_t * cfp, const cha
  * @return a pointer to the configuration or null if an error occurred.
  */
 extern assay_config_t * assay_config_import_command(assay_config_t * cfp, const char * command);
+
+/*******************************************************************************
+ * EXPORTERS
+ ******************************************************************************/
 
 /**
  * Export a configuration to a FILE stream and flush the stream after the

@@ -335,7 +335,7 @@ int main(int argc, char ** argv)
         FILE * stream;
         ASSERT((stream = tmpfile()) != (FILE *)0);
         {
-            assay_config_destroy(assay_config_export_stream_send(assay_config_import_file(assay_config_create(), PATH1), stream));
+            assay_config_destroy(assay_config_export_stream(assay_config_import_file(assay_config_create(), PATH1), stream));
         }
         rewind(stream);
         {
@@ -404,13 +404,12 @@ int main(int argc, char ** argv)
         if (pid < 0) {
             ASSERT(pid >= 0);
         } else if (pid == 0) {
-            FILE * stream;
             char acknowledgement = ~ACK;
-            assay_config_destroy(assay_config_export_stream_send(assay_config_import_file(assay_config_create(), PATH1), stream = fdopen(PRODUCER_WRITE, "w")));
+            assay_config_destroy(assay_config_export_stream_close(assay_config_import_file(assay_config_create(), PATH1), fdopen(dup(PRODUCER_WRITE), "w")));
             ASSERT(read(PRODUCER_READ, &acknowledgement, sizeof(acknowledgement)) == sizeof(acknowledgement));
             ASSERT(acknowledgement == ACK);
-            ASSERT(fclose(stream) == 0);
             ASSERT(close(PRODUCER_READ) == 0);
+            ASSERT(close(PRODUCER_WRITE) == 0);
             DIMINUTO_LOG_DEBUG("unittest-config: producer: exiting\n");
             EXIT();
         } else if (debug == 1) {
@@ -453,7 +452,6 @@ int main(int argc, char ** argv)
             assay_scanner_debug(debugs);
             STATUS();
         } else {
-            FILE * stream;
             assay_config_t * cfp;
             const char * value;
             int sections;
@@ -461,7 +459,7 @@ int main(int argc, char ** argv)
             char ackowledge = ACK;
             int rc;
             int status;
-            ASSERT((cfp = assay_config_import_stream(assay_config_create(), stream = fdopen(CONSUMER_READ, "r"))) != (assay_config_t *)0);
+            ASSERT((cfp = assay_config_import_stream_close(assay_config_create(), fdopen(dup(CONSUMER_READ), "r"))) != (assay_config_t *)0);
             ASSERT(assay_config_audit(cfp) == (void *)0);
             census(cfp, &sections, &properties);
             EXPECT(((value = assay_config_read_string(cfp, ASSAY_SECTION_DEFAULT, "general1")) != (const char *)0) && (strcmp(value, "This is a general parameter.") == 0));
@@ -494,7 +492,7 @@ int main(int argc, char ** argv)
             assay_config_destroy(cfp);
             ASSERT(write(CONSUMER_WRITE, &ackowledge, sizeof(ackowledge)) == sizeof(ackowledge));
             ASSERT((rc = waitpid(pid, &status, 1)) >= 0); /* valgrind(1) affects the PID that is returned. */
-            ASSERT(fclose(stream) == 0);
+            ASSERT(close(CONSUMER_READ) == 0);
             ASSERT(close(CONSUMER_WRITE) == 0);
             DIMINUTO_LOG_DEBUG("unittest-config: consumer: reaped pid=%d rc=%d status=%d\n", pid, rc, status);
             STATUS();

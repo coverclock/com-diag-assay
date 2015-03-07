@@ -24,6 +24,7 @@
 #include "com/diag/diminuto/diminuto_log.h"
 #include "com/diag/diminuto/diminuto_dump.h"
 #include "com/diag/diminuto/diminuto_escape.h"
+#include "com/diag/diminuto/diminuto_fd.h"
 
 /*******************************************************************************
  * TYPES
@@ -661,7 +662,50 @@ assay_config_t * assay_config_import_command(assay_config_t * cfp, const char * 
     return result;
 }
 
-static assay_config_t * config_export_stream(assay_config_t * cfp, FILE * stream)
+/*******************************************************************************
+ * EXPORTERS
+ ******************************************************************************/
+
+static int config_export_stream_isinteractive(FILE * stream)
+{
+    diminuto_fd_type_t type;
+    int interactive;
+
+    /*
+     * Here we try to determine what kind of file stream we have, batch
+     * (like a regular file) or interactive (like a socket, pipe, or
+     * character device). For sockets, character devices that are not TTYs,
+     * or FIFOs, we want to append the EOT sequences to the end of the
+     * output sequence to signal the lexical scanner on the other end that
+     * the input sequence has ended. For the most part, we don't want to do
+     * this for TTYs since generally that's someone writing to a display.
+     * If you are really old school and are actually writing to a serial port
+     * to a computer on the receiving side, you probably want to use the special
+     * export send function to force the EOT to be added, or modify this source
+     * code to put the TTY case in the interactive part.
+     */
+
+    type = diminuto_fd_type(fileno(stream));
+    switch (type) {
+    case DIMINUTO_FD_TYPE_SOCKET:
+    case DIMINUTO_FD_TYPE_CHARACTERDEV:
+    case DIMINUTO_FD_TYPE_FIFO:
+        interactive = !0;
+        break;
+    case DIMINUTO_FD_TYPE_UNKNOWN:
+    case DIMINUTO_FD_TYPE_TTY:
+    case DIMINUTO_FD_TYPE_SYMLINK:
+    case DIMINUTO_FD_TYPE_FILE:
+    case DIMINUTO_FD_TYPE_BLOCKDEV:
+    case DIMINUTO_FD_TYPE_DIRECTORY:
+        interactive = 0;
+        break;
+    }
+
+    return interactive;
+}
+
+static assay_config_t * config_export_stream(assay_config_t * cfp, FILE * stream, int interactive)
 {
     char * buffer;
     char * here;
@@ -721,28 +765,34 @@ static assay_config_t * config_export_stream(assay_config_t * cfp, FILE * stream
         free(buffer);
     }
 
+    if (interactive) {
+        (void)fputs(ASSAY_END_OF_TRANSMISSION, stream);
+    }
+
     return cfp;
 }
 
 assay_config_t * assay_config_export_stream(assay_config_t * cfp, FILE * stream)
 {
-    cfp = config_export_stream(cfp, stream);
+    cfp = config_export_stream(cfp, stream, config_export_stream_isinteractive(stream));
     (void)fflush(stream);
-    return cfp;
-}
 
-assay_config_t * assay_config_export_stream_send(assay_config_t * cfp, FILE * stream)
-{
-    cfp = config_export_stream(cfp, stream);
-    (void)fputs(ASSAY_END_OF_TRANSMISSION, stream);
-    (void)fflush(stream);
     return cfp;
 }
 
 assay_config_t * assay_config_export_stream_close(assay_config_t * cfp, FILE * stream)
 {
-    cfp = config_export_stream(cfp, stream);
+    cfp = config_export_stream(cfp, stream, config_export_stream_isinteractive(stream));
     (void)fclose(stream);
+
+    return cfp;
+}
+
+assay_config_t * assay_config_export_stream_send(assay_config_t * cfp, FILE * stream)
+{
+    cfp = config_export_stream(cfp, stream, !0);
+    (void)fflush(stream);
+
     return cfp;
 }
 

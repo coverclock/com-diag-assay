@@ -60,7 +60,11 @@ assay_scanner_lexical_t assay_scanner_create(void * cfp, FILE * stream)
     case DIMINUTO_FD_TYPE_FIFO:
         interactive = !0;
         break;
-    default:
+    case DIMINUTO_FD_TYPE_UNKNOWN:
+    case DIMINUTO_FD_TYPE_SYMLINK:
+    case DIMINUTO_FD_TYPE_FILE:
+    case DIMINUTO_FD_TYPE_BLOCKDEV:
+    case DIMINUTO_FD_TYPE_DIRECTORY:
         interactive = 0;
         break;
     }
