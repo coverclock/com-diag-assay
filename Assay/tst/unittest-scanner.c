@@ -170,7 +170,6 @@ int main(int argc, int ** argv)
         rewind(stream);
         ASSERT((cfp = assay_config_create()) != (assay_config_t *)0);
         ASSERT((lxp = assay_scanner_create(cfp, stream)) != (void *)0);
-
         ASSERT((token = assay_scanner_scan(&lval, lxp)) == 0);
         ASSERT((name = assay_scanner_token2name(token)) != (const char *)0);
         assay_scanner_destroy(lxp);
