@@ -34,22 +34,19 @@ int assay_scanner_debug(int enable)
     return prior;
 }
 
-assay_scanner_lexical_t assay_scanner_create(void * cfp, FILE * stream)
+static int scanner_stream_isinteractive(FILE * stream)
 {
-    extern void assay_scanner_yy_set_interactive(void *, int);
-    yyscan_t scanner;
     diminuto_fd_type_t type;
     int interactive;
-
-    assay_scanner_yylex_init_extra(cfp, &scanner);
-    assay_scanner_yyset_in(stream , scanner);
 
     /*
      * Here we try to determine what kind of file stream we have, batch
      * (like a regular file) or interactive (like a socket, pipe, or
-     * character device). The generated scanner handles the I/O differently.
-     * The batch option is more efficient for files, but will cause the
-     * application to hang on interactive devices.
+     * character device). The generated scanner must handle the I/O
+     * differently depending on the kind of input stream. The batch option
+     * is more efficient for files, but will cause the application to hang on
+     * interactive devices. N.B. the classifications of the input stream
+     * below deliberately may not match those for classifying the output stream.
      */
 
     type = diminuto_fd_type(fileno(stream));
@@ -68,9 +65,25 @@ assay_scanner_lexical_t assay_scanner_create(void * cfp, FILE * stream)
         interactive = 0;
         break;
     }
+
+    return interactive;
+}
+
+static assay_scanner_lexical_t scanner_create(void * cfp, FILE * stream, int interactive)
+{
+    yyscan_t scanner;
+    extern void assay_scanner_yy_set_interactive(void *, int); /* Not part of the public API. */
+
+    assay_scanner_yylex_init_extra(cfp, &scanner);
+    assay_scanner_yyset_in(stream , scanner);
     assay_scanner_yy_set_interactive(scanner, interactive);
 
     return scanner;
+}
+
+assay_scanner_lexical_t assay_scanner_create(void * cfp, FILE * stream)
+{
+    return scanner_create(cfp, stream, scanner_stream_isinteractive(stream));
 }
 
 void assay_scanner_destroy(assay_scanner_lexical_t lxp)

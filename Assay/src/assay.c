@@ -685,7 +685,9 @@ static int config_export_stream_isinteractive(FILE * stream)
      * code to put the TTY case in the interactive part. Note that one of the
      * side effects of this is that if you export to stdout, but then pipe it
      * to, say, the tee(1) command, it will appear to be interactive, because
-     * from the POV of export, it is.
+     * from the POV of export, it is. N.B. the classifications of the output
+     * stream below deliberately may not match those for classifying the input
+     * stream.
      */
 
     type = diminuto_fd_type(fileno(stream));
