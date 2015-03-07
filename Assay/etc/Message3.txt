@@ -1,0 +1,8 @@
+[Endpoint1]
+FieldB=i
+FieldC=j
+[Endpoint3]
+FieldA=k
+FieldB=l
+FieldC=m
+FieldD=n

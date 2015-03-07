@@ -29,6 +29,8 @@
 
 static const char PATH0[] = "etc/test0.ini";
 static const char PATH1[] = "etc/test1.ini";
+static const char PATH2[] = "etc/Message1.txt";
+static const char PATH3[] = "etc/Message3.txt";
 
 static assay_config_t * import(const char * path)
 {
@@ -578,6 +580,40 @@ int main(int argc, char ** argv)
             DIMINUTO_LOG_DEBUG("unittest-config: consumer: reaped pid=%d rc=%d status=%d\n", pid, rc, status);
             STATUS();
         }
+    }
+    {
+        assay_config_t * cfp;
+        const char * value;
+        int sections;
+        int properties;
+        ASSERT((cfp = assay_config_import_file(assay_config_create(), PATH2)) != (assay_config_t *)0);
+        EXPECT(assay_config_errors(cfp) == 0);
+        census(cfp, &sections, &properties);
+        EXPECT(sections == 2);
+        EXPECT(properties == 6);
+        EXPECT(((value = assay_config_read_string(cfp, "Endpoint1", "FieldA")) != (const char *)0) && (strcmp(value, "e") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "Endpoint1", "FieldB")) != (const char *)0) && (strcmp(value, "b") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "Endpoint1", "FieldC")) != (const char *)0) && (strcmp(value, "f") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "Endpoint2", "FieldA")) != (const char *)0) && (strcmp(value, "c") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "Endpoint2", "FieldB")) != (const char *)0) && (strcmp(value, "g") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "Endpoint2", "FieldC")) != (const char *)0) && (strcmp(value, "h") == 0));
+        ASSERT((cfp = assay_config_import_file(cfp, PATH3)) != (assay_config_t *)0);
+        ASSERT(assay_config_audit(cfp) == (void *)0);
+        EXPECT(assay_config_errors(cfp) == 0);
+        census(cfp, &sections, &properties);
+        EXPECT(sections == 3);
+        EXPECT(properties == 10);
+        EXPECT(((value = assay_config_read_string(cfp, "Endpoint1", "FieldA")) != (const char *)0) && (strcmp(value, "e") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "Endpoint1", "FieldB")) != (const char *)0) && (strcmp(value, "i") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "Endpoint1", "FieldC")) != (const char *)0) && (strcmp(value, "j") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "Endpoint2", "FieldA")) != (const char *)0) && (strcmp(value, "c") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "Endpoint2", "FieldB")) != (const char *)0) && (strcmp(value, "g") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "Endpoint2", "FieldC")) != (const char *)0) && (strcmp(value, "h") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "Endpoint3", "FieldA")) != (const char *)0) && (strcmp(value, "k") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "Endpoint3", "FieldB")) != (const char *)0) && (strcmp(value, "l") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "Endpoint3", "FieldC")) != (const char *)0) && (strcmp(value, "m") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "Endpoint3", "FieldD")) != (const char *)0) && (strcmp(value, "n") == 0));
+        assay_config_destroy(cfp);
     }
 
     EXIT();

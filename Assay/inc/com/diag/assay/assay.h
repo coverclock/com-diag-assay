@@ -413,9 +413,10 @@ extern assay_config_t * assay_config_export_stream(assay_config_t * cfp, FILE * 
 extern assay_config_t * assay_config_export_stream_close(assay_config_t * cfp, FILE * stream);
 
 /**
- * Export a configuration to a FILE stream and append an end of configuration
+ * Export a configuration to a FILE stream and append an end of transmission
  * indication and flush the stream after the last property has been written to
- * it.
+ * it. (This forces the EOT append; the other forms of export examine the type
+ * of output stream and do it automatically if they think it is necessary.)
  * @param cfp points to the configuration.
  * @param stream points to the FILE stream.
  * @return a pointer to the configuration or null if an error occurred.

@@ -682,7 +682,10 @@ static int config_export_stream_isinteractive(FILE * stream)
      * If you are really old school and are actually writing to a serial port
      * to a computer on the receiving side, you probably want to use the special
      * export send function to force the EOT to be added, or modify this source
-     * code to put the TTY case in the interactive part.
+     * code to put the TTY case in the interactive part. Note that one of the
+     * side effects of this is that if you export to stdout, but then pipe it
+     * to, say, the tee(1) command, it will appear to be interactive, because
+     * from the POV of export, it is.
      */
 
     type = diminuto_fd_type(fileno(stream));

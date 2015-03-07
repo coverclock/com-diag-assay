@@ -1,0 +1,9 @@
+[Endpoint1]
+FieldA=a
+FieldB=b
+[Endpoint2]
+FieldA=c
+FieldB=d
+[Endpoint1]
+FieldA=e
+#include etc/Message2.txt
