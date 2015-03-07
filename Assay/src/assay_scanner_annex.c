@@ -117,7 +117,7 @@ const char * assay_scanner_token2name(int token)
     const char * name = (const char *)0;
 
     switch (token) {
-    case 0:         name = "END";       break;
+    case END:       name = "END";       break;
     case CH:        name = "CH";        break;
     case EOL:       name = "EOL";       break;
     case EQ:        name = "EQ";        break;
