@@ -69,7 +69,10 @@ static int scanner_stream_isinteractive(FILE * stream)
     return interactive;
 }
 
-static assay_scanner_lexical_t scanner_create(void * cfp, FILE * stream, int interactive)
+/*
+ * This isn't part of the public API but is exposed none the less just in case.
+ */
+assay_scanner_lexical_t assay_scanner_create_generic(void * cfp, FILE * stream, int interactive)
 {
     yyscan_t scanner;
     extern void assay_scanner_yy_set_interactive(void *, int); /* Not part of the public API. */
@@ -83,7 +86,7 @@ static assay_scanner_lexical_t scanner_create(void * cfp, FILE * stream, int int
 
 assay_scanner_lexical_t assay_scanner_create(void * cfp, FILE * stream)
 {
-    return scanner_create(cfp, stream, scanner_stream_isinteractive(stream));
+    return assay_scanner_create_generic(cfp, stream, scanner_stream_isinteractive(stream));
 }
 
 void assay_scanner_destroy(assay_scanner_lexical_t lxp)

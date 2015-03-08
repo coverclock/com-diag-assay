@@ -710,7 +710,10 @@ static int config_export_stream_isinteractive(FILE * stream)
     return interactive;
 }
 
-static assay_config_t * config_export_stream(assay_config_t * cfp, FILE * stream, int interactive)
+/*
+ * This isn't part of the public API but is exposed never the less just in case.
+ */
+assay_config_t * assay_config_export_stream_generic(assay_config_t * cfp, FILE * stream, int interactive)
 {
     char * buffer;
     char * here;
@@ -779,7 +782,7 @@ static assay_config_t * config_export_stream(assay_config_t * cfp, FILE * stream
 
 assay_config_t * assay_config_export_stream(assay_config_t * cfp, FILE * stream)
 {
-    cfp = config_export_stream(cfp, stream, config_export_stream_isinteractive(stream));
+    cfp = assay_config_export_stream_generic(cfp, stream, config_export_stream_isinteractive(stream));
     (void)fflush(stream);
 
     return cfp;
@@ -787,7 +790,7 @@ assay_config_t * assay_config_export_stream(assay_config_t * cfp, FILE * stream)
 
 assay_config_t * assay_config_export_stream_close(assay_config_t * cfp, FILE * stream)
 {
-    cfp = config_export_stream(cfp, stream, config_export_stream_isinteractive(stream));
+    cfp = assay_config_export_stream_generic(cfp, stream, config_export_stream_isinteractive(stream));
     (void)fclose(stream);
 
     return cfp;
@@ -795,7 +798,7 @@ assay_config_t * assay_config_export_stream_close(assay_config_t * cfp, FILE * s
 
 assay_config_t * assay_config_export_stream_send(assay_config_t * cfp, FILE * stream)
 {
-    cfp = config_export_stream(cfp, stream, !0);
+    cfp = assay_config_export_stream_generic(cfp, stream, !0);
     (void)fflush(stream);
 
     return cfp;
