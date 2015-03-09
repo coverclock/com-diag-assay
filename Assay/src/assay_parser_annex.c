@@ -22,6 +22,7 @@
 #include "com/diag/diminuto/diminuto_dump.h"
 #include "com/diag/diminuto/diminuto_log.h"
 #include "com/diag/diminuto/diminuto_escape.h"
+#include "com/diag/diminuto/diminuto_heap.h"
 
 /*******************************************************************************
  * GLOBALS
@@ -56,8 +57,8 @@ static int debug = 0;
 static void action_begin(assay_action_t * ap)
 {
     if (ap->buffer == (char *)0) {
-        ap->length = ASSAY_BUFFER_DEFAULT_SIZE;
-        ap->buffer = (char *)malloc(ap->length);
+        ap->length = assay_buffer_default_size;
+        ap->buffer = (char *)diminuto_heap_malloc(ap->length);
     }
     ap->index = 0;
 }
@@ -71,9 +72,9 @@ static void action_next(assay_action_t * ap, int ch)
         char * old;
         old = ap->buffer;
         ap->length *= 2;
-        ap->buffer = (char *)malloc(ap->length);
+        ap->buffer = (char *)diminuto_heap_malloc(ap->length);
         memcpy(ap->buffer, old, ap->index);
-        free(old);
+        diminuto_heap_free(old);
     }
     ap->buffer[ap->index++] = ch;
 }
@@ -87,7 +88,7 @@ static void action_end(assay_action_t * ap)
 
 static void action_fini(assay_action_t * ap)
 {
-    free(ap->buffer);
+	diminuto_heap_free(ap->buffer);
     ap->buffer = (char *)0;
     ap->length = 0;
     ap->index = 0;

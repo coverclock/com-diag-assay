@@ -11,8 +11,6 @@
  */
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <errno.h>
 #include "assay.h"
 #include "assay_parser.h"
@@ -20,11 +18,13 @@
 #include "assay_scanner.h"
 #include "com/diag/assay/assay_scanner_annex.h"
 #include "com/diag/assay/assay_parser_annex.h"
+#include "com/diag/diminuto/diminuto_string.h"
 #include "com/diag/diminuto/diminuto_containerof.h"
 #include "com/diag/diminuto/diminuto_log.h"
 #include "com/diag/diminuto/diminuto_dump.h"
 #include "com/diag/diminuto/diminuto_escape.h"
 #include "com/diag/diminuto/diminuto_fd.h"
+#include "com/diag/diminuto/diminuto_heap.h"
 
 /*******************************************************************************
  * TYPES
@@ -36,6 +36,12 @@ typedef enum AssayInsertion {
     LEFT,
     RIGHT,
 } assay_insertion_t;
+
+/*******************************************************************************
+ * GLOBALS
+ ******************************************************************************/
+
+size_t assay_buffer_default_size = ASSAY_BUFFER_DEFAULT_SIZE;
 
 /*******************************************************************************
  * CONSTANTS
@@ -57,7 +63,7 @@ assay_config_t * assay_config_create(void)
 {
     assay_config_t * cfp;
 
-    cfp = (assay_config_t *)malloc(sizeof(assay_config_t));
+    cfp = (assay_config_t *)diminuto_heap_malloc(sizeof(assay_config_t));
     memset(cfp, 0, sizeof(*cfp));
     cfp->file = "-";
 
@@ -76,20 +82,20 @@ void assay_config_destroy(assay_config_t * cfp)
         for (ptp = diminuto_tree_first(&(scp->properties)); ptp != DIMINUTO_TREE_NULL; ptp = diminuto_tree_first(&(scp->properties))) {
             prp = diminuto_containerof(assay_property_t, tree, ptp);
             diminuto_tree_remove(ptp);
-            free((void *)(prp->key));
-            free((void *)prp->value);
-            free(prp);
+            diminuto_heap_free((void *)(prp->key));
+            diminuto_heap_free((void *)prp->value);
+            diminuto_heap_free(prp);
         }
         diminuto_tree_remove(stp);
-        free((void *)(scp->name));
-        free(scp);
+        diminuto_heap_free((void *)(scp->name));
+        diminuto_heap_free(scp);
     }
-    free(cfp->vaction.buffer);
-    free(cfp->kaction.buffer);
-    free(cfp->saction.buffer);
-    free(cfp->aaction.buffer);
-    free(cfp->oaction.buffer);
-    free(cfp);
+    diminuto_heap_free(cfp->vaction.buffer);
+    diminuto_heap_free(cfp->kaction.buffer);
+    diminuto_heap_free(cfp->saction.buffer);
+    diminuto_heap_free(cfp->aaction.buffer);
+    diminuto_heap_free(cfp->oaction.buffer);
+    diminuto_heap_free(cfp);
 }
 
 int assay_config_error(assay_config_t * cfp)
@@ -162,10 +168,10 @@ assay_section_t * assay_section_create(assay_config_t * cfp, const char * name)
 
     if (insertion != NONE) {
 
-        scp = (assay_section_t *)malloc(sizeof(assay_section_t));
+        scp = (assay_section_t *)diminuto_heap_malloc(sizeof(assay_section_t));
         diminuto_tree_init(&(scp->tree));
         scp->config = cfp;
-        scp->name = strdup(name);
+        scp->name = diminuto_string_strdup(name);
         scp->properties = DIMINUTO_TREE_EMPTY;
 
         switch (insertion) {
@@ -304,10 +310,10 @@ assay_property_t * assay_property_create(assay_section_t * scp, const char * key
 
     if (insertion != NONE) {
 
-        prp = (assay_property_t *)malloc(sizeof(assay_property_t));
+        prp = (assay_property_t *)diminuto_heap_malloc(sizeof(assay_property_t));
         diminuto_tree_init(&(prp->tree));
         prp->section = scp;
-        prp->key = strdup(key);
+        prp->key = diminuto_string_strdup(key);
         prp->value = 0;
         prp->length = 0;
 
@@ -349,9 +355,9 @@ void assay_property_destroy(assay_property_t * prp)
         prp->section->config->property = (assay_property_t *)0;
     }
     diminuto_tree_remove(&(prp->tree));
-    free((void *)(prp->key));
-    free((void *)prp->value);
-    free(prp);
+    diminuto_heap_free((void *)(prp->key));
+    diminuto_heap_free((void *)prp->value);
+    diminuto_heap_free(prp);
 }
 
 /*******************************************************************************
@@ -438,10 +444,10 @@ void * assay_property_value_get(assay_property_t * prp, size_t * lengthp)
 
 assay_property_t * assay_property_value_set(assay_property_t * prp, const void * value, size_t length)
 {
-     free((void *)prp->value);
-     prp->length = length;
-     prp->value = malloc(prp->length);
-     memcpy((void *)prp->value, value, prp->length);
+    diminuto_heap_free((void *)prp->value);
+    prp->length = length;
+    prp->value = diminuto_heap_malloc(prp->length);
+    memcpy((void *)prp->value, value, prp->length);
 
     return prp;
 }
@@ -726,14 +732,14 @@ assay_config_t * assay_config_export_stream_generic(assay_config_t * cfp, FILE *
     size_t fsize;
     size_t tsize;
 
-    buffer = (char *)malloc(size = ASSAY_BUFFER_DEFAULT_SIZE);
+    buffer = (char *)diminuto_heap_malloc(size = assay_buffer_default_size * 4 /* '\xFF' */);
     for (scp = assay_section_first(cfp); scp != (assay_section_t *)0; scp = assay_section_next(scp)) {
         name = assay_section_name_get(scp);
         fsize = strlen(name);
         tsize = (fsize * 4 /* '\xFF' */) + 1 /* '\0' */;
         if (tsize > size) {
-            free(buffer);
-            buffer = (char *)malloc(size = tsize);
+            diminuto_heap_free(buffer);
+            buffer = (char *)diminuto_heap_malloc(size = tsize);
         }
         diminuto_escape_expand(buffer, name, tsize, fsize, ASSAY_CHARACTERS_SPECIAL);
         fprintf(stream, "[%s]\n", buffer);
@@ -742,8 +748,8 @@ assay_config_t * assay_config_export_stream_generic(assay_config_t * cfp, FILE *
             fsize = strlen(key);
             tsize = (fsize * 4 /* '\xFF' */) + 1 /* '\0' */;
             if (tsize > size) {
-                free(buffer);
-                buffer = (char *)malloc(size = tsize);
+                diminuto_heap_free(buffer);
+                buffer = (char *)diminuto_heap_malloc(size = tsize);
             }
             diminuto_escape_expand(buffer, key, tsize, fsize, ASSAY_CHARACTERS_SPECIAL);
             fprintf(stream, "%s=", buffer);
@@ -751,8 +757,8 @@ assay_config_t * assay_config_export_stream_generic(assay_config_t * cfp, FILE *
             fsize -= 1 /* '\0' */;
             tsize = (fsize * 4 /* '\xFF' */) + 1 /* '\0' */;
             if (tsize > size) {
-                free(buffer);
-                buffer = (char *)malloc(size = tsize);
+                diminuto_heap_free(buffer);
+                buffer = (char *)diminuto_heap_malloc(size = tsize);
             }
             /*
              * If the first character of the value is a space, it is a special
@@ -770,7 +776,7 @@ assay_config_t * assay_config_export_stream_generic(assay_config_t * cfp, FILE *
     }
 
     if (buffer != (char *)0) {
-        free(buffer);
+        diminuto_heap_free(buffer);
     }
 
     if (interactive) {
