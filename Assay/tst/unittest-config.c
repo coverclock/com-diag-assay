@@ -26,6 +26,9 @@
 #include "com/diag/diminuto/diminuto_dump.h"
 #include "com/diag/diminuto/diminuto_escape.h"
 #include "com/diag/diminuto/diminuto_ipc.h"
+#include "com/diag/diminuto/diminuto_buffer.h"
+#include "com/diag/diminuto/diminuto_heap.h"
+#include "com/diag/diminuto/diminuto_string.h"
 
 static const char PATH0[] = "etc/test0.ini";
 static const char PATH1[] = "etc/test1.ini";
@@ -614,6 +617,60 @@ int main(int argc, char ** argv)
         EXPECT(((value = assay_config_read_string(cfp, "Endpoint3", "FieldC")) != (const char *)0) && (strcmp(value, "m") == 0));
         EXPECT(((value = assay_config_read_string(cfp, "Endpoint3", "FieldD")) != (const char *)0) && (strcmp(value, "n") == 0));
         assay_config_destroy(cfp);
+    }
+
+    {
+        assay_config_t * cfp;
+        const char * value;
+        void * pointer;
+        int sections;
+        int properties;
+        int debug;
+        debug = diminuto_buffer_debug(!0);
+        diminuto_heap_malloc_set(diminuto_buffer_malloc);
+        diminuto_heap_free_set(diminuto_buffer_free);
+        diminuto_string_strdup_set(diminuto_buffer_strdup);
+        ASSERT((cfp = import(PATH1)) != (assay_config_t *)0);
+        ASSERT(assay_config_audit(cfp) == (void *)0);
+        census(cfp, &sections, &properties);
+        EXPECT(((value = assay_config_read_string(cfp, ASSAY_SECTION_DEFAULT, "general1")) != (const char *)0) && (strcmp(value, "This is a general parameter.") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, ASSAY_SECTION_DEFAULT, "general2")) != (const char *)0) && (strcmp(value, "This is another general parameter.") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, ASSAY_SECTION_DEFAULT, "general3")) != (const char *)0) && (strcmp(value, "This is yet another general parameter.") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "section1", "keyword1")) != (const char *)0) && (strcmp(value, "value1") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "section1", "keyword2")) != (const char *)0) && (strcmp(value, "value2") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "section two", "keyword3")) != (const char *)0) && (strcmp(value, "value three") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "section two", "keyword4")) != (const char *)0) && (strcmp(value, "value four") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "Section Three", "keyword5")) != (const char *)0) && (strcmp(value, "value V") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "Section Three", "keyword6")) != (const char *)0) && (strcmp(value, "value IV") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "Section Three", "keyword7")) != (const char *)0) && (strcmp(value, "\a\b\t\n\v\f\r#=:[]\\!\xa\xbc\7\77\377") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "Bad", "keyword8")) != (const char *)0) && (strcmp(value, "\"value 8\"") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "Bad", "KeywordTen")) != (const char *)0) && (strcmp(value, "10@ten.org") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "Test2Section1", "KeywordEleven")) != (const char *)0) && (strcmp(value, "11.11.11.11") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "section@four.com", "Charles E. Weller")) != (const char *)0) && (strcmp(value, "Now is the time for all good men to come to the aid of their party.") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "section@four.com", "1926")) != (const char *)0) && (strcmp(value, " How now brown cow ") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "section@four.com", "Lord Admiral Nelson")) != (const char *)0) && (strcmp(value, "\b England expects each man to do his duty. \b ") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "Section 4.5", "keyword12")) != (const char *)0) && (strcmp(value, "Twelve!") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "Section5", "keyword9")) != (const char *)0) && (strcmp(value, "#=:[];") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "Section5", "keyword10")) != (const char *)0) && (strcmp(value, "12345678") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "SectionSix", "KEYWORD61")) != (const char *)0) && (strcmp(value, "VALUE61") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "SectionSix", "KEYWORD62")) != (const char *)0) && (strcmp(value, "VALUE62") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "SectionSix", "KEYWORD63")) != (const char *)0) && (strcmp(value, "VALUE63") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "SectionSix", "KEYWORD64")) != (const char *)0) && (strcmp(value, "VALUE64") == 0));
+        EXPECT(((value = assay_config_read_string(cfp, "SectionSix", "KEYWORD65")) != (const char *)0) && (strcmp(value, "VALUE65") == 0));
+        EXPECT(sections == 10);
+        EXPECT(properties == 24);
+        EXPECT(assay_config_errors(cfp) == 6);
+        assay_config_destroy(cfp);
+        diminuto_buffer_log();
+        diminuto_buffer_fini();
+        diminuto_heap_malloc_set((diminuto_heap_malloc_func_t *)0);
+        diminuto_heap_free_set((diminuto_heap_free_func_t *)0);
+        diminuto_string_strdup_set((diminuto_string_strdup_func_t *)0);
+        pointer = diminuto_heap_malloc(1);
+        ASSERT(pointer != (const char *)0);
+        diminuto_heap_free(pointer);
+        diminuto_buffer_debug(debug);
+        STATUS();
     }
 
     EXIT();
