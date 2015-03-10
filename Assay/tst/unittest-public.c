@@ -658,5 +658,22 @@ int main(void)
         STATUS();
     }
 
+    {
+        assay_config_t * cfp;
+        char * value;
+        ASSERT((cfp = assay_config_create()) != (assay_config_t *)0);
+        ASSERT(assay_config_audit(cfp) == (void *)0);
+        ASSERT((value = assay_config_read_string(cfp, ALFA, ONE)) == (const char *)0);
+        assay_config_write_string(cfp, ALFA, ONE, "1");
+        ASSERT((value = assay_config_read_string(cfp, ALFA, ONE)) != (const char *)0);
+        ASSERT(strcmp(value, "1") == 0);
+        *value = '2';
+        ASSERT((value = assay_config_read_string(cfp, ALFA, ONE)) != (const char *)0);
+        ASSERT(strcmp(value, "2") == 0);
+        ASSERT(assay_config_audit(cfp) == (void *)0);
+        assay_config_destroy(cfp);
+        STATUS();
+    }
+
     EXIT();
 }

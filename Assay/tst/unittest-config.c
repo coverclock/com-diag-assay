@@ -626,10 +626,12 @@ int main(int argc, char ** argv)
         int sections;
         int properties;
         int debug;
+        /**/
         debug = diminuto_buffer_debug(!0);
-        diminuto_heap_malloc_set(diminuto_buffer_malloc);
-        diminuto_heap_free_set(diminuto_buffer_free);
-        diminuto_string_strdup_set(diminuto_buffer_strdup);
+        ASSERT(diminuto_heap_malloc_set(diminuto_buffer_malloc) == malloc);
+        ASSERT(diminuto_heap_free_set(diminuto_buffer_free) == free);
+        ASSERT(diminuto_string_strdup_set(diminuto_buffer_strdup) == strdup);
+        /**/
         ASSERT((cfp = import(PATH1)) != (assay_config_t *)0);
         ASSERT(assay_config_audit(cfp) == (void *)0);
         census(cfp, &sections, &properties);
@@ -661,6 +663,7 @@ int main(int argc, char ** argv)
         EXPECT(properties == 24);
         EXPECT(assay_config_errors(cfp) == 6);
         assay_config_destroy(cfp);
+        /**/
         diminuto_buffer_log();
         diminuto_buffer_fini();
         diminuto_heap_malloc_set((diminuto_heap_malloc_func_t *)0);
@@ -670,6 +673,7 @@ int main(int argc, char ** argv)
         ASSERT(pointer != (const char *)0);
         diminuto_heap_free(pointer);
         diminuto_buffer_debug(debug);
+        /**/
         STATUS();
     }
 
