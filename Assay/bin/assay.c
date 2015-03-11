@@ -27,41 +27,45 @@
 #include "com/diag/diminuto/diminuto_log.h"
 
 int main(int argc, char * argv[]) {
+    int rc = 0;
     assay_config_t * cfp;
     const char * value;
 
     diminuto_log_setmask();
 
-    if (!(cfp = assay_config_create())) {
-        perror("assay_config_create");
-        return 2;
-    }
+    do {
 
-    if (!assay_config_import_file(cfp, "-")) {
-        perror("assay_config_import_file");
-        return 3;
-    }
-
-    if (argc < 2) {
-        if (!assay_config_export_stream(cfp, stdout)) {
-            perror("assay_config_export_stream");
-            return 4;
+        if (!(cfp = assay_config_create())) {
+            perror("assay_config_create");
+            rc = 2;
+            break;
         }
-    } else if (argc < 3) {
-        value = assay_config_read_string(cfp, ASSAY_SECTION_DEFAULT, argv[1]);
-        if (value == (const char *)0) {
-            return 1;
+
+        if (!assay_config_import_file(cfp, "-")) {
+            perror("assay_config_import_file");
+            rc = 3;
+        } else if (argc < 2) {
+            if (!assay_config_export_stream(cfp, stdout)) {
+                perror("assay_config_export_stream");
+                rc = 4;
+            }
+        } else if (argc < 3) {
+            if ((value = assay_config_read_string(cfp, ASSAY_SECTION_DEFAULT, argv[1])) == (const char *)0) {
+                rc = 1;
+            } else {
+                printf("%s\n", value);
+            }
         } else {
-            printf("%s\n", value);
+            if ((value = assay_config_read_string(cfp, argv[1], argv[2])) == (const char *)0) {
+                rc = 1;
+            } else {
+                 printf("%s\n", value);
+            }
         }
-    } else {
-        value = assay_config_read_string(cfp, argv[1], argv[2]);
-        if (value == (const char *)0) {
-            return 1;
-        } else {
-            printf("%s\n", value);
-        }
-    }
 
-   return 0;
+        assay_config_destroy(cfp);
+
+    } while (0);
+
+   return rc;
 }
