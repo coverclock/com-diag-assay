@@ -627,8 +627,9 @@ assay_config_t * assay_config_import_file(assay_config_t * cfp, const char * fil
     } else if ((fp = fopen(file, "re")) != (FILE *)0) {
         result = assay_config_import_stream_close(cfp, fp);
     } else {
-        assay_config_error(cfp);
-        DIMINUTO_LOG_WARNING("assay_config_import_file: *%s* config=%p file=\"%s\" line=%d include=\"%s\" errors=%d\n", strerror(errno), cfp, priorfile, priorlines, file, assay_config_errors(cfp));
+        int errors;
+        errors = assay_config_error(cfp);
+        DIMINUTO_LOG_WARNING("assay_config_import_file: *%s* config=%p file=\"%s\" line=%d include=\"%s\" errors=%d\n", strerror(errno), cfp, priorfile, priorlines, file, errors);
         result = (assay_config_t *)0;
     }
 
@@ -657,8 +658,9 @@ assay_config_t * assay_config_import_command(assay_config_t * cfp, const char * 
         result = assay_config_import_stream(cfp, fp);
         pclose(fp);
     } else {
-        assay_config_error(cfp);
-        DIMINUTO_LOG_WARNING("assay_config_import_command: *%s* config=%p file=\"%s\" line=%d command=\"%s\" errors=%d\n", strerror(errno), cfp, priorfile, priorlines, command, assay_config_errors(cfp));
+        int errors;
+        errors = assay_config_error(cfp);
+        DIMINUTO_LOG_WARNING("assay_config_import_command: *%s* config=%p file=\"%s\" line=%d command=\"%s\" errors=%d\n", strerror(errno), cfp, priorfile, priorlines, command, errors);
         result = (assay_config_t *)0;
     }
 
@@ -826,9 +828,7 @@ void assay_property_log(assay_property_t * prp)
         size_t length;
         key = assay_property_key_get(prp);
         value = assay_property_value_get(prp, &length);
-        if (!DIMINUTO_LOG_ENABLED(DIMINUTO_LOG_MASK_DEBUG)) {
-            /* Do nothing. */
-        } else if (value == (void *)0) {
+        if (value == (void *)0) {
             DIMINUTO_LOG_DEBUG("assay_property_t@%p[%zu]: key=\"%s\" value==%p\n", prp, sizeof(*prp), key, value);
         } else if (diminuto_escape_printable(value)) {
             DIMINUTO_LOG_DEBUG("assay_property_t@%p[%zu]: key=\"%s\" value=\"%s\"[%zu]\n", prp, sizeof(*prp), key, value, length);

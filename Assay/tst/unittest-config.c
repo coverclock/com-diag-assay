@@ -130,7 +130,7 @@ int main(int argc, char ** argv)
         EXPECT(((value = assay_config_read_string(cfp, "SectionSix", "KEYWORD65")) != (const char *)0) && (strcmp(value, "VALUE65") == 0));
         EXPECT(sections == 10);
         EXPECT(properties == 24);
-        EXPECT(assay_config_errors(cfp) == 6);
+        EXPECT(assay_config_errors(cfp) == 5);
         assay_config_destroy(cfp);
         STATUS();
     }
@@ -663,7 +663,7 @@ int main(int argc, char ** argv)
         EXPECT(((value = assay_config_read_string(cfp, "SectionSix", "KEYWORD65")) != (const char *)0) && (strcmp(value, "VALUE65") == 0));
         EXPECT(sections == 10);
         EXPECT(properties == 24);
-        EXPECT(assay_config_errors(cfp) == 6);
+        EXPECT(assay_config_errors(cfp) == 5);
         assay_config_destroy(cfp);
         /**/
         diminuto_buffer_log();
