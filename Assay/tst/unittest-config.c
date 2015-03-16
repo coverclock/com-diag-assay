@@ -69,6 +69,7 @@ int main(int argc, char ** argv)
         const char * value;
         int sections;
         int properties;
+        TEST();
         ASSERT((cfp = import(PATH0)) != (assay_config_t *)0);
         ASSERT(assay_config_audit(cfp) == (void *)0);
         census(cfp, &sections, &properties);
@@ -101,6 +102,7 @@ int main(int argc, char ** argv)
         const char * value;
         int sections;
         int properties;
+        TEST();
         ASSERT((cfp = import(PATH1)) != (assay_config_t *)0);
         ASSERT(assay_config_audit(cfp) == (void *)0);
         census(cfp, &sections, &properties);
@@ -137,6 +139,7 @@ int main(int argc, char ** argv)
 
     {
         FILE * stream;
+        TEST();
         ASSERT((stream = tmpfile()) != (FILE *)0);
         {
             assay_config_t * cfp;
@@ -212,6 +215,7 @@ int main(int argc, char ** argv)
         const unsigned char * value;
         size_t length;
         unsigned int out;
+        TEST();
         ASSERT((stream = tmpfile()) != (FILE *)0);
         fprintf(stream, "%s=\\\n", KEY);
         count = 0;
@@ -341,6 +345,7 @@ int main(int argc, char ** argv)
         const char * value;
         int sections;
         int properties;
+        TEST();
         ASSERT((cfp = assay_config_import_file(assay_config_create(), PATH2)) != (assay_config_t *)0);
         EXPECT(assay_config_errors(cfp) == 0);
         census(cfp, &sections, &properties);
@@ -379,6 +384,7 @@ int main(int argc, char ** argv)
         int sections;
         int properties;
         int debug;
+        TEST();
         /**/
         debug = diminuto_buffer_debug(!0);
         ASSERT(diminuto_heap_malloc_set(diminuto_buffer_malloc) == malloc);
@@ -435,6 +441,7 @@ int main(int argc, char ** argv)
         const char * value;
         int sections;
         int properties;
+        TEST();
         /**/
         ASSERT(diminuto_buffer_prealloc(20, 8)); /* Determined empirically. */
         ASSERT(diminuto_buffer_prealloc(3, 16)); /* Determined empirically. */
@@ -489,6 +496,7 @@ int main(int argc, char ** argv)
 
     {
         FILE * stream;
+        TEST();
         ASSERT((stream = tmpfile()) != (FILE *)0);
         {
             assay_config_destroy(assay_config_export_stream(assay_config_import_file(assay_config_create(), PATH1), stream));
@@ -539,6 +547,7 @@ int main(int argc, char ** argv)
         int pipeline[2][2];
         pid_t pid;
         static const char ACK = 0xa5;
+        TEST();
         ASSERT(pipe(pipeline[0]) == 0); /* [0][0]=ConsumerRead, [0][1]=ProducerWrite */
         ASSERT(pipe(pipeline[1]) == 0); /* [1][0]=ProducerRead, [1][1]=ConsumerWrite */
 #define CONSUMER_READ pipeline[0][0]
@@ -660,6 +669,7 @@ int main(int argc, char ** argv)
         int service;
         diminuto_port_t rendezvous;
         pid_t pid;
+        TEST();
         ASSERT((service = diminuto_ipc_stream_provider(0)) >= 0);
         ASSERT(diminuto_ipc_set_reuseaddress(service, !0) >= 0);
         ASSERT(diminuto_ipc_nearend(service, (diminuto_ipv4_t *)0, &rendezvous) == 0);
@@ -739,6 +749,7 @@ int main(int argc, char ** argv)
         int service;
         diminuto_port_t rendezvous;
         pid_t pid;
+        TEST();
         ASSERT((service = diminuto_ipc_stream_provider(0)) >= 0);
         ASSERT(diminuto_ipc_set_reuseaddress(service, !0) >= 0);
         ASSERT(diminuto_ipc_nearend(service, (diminuto_ipv4_t *)0, &rendezvous) == 0);
@@ -829,6 +840,7 @@ int main(int argc, char ** argv)
         int service;
         diminuto_port_t rendezvous;
         pid_t pid;
+        TEST();
         ASSERT((service = diminuto_ipc_stream_provider(0)) >= 0);
         ASSERT(diminuto_ipc_set_reuseaddress(service, !0) >= 0);
         ASSERT(diminuto_ipc_nearend(service, (diminuto_ipv4_t *)0, &rendezvous) == 0);
