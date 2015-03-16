@@ -443,11 +443,12 @@ int main(int argc, char ** argv)
         int properties;
         TEST();
         /**/
-        ASSERT(diminuto_buffer_prealloc(20, 8)); /* Determined empirically. */
-        ASSERT(diminuto_buffer_prealloc(3, 16)); /* Determined empirically. */
-        ASSERT(diminuto_buffer_prealloc(5, 64)); /* Determined empirically. */
-        ASSERT(diminuto_buffer_prealloc(13, 128)); /* Determined empirically. */
-        ASSERT(diminuto_buffer_prealloc(1, 256)); /* Determined empirically. */
+        ASSERT(diminuto_buffer_prealloc(100, 8));
+        ASSERT(diminuto_buffer_prealloc(100, 16));
+        ASSERT(diminuto_buffer_prealloc(100, 64));
+        ASSERT(diminuto_buffer_prealloc(100, 128));
+        ASSERT(diminuto_buffer_prealloc(100, 256));
+        ASSERT(diminuto_buffer_prealloc(100, 512));
         ASSERT(diminuto_heap_malloc_set(diminuto_buffer_malloc) == malloc);
         ASSERT(diminuto_heap_free_set(diminuto_buffer_free) == free);
         ASSERT(diminuto_string_strdup_set(diminuto_buffer_strdup) == strdup);
