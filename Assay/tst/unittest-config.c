@@ -445,6 +445,7 @@ int main(int argc, char ** argv)
         /**/
         ASSERT(diminuto_buffer_prealloc(100, 8));
         ASSERT(diminuto_buffer_prealloc(100, 16));
+        ASSERT(diminuto_buffer_prealloc(100, 32));
         ASSERT(diminuto_buffer_prealloc(100, 64));
         ASSERT(diminuto_buffer_prealloc(100, 128));
         ASSERT(diminuto_buffer_prealloc(100, 256));
@@ -484,6 +485,7 @@ int main(int argc, char ** argv)
         EXPECT(((value = assay_config_read_string(cfp, "Endpoint3", "FieldC")) != (const char *)0) && (strcmp(value, "m") == 0));
         EXPECT(((value = assay_config_read_string(cfp, "Endpoint3", "FieldD")) != (const char *)0) && (strcmp(value, "n") == 0));
         /**/
+        diminuto_buffer_log();
         assay_config_destroy(cfp);
         /**/
         ASSERT(diminuto_buffer_nomalloc(0));
