@@ -18,7 +18,7 @@ TARGET				:=	host# Build for the x86_64 running Ubuntu 14.04 LTS.
 
 MAJOR				:=	1# API changes that may require that applications be modified.
 MINOR				:=	8# Only functionality or features added with no legacy API changes.
-BUILD				:=	4# Only bugs fixed with no API changes or new functionality.
+BUILD				:=	5# Only bugs fixed with no API changes or new functionality.
 
 VINTAGE				:=	$(shell date -u +%Y-%m-%dT%H:%M:%S.%N%z)
 
@@ -44,6 +44,7 @@ ETC_DIR				:=	etc# Miscellaneous files
 GEN_DIR				:=	gen# Generated source files
 INC_DIR				:=	inc# Header files
 LIB_DIR				:=	lib# Shared objects for dynamic linking
+OBC_DIR				:=	obc# C object files
 OUT_DIR				:=	out# Build artifacts
 SRC_DIR				:=	src# Library source files
 SYM_DIR				:=	sym# Unstripped executable binaries
@@ -135,9 +136,9 @@ BROWSER				:=	firefox
 
 ########## Build Artifacts
 
-TARGETOBJECTS		:=	$(addprefix $(OUT)/,$(addsuffix .o,$(basename $(wildcard $(SRC_DIR)/*.c))))
-TARGETOBJECTS		+=	$(addprefix $(OUT)/,$(addsuffix .o,$(basename $(wildcard $(SRC_DIR)/*.l))))
-TARGETOBJECTS		+=	$(addprefix $(OUT)/,$(addsuffix .o,$(basename $(wildcard $(SRC_DIR)/*.y))))
+TARGETOBJECTS		:=	$(addprefix $(OUT)/$(OBC_DIR)/,$(addsuffix .o,$(basename $(wildcard $(SRC_DIR)/*.c))))
+TARGETOBJECTS		+=	$(addprefix $(OUT)/$(OBC_DIR)/,$(addsuffix .o,$(basename $(wildcard $(SRC_DIR)/*.l))))
+TARGETOBJECTS		+=	$(addprefix $(OUT)/$(OBC_DIR)/,$(addsuffix .o,$(basename $(wildcard $(SRC_DIR)/*.y))))
 TARGETSCRIPTS		:=	$(addprefix $(OUT)/,$(basename $(wildcard $(BIN_DIR)/*.sh)))
 TARGETBINARIES		:=	$(addprefix $(OUT)/,$(basename $(wildcard $(BIN_DIR)/*.c)))
 TARGETGENERATED		:=	$(addprefix $(OUT)/$(BIN_DIR)/,$(GENERATED))
@@ -180,19 +181,19 @@ pristine clobber:	clean
 
 ########## Lovingly Hand Crafted Targets With Dependencies Generated At Build
 
-$(OUT)/$(SRC_DIR)/$(PROJECT)_parser.o:	$(OUT)/$(GEN_DIR)/$(PROJECT)_parser.c
+$(OUT)/$(OBC_DIR)/$(SRC_DIR)/$(PROJECT)_parser.o:	$(OUT)/$(GEN_DIR)/$(PROJECT)_parser.c
 
 $(OUT)/$(GEN_DIR)/$(PROJECT)_parser.h:	$(OUT)/$(GEN_DIR)/$(PROJECT)_parser.c
 
-$(OUT)/$(SRC_DIR)/$(PROJECT)_scanner.o:	$(OUT)/$(GEN_DIR)/$(PROJECT)_scanner.c $(OUT)/$(GEN_DIR)/$(PROJECT)_parser.h
+$(OUT)/$(OBC_DIR)/$(SRC_DIR)/$(PROJECT)_scanner.o:	$(OUT)/$(GEN_DIR)/$(PROJECT)_scanner.c $(OUT)/$(GEN_DIR)/$(PROJECT)_parser.h
 
 $(OUT)/$(GEN_DIR)/$(PROJECT)_scanner.h:	$(OUT)/$(GEN_DIR)/$(PROJECT)_scanner.c
 
-$(OUT)/$(SRC_DIR)/$(PROJECT)_parser_annex.o:	$(OUT)/$(GEN_DIR)/$(PROJECT)_parser.h $(OUT)/$(GEN_DIR)/$(PROJECT)_scanner.h
+$(OUT)/$(OBC_DIR)/$(SRC_DIR)/$(PROJECT)_parser_annex.o:	$(OUT)/$(GEN_DIR)/$(PROJECT)_parser.h $(OUT)/$(GEN_DIR)/$(PROJECT)_scanner.h
 
-$(OUT)/$(SRC_DIR)/$(PROJECT)_scanner_annex.o:	$(OUT)/$(GEN_DIR)/$(PROJECT)_parser.h $(OUT)/$(GEN_DIR)/$(PROJECT)_scanner.h
+$(OUT)/$(OBC_DIR)/$(SRC_DIR)/$(PROJECT)_scanner_annex.o:	$(OUT)/$(GEN_DIR)/$(PROJECT)_parser.h $(OUT)/$(GEN_DIR)/$(PROJECT)_scanner.h
 
-$(OUT)/$(SRC_DIR)/$(PROJECT).o:	$(OUT)/$(GEN_DIR)/$(PROJECT)_parser.h $(OUT)/$(GEN_DIR)/$(PROJECT)_scanner.h
+$(OUT)/$(OBC_DIR)/$(SRC_DIR)/$(PROJECT).o:	$(OUT)/$(GEN_DIR)/$(PROJECT)_parser.h $(OUT)/$(GEN_DIR)/$(PROJECT)_scanner.h
 
 ########## Packaging and Distribution
 
@@ -297,7 +298,7 @@ $(OUT)/$(SYM_DIR)/%:	$(BIN_DIR)/%.c $(TARGETLIBRARIES)
 
 ########## Unit Tests
 
-$(OUT)/$(TST_DIR)/%:	$(TST_DIR)/%.c $(TARGETLIBRARIES)
+$(OUT)/$(TST_DIR)/%:	$(OUT)/$(OBC_DIR)/$(TST_DIR)/%.o $(TARGETLIBRARIES)
 	D=`dirname $@`; mkdir -p $$D
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $< $(LDFLAGS)
 
@@ -418,7 +419,7 @@ $(OUT)/$(INC_DIR)/com/diag/$(PROJECT)/$(PROJECT)_release.h:	Makefile
 	echo '#endif' >> $@
 
 # For embedding in the library archive and shared object.
-$(OUT)/$(SRC_DIR)/$(PROJECT)_release.o:	$(TARGETSYNTHESIZED)
+$(OUT)/$(OBC_DIR)/$(SRC_DIR)/$(PROJECT)_release.o:	$(TARGETSYNTHESIZED)
 
 # For embedding in an application where it can be interrogated or displayed.
 $(OUT)/$(INC_DIR)/com/diag/$(PROJECT)/$(PROJECT)_vintage.h:	Makefile
@@ -430,7 +431,7 @@ $(OUT)/$(INC_DIR)/com/diag/$(PROJECT)/$(PROJECT)_vintage.h:	Makefile
 	echo '#endif' >> $@
 
 # For embedding in the library archive and shared object.
-$(OUT)/$(SRC_DIR)/$(PROJECT)_vintage.o:	$(TARGETSYNTHESIZED)
+$(OUT)/$(OBC_DIR)/$(SRC_DIR)/$(PROJECT)_vintage.o:	$(TARGETSYNTHESIZED)
 
 # For executing from the command line during testing.
 $(OUT)/$(SYM_DIR)/vintage:	$(OUT)/$(GEN_DIR)/vintage.c
@@ -541,11 +542,11 @@ patch:	$(OLD) $(NEW)
 
 ########## Rules
 
-$(OUT)/%.txt:	%.c
+$(OUT)/$(OBC_DIR)/%.txt:	%.c
 	D=`dirname $@`; mkdir -p $$D
 	$(CC) -E $(CPPFLAGS) -c $< > $@
 
-$(OUT)/%.o:	%.c
+$(OUT)/$(OBC_DIR)/%.o:	%.c
 	D=`dirname $@`; mkdir -p $$D
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -c $<
 
@@ -563,7 +564,7 @@ $(OUT)/$(GEN_DIR)/%.c:	$(SRC_DIR)/%.l
 	#flex --always-interactive -o $@ --header-file=$(addsuffix .h,$(basename $@)) $<
 	flex -o $@ --header-file=$(addsuffix .h,$(basename $@)) $<
 
-$(OUT)/$(SRC_DIR)/%.o:	$(OUT)/$(GEN_DIR)/%.c
+$(OUT)/$(OBC_DIR)/$(SRC_DIR)/%.o:	$(OUT)/$(GEN_DIR)/%.c
 	D=`dirname $@`; mkdir -p $$D
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -c $<
 
@@ -587,7 +588,7 @@ depend:	$(TARGETSYNTHESIZED)
 			for F in $$S/*.c; do \
 				D=`dirname $$F`; \
 				T=`mktemp "$(TEMP_DIR)/$(PROJECT).XXXXXXXXXX"`; \
-				echo -n "$(OUT)/$$D/" > $$T; \
+				echo -n "$(OUT)/$(OBC_DIR)/$$D/" > $$T; \
 				$(CC) $(CPPFLAGS) -MM -MG $$F >> $$T && cat $$T >> $(DEPENDENCIES); \
 				rm -f $$T; \
 			done; \
