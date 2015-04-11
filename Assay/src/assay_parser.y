@@ -7,6 +7,8 @@
  * Licensed under the terms in README.h<BR>
  * Chip Overclock (coverclock@diag.com)<BR>
  * http://www.diag.com/navigation/downloads/Assay.html<BR>
+ *
+ * N.B. May not compile under Bison versions prior to 3.0.2!
  */
 
 #include "com/diag/assay/assay_parser_annex.h"

@@ -7,6 +7,8 @@
  * Licensed under the terms in README.h<BR>
  * Chip Overclock (coverclock@diag.com)<BR>
  * http://www.diag.com/navigation/downloads/Assay.html<BR>
+ *
+ * N.B. May not compile under Flex versions prior to 2.5.35!
  */
 
 #include "assay_parser.h"
