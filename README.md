@@ -55,7 +55,8 @@ Assay (and Diminuto) has been built and tested on a Pentium PC running
 Ubuntu 14.04 (my build server), and an Nvidia Jetson TK1 board (which has a
 64-bit ARM processor) also running Ubuntu 14.04 (my reference target). This
 latter target has the internal Digital Aggregates code name of "Stampede",
-which you will see referenced here and there.
+which you will see referenced here and there. Both targets used Bison 3.0.2
+and Flex 2.5.35; Assay is unlikely to build with earlier versions of Bison.
 
 This software is an original work of its author(s).
 
