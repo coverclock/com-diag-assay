@@ -17,13 +17,13 @@ TARGET				:=	host# Build for the x86_64 running Ubuntu 14.04 LTS.
 #TARGET				:=	stampede# Build for the Nvidia Jetson TK1 running Ubuntu 14.04.
 
 MAJOR				:=	1# API changes that may require that applications be modified.
-MINOR				:=	8# Only functionality or features added with no legacy API changes.
-BUILD				:=	7# Only bugs fixed with no API changes or new functionality.
+MINOR				:=	9# Only functionality or features added with no legacy API changes.
+BUILD				:=	0# Only bugs fixed with no API changes or new functionality.
 
 VINTAGE				:=	$(shell date -u +%Y-%m-%dT%H:%M:%S.%N%z)
 
 # This stuff all gets embedded in the vintage application.
-COPYRIGHT			:=	2015 Digital Aggregates Corporation
+COPYRIGHT			:=	2015-2016 Digital Aggregates Corporation
 LICENSE				:=	GNU Lesser General Public License 2.1
 CONTACT				:=	coverclock@diag.com
 HOMEPAGE			:=	http://www.diag.com/navigation/downloads/$(TITLE).html
