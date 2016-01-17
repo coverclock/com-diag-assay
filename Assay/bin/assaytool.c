@@ -7,11 +7,23 @@
  * Chip Overclock <coverclock@diag.com><BR>
  * http://www.diag.com/navigation/downloads/Assay.html<BR>
  *
+ * EXAMPLES
+ *
+ * assaytool -k LEFT -v RIGHT -w -f test.conf -e
+ * assaytool -f test.conf -i -k LEFT -r
+ * assaytool -f test.conf -i -k FOO -v BAR -w -e
+ * assaytool -i -k FOO -r < test.conf
+ * assaytool -f test.conf -i -f - -e
+ *
+ * USAGE
+ *
+ * assaytool [ -d | -f FILE | -i | -s SECTION | -S | -k KEYWORD | -v VALUE | -r | | -w | -x | -e | ... ]
+ *
  * ABSTRACT
  *
  * Implements a general command line tool to manipulate configuration files
  * in the Assay format. Command line parameters are interpreted and executed
- * as they are encountered left to right in a memtool like manner.
+ * as they are encountered left to right in a memtool-like manner.
  */
 
 #include <stdio.h>
@@ -25,7 +37,7 @@ static const char * program = "assaytool";
 
 static void usage(void)
 {
-    fprintf(stderr, "usage: %s [ -d ] [ -f FILE | -i | -e | -s SECTION | -S | -k KEYWORD | -v VALUE | -r | -R | -A | -w | -x | -X | ... ]\n", program);
+    fprintf(stderr, "usage: %s [ -d ] [ -f FILE | -i | -e | -s SECTION | -S | -k KEYWORD | -v VALUE | -r | -w | -x | ... ]\n", program);
     fprintf(stderr, "       -d            Enable debug mode\n");
     fprintf(stderr, "       -f FILE       Use file FILE\n");
     fprintf(stderr, "       -i            import FILE\n");
