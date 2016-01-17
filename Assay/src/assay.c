@@ -2,7 +2,7 @@
 /**
  * @file
  *
- * Copyright 2015 Digital Aggregates Corporation, Colorado, USA<BR>
+ * Copyright 2015-2016 Digital Aggregates Corporation, Colorado, USA<BR>
  * Licensed under the terms in README.h<BR>
  * Chip Overclock (coverclock@diag.com)<BR>
  * http://www.diag.com/navigation/downloads/Assay.html<BR>
@@ -356,7 +356,7 @@ void assay_property_destroy(assay_property_t * prp)
     }
     diminuto_tree_remove(&(prp->tree));
     diminuto_heap_free((void *)(prp->key));
-    diminuto_heap_free((void *)prp->value);
+    diminuto_heap_free((void *)(prp->value));
     diminuto_heap_free(prp);
 }
 
@@ -556,6 +556,20 @@ void * assay_config_read_binary(assay_config_t * cfp, const char * name, const c
 void assay_config_write_binary(assay_config_t * cfp, const char * name, const char * key, const void * value, size_t length)
 {
     assay_property_value_set(property_resolve(section_resolve(cfp, name, !0), key, !0), value, length);
+}
+
+void assay_config_destroy_binary(assay_config_t * cfp, const char * name, const char * key)
+{
+    assay_section_t * scp;
+    assay_property_t * prp;
+
+    if ((scp = section_resolve(cfp, name, 0)) == (assay_section_t *)0) {
+	/* Do nothing. */
+    } else if ((prp = property_resolve(scp, key, 0)) == (assay_property_t *)0) {
+	/* Do nothing. */
+    } else {
+	assay_property_destroy(prp);
+    }
 }
 
 /*******************************************************************************
@@ -811,6 +825,22 @@ assay_config_t * assay_config_export_stream_send(assay_config_t * cfp, FILE * st
 
     return cfp;
 }
+
+assay_config_t * assay_config_export_file(assay_config_t * cfp, const char * file)
+{
+    FILE * fp;
+
+    if ((file[0] == '-') && (file[1] == '\0')) {
+        cfp = assay_config_export_stream(cfp, stdout);
+    } else if ((fp = fopen(file, "w")) != (FILE *)0) {
+        cfp = assay_config_export_stream_close(cfp, fp);
+    } else {
+        cfp = (assay_config_t *)0;
+    }
+
+    return cfp;
+}
+
 
 /*******************************************************************************
  * AUDITORS

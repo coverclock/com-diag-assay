@@ -5,7 +5,7 @@
 /**
  * @file
  *
- * Copyright 2015 Digital Aggregates Corporation, Colorado, USA<BR>
+ * Copyright 2015-2016 Digital Aggregates Corporation, Colorado, USA<BR>
  * Licensed under the terms in README.h<BR>
  * Chip Overclock <coverclock@diag.com><BR>
  * http://www.diag.com/navigation/downloads/Assay.html<BR>
@@ -326,6 +326,15 @@ extern void * assay_config_read_binary(assay_config_t * cfp, const char * name, 
  */
 extern void assay_config_write_binary(assay_config_t * cfp, const char * name, const char * key, const void * value, size_t length);
 
+/**
+ * Destroy an object in a configuration given a section name and a property
+ * key.
+ * @param cfp points to the configuration.
+ * @param name is the name of the section.
+ * @param key is the key of the property.
+ */
+extern void assay_config_destroy_binary(assay_config_t * cfp, const char * name, const char * key);
+
 /*******************************************************************************
  * HELPERS
  ******************************************************************************/
@@ -356,6 +365,18 @@ static inline char * assay_config_read_string(assay_config_t * cfp, const char *
 static inline void assay_config_write_string(assay_config_t * cfp, const char * name, const char * key, char * value)
 {
     return assay_config_write_binary(cfp, name, key, value, strlen(value) + 1);
+}
+
+/**
+ * Destroy an object in a configuration given a section name and a property
+ * key.
+ * @param cfp points to the configuration.
+ * @param name is the name of the section.
+ * @param key is the key of the property.
+ */
+static inline void assay_config_destroy_string(assay_config_t * cfp, const char * name, const char * key)
+{
+    assay_config_destroy_binary(cfp, name, key);
 }
 
 /*******************************************************************************
