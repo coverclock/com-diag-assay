@@ -9,11 +9,11 @@
  *
  * USAGE
  *
- * assayread [ [ section ] key ] < file.ini
+ * assay [ [ section ] key ] < file.ini
  *
  * EXAMPLES
  *
- * assayread executablebinary
+ * assay executablebinary
  *
  * ABSTRACT
  *
