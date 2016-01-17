@@ -2,18 +2,18 @@
 /**
  * @file
  *
- * Copyright 2015 Digital Aggregates Corporation, Colorado, USA<BR>
+ * Copyright 2015-2016 Digital Aggregates Corporation, Colorado, USA<BR>
  * Licensed under the terms in README.h<BR>
  * Chip Overclock <coverclock@diag.com><BR>
  * http://www.diag.com/navigation/downloads/Assay.html<BR>
  *
  * USAGE
  *
- * assay [ [ section ] key ] < file.ini
+ * assayread [ [ section ] key ] < file.ini
  *
  * EXAMPLES
  *
- * assay executablebinary
+ * assayread executablebinary
  *
  * ABSTRACT
  *
