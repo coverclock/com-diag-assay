@@ -25,7 +25,7 @@
 #include "com/diag/diminuto/diminuto_log.h"
 #include "com/diag/diminuto/diminuto_dump.h"
 #include "com/diag/diminuto/diminuto_escape.h"
-#include "com/diag/diminuto/diminuto_ipc.h"
+#include "com/diag/diminuto/diminuto_ipc4.h"
 #include "com/diag/diminuto/diminuto_buffer.h"
 #include "com/diag/diminuto/diminuto_heap.h"
 #include "com/diag/diminuto/diminuto_string.h"
@@ -741,9 +741,9 @@ int main(int argc, char ** argv)
         diminuto_port_t rendezvous;
         pid_t pid;
         TEST();
-        ASSERT((service = diminuto_ipc_stream_provider(0)) >= 0);
-        ASSERT(diminuto_ipc_set_reuseaddress(service, !0) >= 0);
-        ASSERT(diminuto_ipc_nearend(service, (diminuto_ipv4_t *)0, &rendezvous) == 0);
+        ASSERT((service = diminuto_ipc4_stream_provider(0)) >= 0);
+        ASSERT(diminuto_ipc4_set_reuseaddress(service, !0) >= 0);
+        ASSERT(diminuto_ipc4_nearend(service, (diminuto_ipv4_t *)0, &rendezvous) == 0);
         DIMINUTO_LOG_DEBUG("unittest-config: service=%d rendezvous=%d\n", service, rendezvous);
         pid = fork();
         if (pid < 0) {
@@ -751,7 +751,7 @@ int main(int argc, char ** argv)
         } else if (pid == 0) {
             int producer;
             char acknowledgement = ~ACK;
-            ASSERT((producer = diminuto_ipc_stream_consumer(diminuto_ipc_address("localhost"), rendezvous)) >= 0);
+            ASSERT((producer = diminuto_ipc4_stream_consumer(diminuto_ipc4_address("localhost"), rendezvous)) >= 0);
             DIMINUTO_LOG_DEBUG("unittest-config: producer=%d\n", producer);
             assay_config_destroy(assay_config_export_stream_close(assay_config_import_file(assay_config_create(), PATH1), fdopen(dup(producer), "w")));
             EXPECT(read(producer, &acknowledgement, sizeof(acknowledgement)) == sizeof(acknowledgement));
@@ -771,7 +771,7 @@ int main(int argc, char ** argv)
             int status;
             address = 0;
             port = (diminuto_port_t)-1;
-            ASSERT((consumer = diminuto_ipc_stream_accept(service, &address, &port)) >= 0);
+            ASSERT((consumer = diminuto_ipc4_stream_accept_generic(service, &address, &port)) >= 0);
             DIMINUTO_LOG_DEBUG("unittest-config: consumer=%d\n", consumer);
             EXPECT(address != 0);
             EXPECT(port != (diminuto_port_t)-1);
@@ -808,7 +808,7 @@ int main(int argc, char ** argv)
             assay_config_destroy(cfp);
             ASSERT(write(consumer, &ackowledge, sizeof(ackowledge)) == sizeof(ackowledge));
             ASSERT((rc = waitpid(pid, &status, 1)) >= 0); /* valgrind(1) affects the PID that is returned. */
-            EXPECT(diminuto_ipc_close(service) >= 0);
+            EXPECT(diminuto_ipc4_close(service) >= 0);
             DIMINUTO_LOG_DEBUG("unittest-config: consumer: reaped pid=%d rc=%d status=%d\n", pid, rc, status);
             STATUS();
         }
@@ -821,9 +821,9 @@ int main(int argc, char ** argv)
         diminuto_port_t rendezvous;
         pid_t pid;
         TEST();
-        ASSERT((service = diminuto_ipc_stream_provider(0)) >= 0);
-        ASSERT(diminuto_ipc_set_reuseaddress(service, !0) >= 0);
-        ASSERT(diminuto_ipc_nearend(service, (diminuto_ipv4_t *)0, &rendezvous) == 0);
+        ASSERT((service = diminuto_ipc4_stream_provider(0)) >= 0);
+        ASSERT(diminuto_ipc4_set_reuseaddress(service, !0) >= 0);
+        ASSERT(diminuto_ipc4_nearend(service, (diminuto_ipv4_t *)0, &rendezvous) == 0);
         DIMINUTO_LOG_DEBUG("unittest-config: service=%d rendezvous=%d\n", service, rendezvous);
         pid = fork();
         if (pid < 0) {
@@ -833,9 +833,9 @@ int main(int argc, char ** argv)
             FILE * stream;
             char acknowledgement = ~ACK;
             int ii;
-            EXPECT(diminuto_ipc_close(service) >= 0);
+            EXPECT(diminuto_ipc4_close(service) >= 0);
             for (ii = 0; ii < REPEAT; ++ii) {
-                ASSERT((producer = diminuto_ipc_stream_consumer(diminuto_ipc_address("localhost"), rendezvous)) >= 0);
+                ASSERT((producer = diminuto_ipc4_stream_consumer(diminuto_ipc4_address("localhost"), rendezvous)) >= 0);
                 DIMINUTO_LOG_DEBUG("unittest-config: producer=%d\n", producer);
                 assay_config_destroy(assay_config_export_stream_send(assay_config_import_file(assay_config_create(), PATH1), stream = fdopen(producer, "w")));
                 EXPECT(read(producer, &acknowledgement, sizeof(acknowledgement)) == sizeof(acknowledgement));
@@ -860,7 +860,7 @@ int main(int argc, char ** argv)
             for (ii = 0; ii < REPEAT; ++ii) {
                 address = 0;
                 port = (diminuto_port_t)-1;
-                ASSERT((consumer = diminuto_ipc_stream_accept(service, &address, &port)) >= 0);
+                ASSERT((consumer = diminuto_ipc4_stream_accept_generic(service, &address, &port)) >= 0);
                 DIMINUTO_LOG_DEBUG("unittest-config: consumer=%d\n", consumer);
                 EXPECT(address != 0);
                 EXPECT(port != (diminuto_port_t)-1);
@@ -899,7 +899,7 @@ int main(int argc, char ** argv)
                 ASSERT(fclose(stream) == 0);
             }
             ASSERT((rc = waitpid(pid, &status, 1)) >= 0); /* valgrind(1) affects the PID that is returned. */
-            EXPECT(diminuto_ipc_close(service) >= 0);
+            EXPECT(diminuto_ipc4_close(service) >= 0);
             DIMINUTO_LOG_DEBUG("unittest-config: consumer: reaped pid=%d rc=%d status=%d\n", pid, rc, status);
             STATUS();
         }
@@ -912,9 +912,9 @@ int main(int argc, char ** argv)
         diminuto_port_t rendezvous;
         pid_t pid;
         TEST();
-        ASSERT((service = diminuto_ipc_stream_provider(0)) >= 0);
-        ASSERT(diminuto_ipc_set_reuseaddress(service, !0) >= 0);
-        ASSERT(diminuto_ipc_nearend(service, (diminuto_ipv4_t *)0, &rendezvous) == 0);
+        ASSERT((service = diminuto_ipc4_stream_provider(0)) >= 0);
+        ASSERT(diminuto_ipc4_set_reuseaddress(service, !0) >= 0);
+        ASSERT(diminuto_ipc4_nearend(service, (diminuto_ipv4_t *)0, &rendezvous) == 0);
         DIMINUTO_LOG_DEBUG("unittest-config: service=%d rendezvous=%d\n", service, rendezvous);
         pid = fork();
         if (pid < 0) {
@@ -925,8 +925,8 @@ int main(int argc, char ** argv)
             char acknowledgement = ~ACK;
             assay_config_t * cfp;
             int ii;
-            EXPECT(diminuto_ipc_close(service) >= 0);
-            ASSERT((producer = diminuto_ipc_stream_consumer(diminuto_ipc_address("localhost"), rendezvous)) >= 0);
+            EXPECT(diminuto_ipc4_close(service) >= 0);
+            ASSERT((producer = diminuto_ipc4_stream_consumer(diminuto_ipc4_address("localhost"), rendezvous)) >= 0);
             DIMINUTO_LOG_DEBUG("unittest-config: producer=%d\n", producer);
             ASSERT((cfp = assay_config_create()) != (assay_config_t *)0);
             ASSERT((stream = fdopen(producer, "w")) != (FILE *)0);
@@ -954,7 +954,7 @@ int main(int argc, char ** argv)
             int ii;
             address = 0;
             port = (diminuto_port_t)-1;
-            ASSERT((consumer = diminuto_ipc_stream_accept(service, &address, &port)) >= 0);
+            ASSERT((consumer = diminuto_ipc4_stream_accept_generic(service, &address, &port)) >= 0);
             DIMINUTO_LOG_DEBUG("unittest-config: consumer=%d\n", consumer);
             EXPECT(address != 0);
             EXPECT(port != (diminuto_port_t)-1);
@@ -996,7 +996,7 @@ int main(int argc, char ** argv)
             ASSERT(fclose(stream) == 0);
             assay_config_destroy(cfp);
             ASSERT((rc = waitpid(pid, &status, 1)) >= 0); /* valgrind(1) affects the PID that is returned. */
-            EXPECT(diminuto_ipc_close(service) >= 0);
+            EXPECT(diminuto_ipc4_close(service) >= 0);
             DIMINUTO_LOG_DEBUG("unittest-config: consumer: reaped pid=%d rc=%d status=%d\n", pid, rc, status);
             STATUS();
         }
@@ -1007,9 +1007,9 @@ int main(int argc, char ** argv)
         diminuto_port_t rendezvous;
         pid_t pid;
         TEST();
-        ASSERT((service = diminuto_ipc_stream_provider(0)) >= 0);
-        ASSERT(diminuto_ipc_set_reuseaddress(service, !0) >= 0);
-        ASSERT(diminuto_ipc_nearend(service, (diminuto_ipv4_t *)0, &rendezvous) == 0);
+        ASSERT((service = diminuto_ipc4_stream_provider(0)) >= 0);
+        ASSERT(diminuto_ipc4_set_reuseaddress(service, !0) >= 0);
+        ASSERT(diminuto_ipc4_nearend(service, (diminuto_ipv4_t *)0, &rendezvous) == 0);
         DIMINUTO_LOG_DEBUG("unittest-config: service=%d rendezvous=%d\n", service, rendezvous);
         pid = fork();
         if (pid < 0) {
@@ -1017,9 +1017,9 @@ int main(int argc, char ** argv)
         } else if (pid == 0) {
             char buffer[] = "ALFA=1\nBETA=2\nGAMMA"; /* Partial message; simulated producer failure. */
             int producer;
-            ASSERT((producer = diminuto_ipc_stream_consumer(diminuto_ipc_address("localhost"), rendezvous)) >= 0);
+            ASSERT((producer = diminuto_ipc4_stream_consumer(diminuto_ipc4_address("localhost"), rendezvous)) >= 0);
             DIMINUTO_LOG_DEBUG("unittest-config: producer=%d\n", producer);
-            ASSERT(diminuto_fd_write(producer, buffer, sizeof(buffer), sizeof(buffer)) == sizeof(buffer));
+            ASSERT(diminuto_fd_write(producer, buffer, sizeof(buffer)) == sizeof(buffer));
             DIMINUTO_LOG_DEBUG("unittest-config: producer: exiting\n");
             EXIT();
         } else {
@@ -1034,7 +1034,7 @@ int main(int argc, char ** argv)
             int status;
             address = 0;
             port = (diminuto_port_t)-1;
-            ASSERT((consumer = diminuto_ipc_stream_accept(service, &address, &port)) >= 0);
+            ASSERT((consumer = diminuto_ipc4_stream_accept_generic(service, &address, &port)) >= 0);
             DIMINUTO_LOG_DEBUG("unittest-config: consumer=%d\n", consumer);
             EXPECT(address != 0);
             EXPECT(port != (diminuto_port_t)-1);
@@ -1049,7 +1049,7 @@ int main(int argc, char ** argv)
             EXPECT(((value = assay_config_read_string(cfp, ASSAY_SECTION_DEFAULT, "BETA")) != (const char *)0) && (strcmp(value, "2") == 0));
             assay_config_destroy(cfp);
             ASSERT((rc = waitpid(pid, &status, 1)) >= 0); /* valgrind(1) affects the PID that is returned. */
-            EXPECT(diminuto_ipc_close(service) >= 0);
+            EXPECT(diminuto_ipc4_close(service) >= 0);
             DIMINUTO_LOG_DEBUG("unittest-config: consumer: reaped pid=%d rc=%d status=%d\n", pid, rc, status);
             STATUS();
         }
