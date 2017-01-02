@@ -742,7 +742,7 @@ int main(int argc, char ** argv)
         pid_t pid;
         TEST();
         ASSERT((service = diminuto_ipc4_stream_provider(0)) >= 0);
-        ASSERT(diminuto_ipc4_set_reuseaddress(service, !0) >= 0);
+        ASSERT(diminuto_ipc_set_reuseaddress(service, !0) >= 0);
         ASSERT(diminuto_ipc4_nearend(service, (diminuto_ipv4_t *)0, &rendezvous) == 0);
         DIMINUTO_LOG_DEBUG("unittest-config: service=%d rendezvous=%d\n", service, rendezvous);
         pid = fork();
@@ -822,7 +822,7 @@ int main(int argc, char ** argv)
         pid_t pid;
         TEST();
         ASSERT((service = diminuto_ipc4_stream_provider(0)) >= 0);
-        ASSERT(diminuto_ipc4_set_reuseaddress(service, !0) >= 0);
+        ASSERT(diminuto_ipc_set_reuseaddress(service, !0) >= 0);
         ASSERT(diminuto_ipc4_nearend(service, (diminuto_ipv4_t *)0, &rendezvous) == 0);
         DIMINUTO_LOG_DEBUG("unittest-config: service=%d rendezvous=%d\n", service, rendezvous);
         pid = fork();
@@ -913,7 +913,7 @@ int main(int argc, char ** argv)
         pid_t pid;
         TEST();
         ASSERT((service = diminuto_ipc4_stream_provider(0)) >= 0);
-        ASSERT(diminuto_ipc4_set_reuseaddress(service, !0) >= 0);
+        ASSERT(diminuto_ipc_set_reuseaddress(service, !0) >= 0);
         ASSERT(diminuto_ipc4_nearend(service, (diminuto_ipv4_t *)0, &rendezvous) == 0);
         DIMINUTO_LOG_DEBUG("unittest-config: service=%d rendezvous=%d\n", service, rendezvous);
         pid = fork();
@@ -1008,7 +1008,7 @@ int main(int argc, char ** argv)
         pid_t pid;
         TEST();
         ASSERT((service = diminuto_ipc4_stream_provider(0)) >= 0);
-        ASSERT(diminuto_ipc4_set_reuseaddress(service, !0) >= 0);
+        ASSERT(diminuto_ipc_set_reuseaddress(service, !0) >= 0);
         ASSERT(diminuto_ipc4_nearend(service, (diminuto_ipv4_t *)0, &rendezvous) == 0);
         DIMINUTO_LOG_DEBUG("unittest-config: service=%d rendezvous=%d\n", service, rendezvous);
         pid = fork();
