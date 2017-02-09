@@ -183,9 +183,13 @@ pristine clobber:	clean
 
 $(OUT)/$(OBC_DIR)/$(SRC_DIR)/$(PROJECT)_parser.o:	$(OUT)/$(GEN_DIR)/$(PROJECT)_parser.c
 
+$(PROJECT)_parser.h:	$(OUT)/$(GEN_DIR)/$(PROJECT)_parser.h
+
 $(OUT)/$(GEN_DIR)/$(PROJECT)_parser.h:	$(OUT)/$(GEN_DIR)/$(PROJECT)_parser.c
 
 $(OUT)/$(OBC_DIR)/$(SRC_DIR)/$(PROJECT)_scanner.o:	$(OUT)/$(GEN_DIR)/$(PROJECT)_scanner.c $(OUT)/$(GEN_DIR)/$(PROJECT)_parser.h
+
+$(PROJECT)_scanner.h:	$(OUT)/$(GEN_DIR)/$(PROJECT)_scanner.h
 
 $(OUT)/$(GEN_DIR)/$(PROJECT)_scanner.h:	$(OUT)/$(GEN_DIR)/$(PROJECT)_scanner.c
 
