@@ -4,7 +4,7 @@
 
 /*******************************************************************************
 
-    Copyright 2015 by the Digital Aggregates Corporation, Colorado, USA.
+    Copyright 2015-2017 by the Digital Aggregates Corporation, Colorado, USA.
 
     ----------------------------------------------------------------------
 
