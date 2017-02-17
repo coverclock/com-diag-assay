@@ -66,7 +66,7 @@ Information regarding Assay and Diminuto can be found here:
 
     http://www.diag.com/navigation/downloads/Diminuto.html
 
-Contact:
+CONTACT
 
     Chip Overclock
     Digital Aggregates Corporation
