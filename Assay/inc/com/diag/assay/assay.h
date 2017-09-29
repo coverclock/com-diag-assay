@@ -450,6 +450,16 @@ extern assay_config_t * assay_config_export_stream_close(assay_config_t * cfp, F
  */
 extern  assay_config_t * assay_config_export_stream_send(assay_config_t * cfp, FILE * stream);
 
+/**
+ * Export a configuration to a file. This is a simple wrapper around
+ * assay_config_export_stream_close() that opens the file first. If
+ * the file name is "-" then standard output is used.
+ * @param cfp points to the configuration.
+ * @param file points to the name of the file.
+ * @return a pointer to the configuration or null if an error occurred.
+ */
+extern assay_config_t * assay_config_export_file(assay_config_t * cfp, const char * file);
+
 /*******************************************************************************
  * AUDITORS
  ******************************************************************************/

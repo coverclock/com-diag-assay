@@ -308,7 +308,9 @@ $(OUT)/$(TST_DIR)/%:	$(OUT)/$(OBC_DIR)/$(TST_DIR)/%.o $(TARGETLIBRARIES)
 
 ########## Generated Source Files
 
-ifeq (3.82, $(firstword $(sort $(MAKE_VERSION) 3.82)))
+SLASHES=2
+
+ifeq ($(SLASHES), 1)
 
 $(OUT)/$(GEN_DIR)/vintage.c:	$(TARGETSYNTHESIZED) Makefile
 	@echo MAKE_VERSION=$(MAKE_VERSION)
@@ -358,7 +360,9 @@ $(OUT)/$(GEN_DIR)/vintage.c:	$(TARGETSYNTHESIZED) Makefile
 	echo '    return 0;' >> $@
 	echo '}' >> $@
 
-else
+endif
+
+ifeq ($(SLASHES), 2)
 
 $(OUT)/$(GEN_DIR)/vintage.c:	$(TARGETSYNTHESIZED) Makefile
 	@echo MAKE_VERSION=$(MAKE_VERSION)
