@@ -18,7 +18,7 @@ TARGET				:=	host# Build for the x86_64 running Ubuntu 14.04 LTS.
 
 MAJOR				:=	1# API changes that may require that applications be modified.
 MINOR				:=	9# Only functionality or features added with no legacy API changes.
-BUILD				:=	0# Only bugs fixed with no API changes or new functionality.
+BUILD				:=	1# Only bugs fixed with no API changes or new functionality.
 
 VINTAGE				:=	$(shell date -u +%Y-%m-%dT%H:%M:%S.%N%z)
 
@@ -57,6 +57,7 @@ PROJECT				:=	$(shell echo $(TITLE) | tr '[A-Z]' '[a-z]')
 SYMBOL				:=	$(shell echo $(TITLE) | tr '[a-z]' '[A-Z]')
 
 HERE				:=	$(shell pwd)
+THERE				:=	$(shell realpath ../..)
 
 OUT					:=	$(OUT_DIR)/$(TARGET)
 
@@ -99,7 +100,7 @@ DIMINUTO_TITLE		:=	Diminuto
 DIMINUTO_PROJECT	:=	$(shell echo $(DIMINUTO_TITLE) | tr '[A-Z]' '[a-z]')
 DIMINUTO_SYMBOL		:=	$(shell echo $(DIMINUTO_TITLE) | tr '[a-z]' '[A-Z]')
 
-DIMINUTO_ROOT		:=	$(HOME)/src/com-diag-$(DIMINUTO_PROJECT)/$(DIMINUTO_TITLE)
+DIMINUTO_ROOT		:=	$(THERE)/com-diag-$(DIMINUTO_PROJECT)/$(DIMINUTO_TITLE)
 DIMINUTO_HEADERS	:=	$(DIMINUTO_ROOT)/$(INC_DIR)
 DIMINUTO_LIBRARIES	:=	$(DIMINUTO_ROOT)/$(OUT)/$(LIB_DIR)
 
