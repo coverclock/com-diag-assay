@@ -29,13 +29,18 @@ latter target has the internal Digital Aggregates code name of "Stampede",
 which you will see referenced here and there. Both targets used Bison 3.0.2
 and Flex 2.5.35; Assay is unlikely to build with earlier versions of Bison.
 
-(UPDATE 2020-02-27: Remarkably, Assay will not build under Bison 3.3.2
+UPDATE 2020-02-27: Remarkably, Assay will not build under Bison 3.3.2
 and Flex 2.6.4 which are the versions installed by the Debian packages
 bison and flex for Raspbian 10 "buster" for the Raspberry Pi. Flex's
 libfl on that ARMv7 platform seems to be compiled to expect an actual
 yylex function; yylex is a preprocessor definition in the generated
 code. Still works fine on an x86_64 platform running Ubuntu 18.04 "bionic"
-with Bison 3.0.4 and Flex 2.6.4.)
+with Bison 3.0.4 and Flex 2.6.4. I fixed this on the Pi by editing
+the host.mk file to statically link to the bison and flex libraries;
+the change is already present in that file as a comment.  You can also
+set TARGET=buster (UNTESTED) but that's not an option for me since it
+requires the Diminuto library to be similarly linked against a buster
+target (I'm using Diminuto elsewhere on the Pi).
 
 This software is an original work of its author(s).
 
