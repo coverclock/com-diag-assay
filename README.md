@@ -38,17 +38,11 @@ code. Still works fine on an x86_64 platform running Ubuntu 18.04 "bionic"
 with Bison 3.0.4 and Flex 2.6.4. I fixed this on the Pi by editing
 the host.mk file to statically link to the bison and flex libraries;
 the change is already present in that file as a comment.  You can also
-set TARGET=buster (UNTESTED) but that's not an option for me since it
-requires the Diminuto library to be similarly linked against a buster
-target (I'm using Diminuto elsewhere on the Pi).
+set TARGET=buster (UNTESTED) in the Makefile, but that's not an option
+for me since it requires the Diminuto library to be similarly linked
+against the buster target, and I'm using Diminuto elsewhere on the Pi.
 
 This software is an original work of its author(s).
-
-Information regarding Assay and Diminuto can be found here:
-
-    http://www.diag.com/navigation/downloads/Assay.html
-
-    http://www.diag.com/navigation/downloads/Diminuto.html
 
 # Contact
 
@@ -60,6 +54,8 @@ Information regarding Assay and Diminuto can be found here:
     mailto:coverclock@diag.com
 
 # Dependencies
+
+<https://github.com/coverclock/com-diag-assay>
 
 <https://github.com/coverclock/com-diag-diminuto>
 
