@@ -67,8 +67,6 @@ ROOT_DIR			:=	$(HOME_DIR)/$(TARGET)
 TIMESTAMP			:=	$(shell date -u +%Y%m%d%H%M%S%N%Z)
 DATESTAMP			:=	$(shell date +%Y%m%d)
 
-SVNREPO				:=	svn://graphite/$(PROJECT)
-SVNURL				:=	$(SVNREPO)/trunk/$(TITLE)
 GITURL				:=	https://github.com/coverclock/com-diag-$(PROJECT).git
 
 GENERATED			:=	vintage generate setup
@@ -215,22 +213,6 @@ package $(PACKAGE).tgz:
 	tar -C $(OUT) --exclude-vcs -cvf - $(MANIFEST) | tar -C $$T/$$B -xvf -; \
 	tar --exclude-vcs -cvf - $(INC_DIR) $(ETC_DIR) | tar -C $$T/$$B -xvf -; \
 	tar -C $$T --exclude-vcs -cvzf - $$B > $(PACKAGE).tgz; \
-	rm -rf $$T
-
-# Useful for given someone a tarball of the actual source distribution that
-# is guaranteed to at least build.
-
-.PHONY:	distribution distro
-
-distribution distro $(DISTRIBUTION).tgz:
-	D=`dirname $(DISTRIBUTION)`; mkdir -p $$D; \
-	T=`mktemp -d "$(TEMP_DIR)/$(PROJECT).XXXXXXXXXX"`; \
-	B=`basename $(DISTRIBUTION)`; \
-	( cd $$T; svn export $(SVNURL) $$B; ); \
-	tar -C $$T --exclude-vcs -cvzf - $$B > $(DISTRIBUTION).tgz; \
-	rm -rf $$T/$$B; \
-	tar -C $$T -xvzf - < $(DISTRIBUTION).tgz; \
-	( cd $$T/$$B; make all TARGET=host OUT=out/host && $(OUT)/bin/generate > ./setup && . ./setup && vintage ); \
 	rm -rf $$T
 
 # Useful for copying a tarball of the current development source base to a

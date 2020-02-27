@@ -690,7 +690,7 @@ assay_config_t * assay_config_import_command(assay_config_t * cfp, const char * 
 
 static int config_export_stream_isinteractive(FILE * stream)
 {
-    diminuto_fd_type_t type;
+    diminuto_fs_type_t type;
     int interactive;
 
     /*
@@ -714,17 +714,17 @@ static int config_export_stream_isinteractive(FILE * stream)
 
     type = diminuto_fd_type(fileno(stream));
     switch (type) {
-    case DIMINUTO_FD_TYPE_SOCKET:
-    case DIMINUTO_FD_TYPE_CHARACTERDEV:
-    case DIMINUTO_FD_TYPE_FIFO:
+    case DIMINUTO_FS_TYPE_SOCKET:
+    case DIMINUTO_FS_TYPE_CHARACTERDEV:
+    case DIMINUTO_FS_TYPE_FIFO:
         interactive = !0;
         break;
-    case DIMINUTO_FD_TYPE_UNKNOWN:
-    case DIMINUTO_FD_TYPE_TTY:
-    case DIMINUTO_FD_TYPE_SYMLINK:
-    case DIMINUTO_FD_TYPE_FILE:
-    case DIMINUTO_FD_TYPE_BLOCKDEV:
-    case DIMINUTO_FD_TYPE_DIRECTORY:
+    case DIMINUTO_FS_TYPE_UNKNOWN:
+    case DIMINUTO_FS_TYPE_TTY:
+    case DIMINUTO_FS_TYPE_SYMLINK:
+    case DIMINUTO_FS_TYPE_FILE:
+    case DIMINUTO_FS_TYPE_BLOCKDEV:
+    case DIMINUTO_FS_TYPE_DIRECTORY:
         interactive = 0;
         break;
     }
