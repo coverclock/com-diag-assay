@@ -3,44 +3,13 @@ com-diag-assay
 
 [![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/coverclock)
 
-Copyright 2015-2017 by the Digital Aggregates Corporation, Colorado, USA.
+Copyright 2015-2020 by the Digital Aggregates Corporation, Colorado, USA.
 
-LICENSE
+# License
 
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
+License under the terms in LICENSE.txt.
 
-As a special exception, if other files instantiate templates or
-use macros or inline functions from this file, or you compile
-this file and link it with other works to produce a work based on
-this file, this file does not by itself cause the resulting work
-to be covered by the GNU Lesser General Public License. However
-the source code for this file must still be made available in
-accordance with the GNU Lesser General Public License.
-
-This exception does not invalidate any other reasons why a work
-based on this file might be covered by the GNU Lesser General
-Public License.
-
-Alternative commercial licensing terms are available from the copyright
-holder. Contact Digital Aggregates Corporation for more information.
-
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, contact
-
-    Free Software Foundation, Inc.
-    59 Temple Place, Suite 330
-    Boston MA 02111-1307 USA
-    http://www.gnu.org/copyleft/lesser.txt
-
-ABSTRACT
+# Abstract
 
 This file is part of the Digital Aggregates Corporation Assay package.
 Assay is a C library that provides functions to parse a configuration file
@@ -68,7 +37,7 @@ Information regarding Assay and Diminuto can be found here:
 
     http://www.diag.com/navigation/downloads/Diminuto.html
 
-CONTACT
+# Contact
 
     Chip Overclock
     Digital Aggregates Corporation
@@ -76,6 +45,15 @@ CONTACT
     Wheat Ridge CO 80033 USA
     http://www.diag.com
     mailto:coverclock@diag.com
+
+# Dependencies
+
+<https://github.com/coverclock/com-diag-diminuto>
+
+    sudo apt-get install bison
+    sudo apt-get install flex
+
+# Remarks
 
 Here is an example of what an INI file might look like.
 
@@ -146,3 +124,7 @@ simple (but the grammar is the definitive source).
     of the shell command specified by the argument, which may include white
     space. When the shell command exits, parsing of the stream containing the
     exec statement resumes.
+
+# Soundtrack
+
+<https://www.youtube.com/playlist?list=PLd7Yo1333iA-YIyldvOB56QS-HZed_4g1>
