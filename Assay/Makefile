@@ -1,4 +1,5 @@
-# Copyright 2015-2018 Digital Aggregates Corporation
+# vi: set ts=4 shiftwidth=4:
+# Copyright 2015-2020 Digital Aggregates Corporation
 # Licensed under the terms in README.h
 # author:Chip Overclock
 # mailto:coverclock@diag.com
@@ -15,6 +16,7 @@ TITLE				:=	Assay
 
 TARGET				:=	host# Build for the x86_64 running Ubuntu 14.04 LTS.
 #TARGET				:=	stampede# Build for the Nvidia Jetson TK1 running Ubuntu 14.04.
+#TARGET				:=	buster# Build for the Raspberry Pi 4 running Raspbian 10.
 
 MAJOR				:=	1# API changes that may require that applications be modified.
 MINOR				:=	9# Only functionality or features added with no legacy API changes.
@@ -574,3 +576,18 @@ depend:	$(TARGETSYNTHESIZED)
 	done
 
 -include $(DEPENDENCIES)
+
+########## Unit Test
+
+sanity:
+	R="PASSED."; \
+	mkdir -p $(OUT)/log; \
+	cp /dev/null $(OUT)/log/unit-test.log; \
+	for U in $(TARGETUNITTESTS); do \
+		echo "UNIT TEST" $$U >> $(OUT)/log/unit-test.log; \
+		T="PASSED."; \
+		$$U >> $(OUT)/log/unit-test.log 2>&1 || T="FAILED!"; \
+		echo "UNIT TEST" $$U: $$T; \
+		test "$$T" = "FAILED!" && R="$$T"; \
+	done; \
+	echo $$R 1>&2
