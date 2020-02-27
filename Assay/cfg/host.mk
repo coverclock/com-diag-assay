@@ -17,5 +17,5 @@ LDARCH				:=	-L$(OUT)/$(LIB_DIR)
 MOARCH				:=	-L$(OUT)/$(LIB_DIR)
 SOARCH				:=
 KERNELARCH			:=
-#LDLIBRARIES			:=	-lfl -ly
-LDLIBRARIES			:=	/usr/lib/arm-linux-gnueabihf/libfl.a /usr/lib/arm-linux-gnueabihf/liby.a
+LDLIBRARIES			:=	-lfl -ly
+#LDLIBRARIES			:=	/usr/lib/arm-linux-gnueabihf/libfl.a /usr/lib/arm-linux-gnueabihf/liby.a
