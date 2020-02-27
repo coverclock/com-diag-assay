@@ -5,7 +5,7 @@
 /**
  * @file
  *
- * Copyright 2015 Digital Aggregates Corporation, Colorado, USA<BR>
+ * Copyright 2015-2020 Digital Aggregates Corporation, Colorado, USA<BR>
  * Licensed under the terms in README.h<BR>
  * Chip Overclock <coverclock@diag.com><BR>
  * http://www.diag.com/navigation/downloads/Assay.html<BR>
@@ -15,6 +15,14 @@
  */
 
 #include "com/diag/assay/assay_scanner_annex.h"
+
+/*******************************************************************************
+ * GENERATED
+ ******************************************************************************/
+
+extern int assay_parser_yylex(/* FORWARD REFERENCE */);
+
+extern int assay_parser_yyerror(/* FORWARD REFERENCE */);
 
 /*******************************************************************************
  * PARSER
