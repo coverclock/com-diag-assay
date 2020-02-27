@@ -29,6 +29,13 @@ latter target has the internal Digital Aggregates code name of "Stampede",
 which you will see referenced here and there. Both targets used Bison 3.0.2
 and Flex 2.5.35; Assay is unlikely to build with earlier versions of Bison.
 
+(UPDATE 2020-02-27: Remarkably, Assay will not build under Bison 3.3.2 and
+Flex 2.6.4 which are the versions installed by the Debian packages bison
+and flex for Raspbian 10 "buster" for the Raspberry Pi. libfl on that
+ARMv7 platform seems to be compiled to expect a yylex function instead
+of the usual preprocessor definition. Still works fine on an x86_64
+platform running Ubuntu 18.04 "bionic" with Bison 3.0.4 and Flex 2.6.4.)
+
 This software is an original work of its author(s).
 
 Information regarding Assay and Diminuto can be found here:
