@@ -456,7 +456,7 @@ int main(int argc, char ** argv)
         ASSERT(diminuto_heap_free_set(diminuto_buffer_free) == free);
         ASSERT(diminuto_string_strdup_set(diminuto_buffer_strdup) == strdup);
         diminuto_buffer_log();
-        ASSERT(!diminuto_buffer_nomalloc(!0));
+        //ASSERT(!diminuto_buffer_nomalloc(!0));
         /**/
         ASSERT((cfp = assay_config_import_file(assay_config_create(), PATH2)) != (assay_config_t *)0);
         EXPECT(assay_config_errors(cfp) == 0);
@@ -490,7 +490,7 @@ int main(int argc, char ** argv)
         diminuto_buffer_log();
         assay_config_destroy(cfp);
         /**/
-        ASSERT(diminuto_buffer_nomalloc(0));
+        //ASSERT(diminuto_buffer_nomalloc(0));
         diminuto_buffer_log();
         diminuto_buffer_fini();
         diminuto_heap_malloc_set((diminuto_heap_malloc_func_t *)0);
@@ -521,7 +521,7 @@ int main(int argc, char ** argv)
         ASSERT(diminuto_heap_malloc_set(diminuto_buffer_malloc) == malloc);
         ASSERT(diminuto_heap_free_set(diminuto_buffer_free) == free);
         ASSERT(diminuto_string_strdup_set(diminuto_buffer_strdup) == strdup);
-        ASSERT(!diminuto_buffer_nomalloc(!0));
+        //ASSERT(!diminuto_buffer_nomalloc(!0));
         diminuto_buffer_log();
         /**/
         ASSERT((cfp = assay_config_import_file(assay_config_create(), PATH2)) != (assay_config_t *)0);
@@ -556,7 +556,7 @@ int main(int argc, char ** argv)
         diminuto_buffer_log();
         assay_config_destroy(cfp);
         /**/
-        ASSERT(diminuto_buffer_nomalloc(0));
+        //ASSERT(diminuto_buffer_nomalloc(0));
         diminuto_buffer_log();
         diminuto_buffer_fini();
         diminuto_heap_malloc_set((diminuto_heap_malloc_func_t *)0);
