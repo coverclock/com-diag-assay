@@ -6,7 +6,7 @@
  * @file
  *
  * Copyright 2015-2020 Digital Aggregates Corporation, Colorado, USA
- * Licensed under the terms in README.h
+ * Licensed under the terms in LICENSE.txt.
  *
  * The Assay Scanner Annex feature is part of the private API.
  */

@@ -5,8 +5,8 @@
 /**
  * @file
  *
- * Copyright 2015-2020 Digital Aggregates Corporation, Colorado, USA
- * Licensed under the terms in README.h
+ * Copyright 2015-2020 Digital Aggregates Corporation, Colorado, USA.
+ * Licensed under the terms in LICENSE.txt.
  *
  * The Assay Parser Annex feature is part of the private API.
  */

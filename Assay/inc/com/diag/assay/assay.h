@@ -5,8 +5,8 @@
 /**
  * @file
  *
- * Copyright 2015-2016 Digital Aggregates Corporation, Colorado, USA
- * Licensed under the terms in README.h
+ * Copyright 2015-2016 Digital Aggregates Corporation, Colorado, USA.
+ * Licensed under the terms in LICENSE.txt.
  *
  * The Array package provides functions to parse a configuration file
  * in yet one more variation on the widely used and under specified INI

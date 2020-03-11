@@ -5,10 +5,8 @@
 /**
  * @file
  *
- * Copyright 2015 Digital Aggregates Corporation, Colorado, USA<BR>
- * Licensed under the terms in README.h<BR>
- * Chip Overclock <coverclock@diag.com><BR>
- * http://www.diag.com/navigation/downloads/Assay.html<BR>
+ * Copyright 2015 Digital Aggregates Corporation, Colorado, USA.
+ * Licensed under the terms in LICENSE.txt.
  *
  * This describes the Assay private API.
  */
