@@ -19,8 +19,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "com/diag/assay/assay.h"
-#include "com/diag/assay/assay_scanner_annex.h"
-#include "com/diag/assay/assay_parser_annex.h"
+#include "assay_scanner_annex.h"
+#include "assay_parser_annex.h"
 #include "com/diag/diminuto/diminuto_unittest.h"
 #include "com/diag/diminuto/diminuto_log.h"
 #include "com/diag/diminuto/diminuto_dump.h"

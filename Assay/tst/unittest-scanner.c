@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "com/diag/assay/assay.h"
-#include "com/diag/assay/assay_scanner_annex.h"
+#include "assay_scanner_annex.h"
 #include "com/diag/diminuto/diminuto_unittest.h"
 #include "com/diag/diminuto/diminuto_log.h"
 

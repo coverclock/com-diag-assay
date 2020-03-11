@@ -18,7 +18,7 @@
 #include "assay_parser.h"
 #include "assay_fixup.h"
 #include "assay_scanner.h"
-#include "com/diag/assay/assay_parser_annex.h"
+#include "assay_parser_annex.h"
 #include "com/diag/diminuto/diminuto_dump.h"
 #include "com/diag/diminuto/diminuto_log.h"
 #include "com/diag/diminuto/diminuto_escape.h"

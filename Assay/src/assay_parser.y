@@ -11,7 +11,7 @@
  * N.B. May not compile under Bison versions prior to 3.0.2!
  */
 
-#include "com/diag/assay/assay_parser_annex.h"
+#include "assay_parser_annex.h"
 
 %}
 

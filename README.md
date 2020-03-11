@@ -134,6 +134,15 @@ simple (but the grammar is the definitive source).
     space. When the shell command exits, parsing of the stream containing the
     exec statement resumes.
 
+# Articles
+
+Chip Overclock, "Configuration Files Are Just Another Form Of Message Passing",
+2015-03,
+<https://coverclock.blogspot.com/2015/03/configuration-files-are-just-another.html>
+
+Chip Overclock, "When Learning By Doing Goes To Eleven", 2020-03,
+<https://coverclock.blogspot.com/2020/03/when-learning-by-doing-goes-to-eleven.html>
+
 # Soundtrack
 
 <https://www.youtube.com/playlist?list=PLd7Yo1333iA-YIyldvOB56QS-HZed_4g1>

@@ -5,16 +5,13 @@
 /**
  * @file
  *
- * Copyright 2015-2020 Digital Aggregates Corporation, Colorado, USA<BR>
- * Licensed under the terms in README.h<BR>
- * Chip Overclock <coverclock@diag.com><BR>
- * http://www.diag.com/navigation/downloads/Assay.html<BR>
+ * Copyright 2015-2020 Digital Aggregates Corporation, Colorado, USA
+ * Licensed under the terms in README.h
  *
- * This isn't intended to be part of the public interface, but is exposed
- * to facilitate unit testing.
+ * The Assay Parser Annex feature is part of the private API.
  */
 
-#include "com/diag/assay/assay_scanner_annex.h"
+#include "assay_scanner_annex.h"
 
 /*******************************************************************************
  * GENERATED

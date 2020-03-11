@@ -5,13 +5,10 @@
 /**
  * @file
  *
- * Copyright 2015-2016 Digital Aggregates Corporation, Colorado, USA<BR>
- * Licensed under the terms in README.h<BR>
- * Chip Overclock <coverclock@diag.com><BR>
- * http://www.diag.com/navigation/downloads/Assay.html<BR>
+ * Copyright 2015-2016 Digital Aggregates Corporation, Colorado, USA
+ * Licensed under the terms in README.h
  *
- * This file is part of the Digital Aggregates Corporation Assay package.
- * Assay is a C library that provides functions to parse a configuration file
+ * The Array package provides functions to parse a configuration file
  * in yet one more variation on the widely used and under specified INI
  * format. The syntax of this particular format is specified by an LALR(1)
  * grammar. Portions of the C code, specifically its lexical scanner and
