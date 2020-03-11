@@ -1,5 +1,5 @@
 # Copyright 2008-2015 Digital Aggregates Corporation
-# Licensed under the terms in README.hz
+# Licensed under the terms in LICENSE.txtz
 # author:Chip Overclock
 # mailto:coverclock@diag.com
 # http://www.diag.com/navigation/downloads/Diminuto.html

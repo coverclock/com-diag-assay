@@ -1,6 +1,6 @@
 #!/bin/bash
 # Copyright 2016 Digital Aggregates Corporation, Colorado, USA
-# Licensed under the terms in README.h
+# Licensed under the terms in LICENSE.txt
 # Chip Overclock <coverclock@diag.com>
 # http://www.diag.com/navigation/downloads/Assay.html
 if [ $# -eq 0 ]; then
