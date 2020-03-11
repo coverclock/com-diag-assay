@@ -133,8 +133,6 @@ LDFLAGS				:=	$(LDARCH) -l$(PROJECT) $(LDLIBRARIES) $(DIMINUTO_LDFLAGS)
 MOFLAGS				:=	$(MOARCH) -l$(PROJECT) $(LDLIBRARIES)
 SOFLAGS				:=	$(SOARCH) $(LDLIBRARIES)
 
-BROWSER				:=	firefox
-
 ########## Build Artifacts
 
 TARGETOBJECTS		:=	$(addprefix $(OUT)/$(OBC_DIR)/,$(addsuffix .o,$(basename $(wildcard $(SRC_DIR)/*.c))))
@@ -485,7 +483,14 @@ isystems:
 
 ########## Documentation
 
-.PHONY:	documentation browse refman manpages
+# sudo apt-get install doxygen
+# sudo apt-get install ghostscript
+# sudo apt-get install latex
+# sudo apt-get install texlive
+# sudo apt-get install tabu
+# sudo apt-get install texlive-latex-extra
+
+.PHONY:	documentation manuals readme
 
 DOCCOOKED := $(shell echo $(OUT)/$(DOC_DIR) | sed 's/\//\\\//g')
 
@@ -497,21 +502,17 @@ documentation $(OUT)/$(DOC_DIR)/latex $(OUT)/$(DOC_DIR)/man $(OUT)/$(DOC_DIR)/pd
 		cat > $(OUT)/$(DOC_DIR)/doxygen-local.cf
 	doxygen $(OUT)/$(DOC_DIR)/doxygen-local.cf
 
-# This appears to be broken in Doxygen 1.8.6. in Ubuntu 14.04. Used to work.
-documentation-ancillary:	$(OUT)/$(DOC_DIR)/latex $(OUT)/$(DOC_DIR)/man $(OUT)/$(DOC_DIR)/pdf
+manuals:	$(OUT)/$(DOC_DIR)/latex $(OUT)/$(DOC_DIR)/man $(OUT)/$(DOC_DIR)/pdf
 	$(MAKE) -C $(OUT)/$(DOC_DIR)/latex refman.pdf
 	cp $(OUT)/$(DOC_DIR)/latex/refman.pdf $(OUT)/$(DOC_DIR)/pdf
 	cat $(OUT)/$(DOC_DIR)/man/man3/*.3 | groff -man -Tps - > $(OUT)/$(DOC_DIR)/pdf/manpages.ps
 	ps2pdf $(OUT)/$(DOC_DIR)/pdf/manpages.ps $(OUT)/$(DOC_DIR)/pdf/manpages.pdf
 
-browse:
-	$(BROWSER) file:$(OUT)/$(DOC_DIR)/html/index.html
+$(OUT)/$(DOC_DIR)/html/README.html:	../README.md
+	mkdir -p $(OUT)/$(DOC_DIR)/html
+	grip ../README.md --export $(OUT)/$(DOC_DIR)/html/README.html
 
-refman:
-	$(BROWSER) file:$(OUT)/$(DOC_DIR)/pdf/refman.pdf
-
-manpages:
-	$(BROWSER) file:$(OUT)/$(DOC_DIR)/pdf/manpages.pdf
+readme:	$(OUT)/$(DOC_DIR)/html/README.html
 
 ########## Diffs and Patches
 
