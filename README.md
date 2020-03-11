@@ -62,6 +62,36 @@ This software is an original work of its author(s).
     sudo apt-get install bison
     sudo apt-get install flex
 
+# Build
+
+    sudo apt-get install bison
+    sudo apt-get install flex
+
+    cd ~
+    mkdir -p src
+    cd src
+    git clone https://github.com/coverclock/com-diag-diminuto
+    cd com-diag-diminuto/Diminuto
+    make pristine
+    make depend
+    make all
+
+    cd ~
+    mkdir -p src
+    cd src
+    git clone https://github.com/coverclock/com-diag-assay
+    cd com-diag-assay/Assay
+    ${EDITOR} cfg/host.mk
+    make pristine
+    make depend
+    make all
+
+# Unit Tests
+
+Preceed with . out/host/bin/setup to setup PATH etc.
+
+* make sanity - These tests will run in just a minute or so.
+
 # Remarks
 
 Here is an example of what an INI file might look like.
