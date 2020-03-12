@@ -580,6 +580,8 @@ depend:	$(TARGETSYNTHESIZED)
 
 ########## Unit Test
 
+.PHONY: sanity
+
 sanity:
 	R="PASSED."; \
 	mkdir -p $(OUT)/log; \
