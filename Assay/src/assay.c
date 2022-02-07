@@ -2,7 +2,7 @@
 /**
  * @file
  *
- * Copyright 2015-2016 Digital Aggregates Corporation, Colorado, USA<BR>
+ * Copyright 2015-2022 Digital Aggregates Corporation, Colorado, USA<BR>
  * Licensed under the terms in LICENSE.txt<BR>
  * Chip Overclock (coverclock@diag.com)<BR>
  * http://www.diag.com/navigation/downloads/Assay.html<BR>
@@ -131,9 +131,9 @@ int assay_config_errors(assay_config_t * cfp)
  * SECTION PRIMITIVES
  ******************************************************************************/
 
-static int section_compare(diminuto_tree_t * thisp, diminuto_tree_t * thatp)
+static int section_compare(const diminuto_tree_t * thisp, const diminuto_tree_t * thatp)
 {
-    return strcmp(diminuto_containerof(assay_section_t, tree, thisp)->name, diminuto_containerof(assay_section_t, tree, thatp)->name);
+    return strcmp(diminuto_containerof(const assay_section_t, tree, thisp)->name, diminuto_containerof(const assay_section_t, tree, thatp)->name);
 }
 
 static assay_section_t * section_find_close(assay_config_t * cfp, const char * name, int * rcp)
@@ -273,9 +273,9 @@ const char * assay_section_name_get(assay_section_t * scp)
  * PROPERTY PRIMITIVES
  ******************************************************************************/
 
-static int property_compare(diminuto_tree_t * thisp, diminuto_tree_t * thatp)
+static int property_compare(const diminuto_tree_t * thisp, const diminuto_tree_t * thatp)
 {
-    return strcmp(diminuto_containerof(assay_property_t, tree, thisp)->key, diminuto_containerof(assay_property_t, tree, thatp)->key);
+    return strcmp(diminuto_containerof(const assay_property_t, tree, thisp)->key, diminuto_containerof(const assay_property_t, tree, thatp)->key);
 }
 
 static assay_property_t * property_find_close(assay_section_t * scp, const char * key, int * rcp)
