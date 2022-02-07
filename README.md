@@ -1,8 +1,6 @@
 com-diag-assay
 ==============
 
-[![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/coverclock)
-
 Copyright 2015-2020 by the Digital Aggregates Corporation, Colorado, USA.
 
 # License
