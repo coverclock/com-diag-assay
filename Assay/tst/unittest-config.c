@@ -663,7 +663,6 @@ int main(int argc, char ** argv)
             ASSERT(write(CONSUMER_WRITE, &ackowledge, sizeof(ackowledge)) == sizeof(ackowledge));
             ASSERT(close(CONSUMER_WRITE) == 0);
             ASSERT(fclose(stream) == 0);
-            STATUS();
         } else if (debug == 2) {
             int debugs;
             int debugp;
@@ -686,7 +685,6 @@ int main(int argc, char ** argv)
             assay_config_destroy(cfp);
             assay_parser_debug(debugp);
             assay_scanner_debug(debugs);
-            STATUS();
         } else {
             assay_config_t * cfp;
             const char * value;
@@ -731,8 +729,8 @@ int main(int argc, char ** argv)
             ASSERT(close(CONSUMER_READ) == 0);
             ASSERT(close(CONSUMER_WRITE) == 0);
             DIMINUTO_LOG_DEBUG("unittest-config: consumer: reaped pid=%d rc=%d status=%d\n", pid, rc, status);
-            STATUS();
         }
+        STATUS();
     }
 
     {
@@ -810,8 +808,8 @@ int main(int argc, char ** argv)
             ASSERT((rc = waitpid(pid, &status, 1)) >= 0); /* valgrind(1) affects the PID that is returned. */
             EXPECT(diminuto_ipc4_close(service) >= 0);
             DIMINUTO_LOG_DEBUG("unittest-config: consumer: reaped pid=%d rc=%d status=%d\n", pid, rc, status);
-            STATUS();
         }
+        STATUS();
     }
 
     {
@@ -901,8 +899,8 @@ int main(int argc, char ** argv)
             ASSERT((rc = waitpid(pid, &status, 1)) >= 0); /* valgrind(1) affects the PID that is returned. */
             EXPECT(diminuto_ipc4_close(service) >= 0);
             DIMINUTO_LOG_DEBUG("unittest-config: consumer: reaped pid=%d rc=%d status=%d\n", pid, rc, status);
-            STATUS();
         }
+        STATUS();
     }
 
     {
@@ -998,8 +996,8 @@ int main(int argc, char ** argv)
             ASSERT((rc = waitpid(pid, &status, 1)) >= 0); /* valgrind(1) affects the PID that is returned. */
             EXPECT(diminuto_ipc4_close(service) >= 0);
             DIMINUTO_LOG_DEBUG("unittest-config: consumer: reaped pid=%d rc=%d status=%d\n", pid, rc, status);
-            STATUS();
         }
+        STATUS();
     }
 
     {
@@ -1051,8 +1049,8 @@ int main(int argc, char ** argv)
             ASSERT((rc = waitpid(pid, &status, 1)) >= 0); /* valgrind(1) affects the PID that is returned. */
             EXPECT(diminuto_ipc4_close(service) >= 0);
             DIMINUTO_LOG_DEBUG("unittest-config: consumer: reaped pid=%d rc=%d status=%d\n", pid, rc, status);
-            STATUS();
         }
+        STATUS();
     }
 
     EXIT();

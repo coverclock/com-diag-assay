@@ -34,6 +34,7 @@ int main(void)
 
     {
         assay_config_t * cfp;
+        TEST();
         ASSERT((cfp = assay_config_create()) != (assay_config_t *)0);
         ASSERT(assay_config_audit(cfp) == (void *)0);
         assay_config_destroy(cfp);
@@ -43,6 +44,7 @@ int main(void)
     {
         assay_config_t * cfp;
         assay_section_t * scp;
+        TEST();
         ASSERT((cfp = assay_config_create()) != (assay_config_t *)0);
         ASSERT(assay_config_audit(cfp) == (void *)0);
         ASSERT(assay_section_search(cfp, ALFA) == (assay_section_t *)0);
@@ -67,6 +69,7 @@ int main(void)
         assay_section_t * scp[3];
         assay_property_t * prp;
         const char * value;
+        TEST();
         ASSERT((cfp = assay_config_create()) != (assay_config_t *)0);
         ASSERT(assay_config_audit(cfp) == (void *)0);
         ASSERT(assay_section_search(cfp, ALFA) == (assay_section_t *)0);
@@ -118,6 +121,7 @@ int main(void)
         assay_property_t * prp;
         size_t length;
         static const char VALUE[] = "1";
+        TEST();
         /**/
         ASSERT((cfp = assay_config_create()) != (assay_config_t *)0);
         ASSERT(assay_config_audit(cfp) == (void *)0);
@@ -171,6 +175,7 @@ int main(void)
 
     {
         assay_config_t * cfp;
+        TEST();
         {
             ASSERT((cfp = assay_config_create()) != (assay_config_t *)0);
         }
@@ -370,6 +375,7 @@ int main(void)
     {
         assay_config_t * cfp;
         const char * value;
+        TEST();
         ASSERT((cfp = assay_config_create()) != (assay_config_t *)0);
         ASSERT(assay_config_audit(cfp) == (void *)0);
         {
@@ -586,6 +592,7 @@ int main(void)
 
     {
         assay_config_t * cfp;
+        TEST();
         {
             ASSERT((cfp = assay_config_create()) != (assay_config_t *)0);
             ASSERT(assay_section_cached(cfp) == (assay_section_t *)0);
@@ -651,6 +658,7 @@ int main(void)
     }
 
     {
+        TEST();
         ASSERT(strcmp(ASSAY_CHARACTERS_SPECIAL, ASSAY_CHARACTERS_SPECIAL_STRING) == 0);
         ASSERT(strcmp(ASSAY_CHARACTERS_EXTRASPECIAL, ASSAY_CHARACTERS_EXTRASPECIAL_STRING) == 0);
         ASSERT(strcmp(ASSAY_SECTION_DEFAULT, ASSAY_SECTION_DEFAULT_STRING) == 0);
@@ -661,6 +669,7 @@ int main(void)
     {
         assay_config_t * cfp;
         char * value;
+        TEST();
         ASSERT((cfp = assay_config_create()) != (assay_config_t *)0);
         ASSERT(assay_config_audit(cfp) == (void *)0);
         ASSERT((value = assay_config_read_string(cfp, ALFA, ONE)) == (const char *)0);

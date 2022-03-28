@@ -26,6 +26,7 @@ int main(int argc, int ** argv)
         char buffer[sizeof("\\0377")];
         unsigned int in;
         unsigned int out;
+        TEST();
         /*
          * This is just to convince myself that I actually understand how C
          * encodes octal and hexadecimal escape sequences, since that's what
@@ -164,6 +165,7 @@ int main(int argc, int ** argv)
         assay_scanner_lvalue_t lval;
         int token;
         const char * name;
+        TEST();
         debug = assay_scanner_debug(!0);
         ASSERT((stream = tmpfile()) != (FILE *)0);
         ASSERT(fputs(ASSAY_END_OF_TRANSMISSION, stream) >= 0);
@@ -187,6 +189,7 @@ int main(int argc, int ** argv)
         assay_scanner_lvalue_t lval;
         int token;
         const char * name;
+        TEST();
         debug = assay_scanner_debug(!0);
         ASSERT((cfp = assay_config_create()) != (assay_config_t *)0);
         ASSERT((stream = fopen("etc/test1.ini", "r")) != (FILE *)0);

@@ -35,6 +35,7 @@ int main(int argc, int ** argv)
         static const char AFTER[] = "AFTER";
         static const char before[] = "before";
         static const char after[] = "after";
+        TEST();
         debug = assay_parser_debug(!0);
         ASSERT((stream = tmpfile()) != (FILE *)0);
         ASSERT(fprintf(stream, "%s=%s\n", BEFORE, before) >= 0);
@@ -62,6 +63,7 @@ int main(int argc, int ** argv)
         FILE * stream;
         assay_scanner_lexical_t lxp;
         int count = 0;
+        TEST();
         debug = assay_parser_debug(!0);
         ASSERT((cfp = assay_config_create()) != (assay_config_t *)0);
         ASSERT((stream = fopen("etc/test0.ini", "r")) != (FILE *)0);
@@ -85,6 +87,7 @@ int main(int argc, int ** argv)
         FILE * stream;
         assay_scanner_lexical_t lxp;
         int count = 0;
+        TEST();
         debug = assay_parser_debug(!0);
         ASSERT((cfp = assay_config_create()) != (assay_config_t *)0);
         ASSERT((stream = fopen("etc/test1.ini", "r")) != (FILE *)0);
