@@ -36,7 +36,7 @@ int assay_scanner_debug(int enable)
 
 static int scanner_stream_isinteractive(FILE * stream)
 {
-    diminuto_fs_type_t type;
+    diminuto_fd_type_t type;
     int interactive;
 
     /*

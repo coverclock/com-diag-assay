@@ -2,7 +2,7 @@
 /**
  * @file
  *
- * Copyright 2015-2022 Digital Aggregates Corporation, Colorado, USA<BR>
+ * Copyright 2015-2023 Digital Aggregates Corporation, Colorado, USA<BR>
  * Licensed under the terms in LICENSE.txt<BR>
  * Chip Overclock (coverclock@diag.com)<BR>
  * http://www.diag.com/navigation/downloads/Assay.html<BR>
@@ -690,7 +690,7 @@ assay_config_t * assay_config_import_command(assay_config_t * cfp, const char * 
 
 static int config_export_stream_isinteractive(FILE * stream)
 {
-    diminuto_fs_type_t type;
+    diminuto_fd_type_t type;
     int interactive;
 
     /*

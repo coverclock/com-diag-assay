@@ -20,12 +20,12 @@ TARGET				:=	host# Build for the x86_64 running Ubuntu 14.04 LTS.
 
 MAJOR				:=	2# API changes that may require that applications be modified.
 MINOR				:=	0# Only functionality or features added with no legacy API changes.
-BUILD				:=	3# Only bugs fixed with no API changes or new functionality.
+BUILD				:=	4# Only bugs fixed with no API changes or new functionality.
 
 VINTAGE				:=	$(shell date -u +%Y-%m-%dT%H:%M:%S.%N%z)
 
 # This stuff all gets embedded in the vintage application.
-COPYRIGHT			:=	2015-2020 Digital Aggregates Corporation
+COPYRIGHT			:=	2015-2023 Digital Aggregates Corporation
 LICENSE				:=	GNU Lesser General Public License 2.1
 CONTACT				:=	coverclock@diag.com
 HOMEPAGE			:=	http://www.diag.com/navigation/downloads/$(TITLE).html
@@ -161,7 +161,7 @@ TARGETALL			:=	$(TARGETMOST)
 
 ########## Main Entry Points
 
-.PHONY:	default all dist clean pristine clobber
+.PHONY:	default all dist clean pristine clobber scratch
 
 default:	$(TARGETDEFAULT)
 
@@ -177,6 +177,10 @@ clean:
 
 pristine clobber:	clean
 	rm -rf $(OUT_DIR)
+
+scratch:
+	make pristine
+	make all
 
 ########## Lovingly Hand Crafted Targets With Dependencies Generated At Build
 
