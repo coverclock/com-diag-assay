@@ -180,6 +180,7 @@ pristine clobber:	clean
 
 scratch:
 	make pristine
+	make depend
 	make all
 
 ########## Lovingly Hand Crafted Targets With Dependencies Generated At Build
